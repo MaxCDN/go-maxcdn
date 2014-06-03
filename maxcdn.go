@@ -1,3 +1,6 @@
+// Package maxcdn is the golang bindings for MaxCDN's REST API.
+//
+// At this time it should be considered very alpha.
 package maxcdn
 
 import (
@@ -12,13 +15,13 @@ import (
 	"github.com/garyburd/go-oauth/oauth"
 )
 
-const ApiPath = "https://rws.netdna.com"
-const UserAgent = "Go MaxCDN API Client"
-const ContentType = "application/x-www-form-urlencoded"
+const (
+	ApiPath     = "https://rws.netdna.com"
+	UserAgent   = "Go MaxCDN API Client"
+	ContentType = "application/x-www-form-urlencoded"
+)
 
-//var token  = "a0abf1a8abc6ce80163f25c49290b1c905273dd56"
-//var secret = "4c3889f5b46dd3c23af98a2cf08b741a"
-
+// Response is the core data type for JSON responses from API calls.
 type Response struct {
 	Code  float64                `json:"code"`
 	Data  map[string]interface{} `json:"data"`
@@ -28,7 +31,7 @@ type Response struct {
 	} `json:"error"`
 }
 
-// MaxCDN is the core data struct.
+// MaxCDN is the core struct for interacting with MaxCDN.
 //
 // HttpClient can be overridden as needed, but will be set to
 // http.DefaultClient by default.
@@ -38,6 +41,7 @@ type MaxCDN struct {
 	HttpClient *http.Client
 }
 
+// NewMaxCDN sets up a new MaxCDN instance.
 func NewMaxCDN(alias, token, secret string) *MaxCDN {
 	return &MaxCDN{
 		HttpClient: http.DefaultClient,
@@ -51,11 +55,6 @@ func NewMaxCDN(alias, token, secret string) *MaxCDN {
 			TokenRequestURI:               ApiPath + "oauth/access_token",
 		},
 	}
-}
-
-func (max *MaxCDN) url(endpoint string) string {
-	endpoint = strings.TrimPrefix(endpoint, "/")
-	return fmt.Sprintf("%s/%s/%s", ApiPath, max.Alias, endpoint)
 }
 
 func (max *MaxCDN) Get(endpoint string, form url.Values) (*Response, error) {
@@ -72,6 +71,11 @@ func (max *MaxCDN) Put(endpoint string, form url.Values) (*Response, error) {
 
 func (max *MaxCDN) Delete(endpoint string) (*Response, error) {
 	return max.do("DELETE", endpoint, nil)
+}
+
+func (max *MaxCDN) url(endpoint string) string {
+	endpoint = strings.TrimPrefix(endpoint, "/")
+	return fmt.Sprintf("%s/%s/%s", ApiPath, max.Alias, endpoint)
 }
 
 func (max *MaxCDN) do(method, endpoint string, form url.Values) (response *Response, err error) {

@@ -9,6 +9,9 @@ MaxCDN Golang API.
 ```go
 import "github.com/jmervine/go-maxcdn"
 ```
+Package maxcdn is the golang bindings for MaxCDN's REST API.
+
+At this time it should be considered very alpha.
 
 ##### Example:
 	// This, like all examples are meant to be functional integration tests
@@ -46,17 +49,11 @@ import "github.com/jmervine/go-maxcdn"
 ### Constants
 
 ```go
-const ApiPath = "https://rws.netdna.com"
-```
-
-
-```go
-const ContentType = "application/x-www-form-urlencoded"
-```
-
-
-```go
-const UserAgent = "Go MaxCDN API Client"
+const (
+    ApiPath     = "https://rws.netdna.com"
+    UserAgent   = "Go MaxCDN API Client"
+    ContentType = "application/x-www-form-urlencoded"
+)
 ```
 
 
@@ -81,6 +78,7 @@ type MaxCDN struct {
 ```go
 func NewMaxCDN(alias, token, secret string) *MaxCDN
 ```
+> NewMaxCDN sets up a new MaxCDN instance.
 
 ##### Example:
 	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
