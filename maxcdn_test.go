@@ -29,28 +29,40 @@ func Test(T *testing.T) {
 	Go(T).AssertEqual(max.client.Credentials.Secret, "secret")
 }
 
+func TestMaxCDN_ErrorResponse(T *testing.T) {
+	max := NewMaxCDN("alias", "token", "secret")
+
+	var recorder http.Response
+	max.HTTPClient = stubHTTPErrRecorded(&recorder)
+
+	payload, err := max.Get("/account.json", nil)
+	Go(T).RefuteNil(err)
+	Go(T).RefuteNil(payload)
+	Go(T).AssertEqual(err, fmt.Errorf("Test Error: Test Error Message"))
+}
+
 func TestMaxCDN_Get(T *testing.T) {
 	max := NewMaxCDN("alias", "token", "secret")
 
-	var record http.Response
-	max.HTTPClient = stubHTTPOkRecorded(&record)
+	var recorder http.Response
+	max.HTTPClient = stubHTTPOkRecorded(&recorder)
 
 	payload, err := max.Get("/account.json", nil)
 	Go(T).AssertNil(err)
 	Go(T).RefuteNil(payload)
 
-	Go(T).AssertEqual(record.Request.Method, "GET")
-	Go(T).AssertEqual(record.Request.URL.Path, "/alias/account.json")
-	Go(T).AssertEqual(record.Request.URL.Query().Encode(), "")
-	Go(T).AssertEqual(record.Request.Header.Get("Content-Type"), contentType)
-	Go(T).RefuteEqual(record.Request.Header.Get("Authorization"), "")
+	Go(T).AssertEqual(recorder.Request.Method, "GET")
+	Go(T).AssertEqual(recorder.Request.URL.Path, "/alias/account.json")
+	Go(T).AssertEqual(recorder.Request.URL.Query().Encode(), "")
+	Go(T).AssertEqual(recorder.Request.Header.Get("Content-Type"), contentType)
+	Go(T).RefuteEqual(recorder.Request.Header.Get("Authorization"), "")
 }
 
 func TestMaxCDN_Put(T *testing.T) {
 	max := NewMaxCDN("alias", "token", "secret")
 
-	var record http.Response
-	max.HTTPClient = stubHTTPOkRecorded(&record)
+	var recorder http.Response
+	max.HTTPClient = stubHTTPOkRecorded(&recorder)
 
 	form := url.Values{}
 	form.Add("name", "foo")
@@ -59,14 +71,14 @@ func TestMaxCDN_Put(T *testing.T) {
 	Go(T).AssertNil(err)
 	Go(T).RefuteNil(payload)
 
-	Go(T).AssertEqual(record.Request.Method, "PUT")
-	Go(T).AssertEqual(record.Request.URL.Path, "/alias/account.json")
-	Go(T).AssertEqual(record.Request.URL.Query().Encode(), "")
-	Go(T).AssertEqual(record.Request.Header.Get("Content-Type"), contentType)
-	Go(T).RefuteEqual(record.Request.Header.Get("Authorization"), "")
+	Go(T).AssertEqual(recorder.Request.Method, "PUT")
+	Go(T).AssertEqual(recorder.Request.URL.Path, "/alias/account.json")
+	Go(T).AssertEqual(recorder.Request.URL.Query().Encode(), "")
+	Go(T).AssertEqual(recorder.Request.Header.Get("Content-Type"), contentType)
+	Go(T).RefuteEqual(recorder.Request.Header.Get("Authorization"), "")
 
 	// check body
-	body, err := ioutil.ReadAll(record.Request.Body)
+	body, err := ioutil.ReadAll(recorder.Request.Body)
 	Go(T).AssertNil(err)
 	Go(T).AssertEqual(string(body), "name=foo")
 }
@@ -74,8 +86,8 @@ func TestMaxCDN_Put(T *testing.T) {
 func TestMaxCDN_Post(T *testing.T) {
 	max := NewMaxCDN("alias", "token", "secret")
 
-	var record http.Response
-	max.HTTPClient = stubHTTPOkRecorded(&record)
+	var recorder http.Response
+	max.HTTPClient = stubHTTPOkRecorded(&recorder)
 
 	form := url.Values{}
 	form.Add("name", "foo")
@@ -84,14 +96,14 @@ func TestMaxCDN_Post(T *testing.T) {
 	Go(T).AssertNil(err)
 	Go(T).RefuteNil(payload)
 
-	Go(T).AssertEqual(record.Request.Method, "POST")
-	Go(T).AssertEqual(record.Request.URL.Path, "/alias/zones/pull.json")
-	Go(T).AssertEqual(record.Request.URL.Query().Encode(), "")
-	Go(T).AssertEqual(record.Request.Header.Get("Content-Type"), contentType)
-	Go(T).RefuteEqual(record.Request.Header.Get("Authorization"), "")
+	Go(T).AssertEqual(recorder.Request.Method, "POST")
+	Go(T).AssertEqual(recorder.Request.URL.Path, "/alias/zones/pull.json")
+	Go(T).AssertEqual(recorder.Request.URL.Query().Encode(), "")
+	Go(T).AssertEqual(recorder.Request.Header.Get("Content-Type"), contentType)
+	Go(T).RefuteEqual(recorder.Request.Header.Get("Authorization"), "")
 
 	// check body
-	body, err := ioutil.ReadAll(record.Request.Body)
+	body, err := ioutil.ReadAll(recorder.Request.Body)
 	Go(T).AssertNil(err)
 	Go(T).AssertEqual(string(body), "name=foo")
 }
@@ -99,35 +111,35 @@ func TestMaxCDN_Post(T *testing.T) {
 func TestMaxCDN_Delete(T *testing.T) {
 	max := NewMaxCDN("alias", "token", "secret")
 
-	var record http.Response
-	max.HTTPClient = stubHTTPOkRecorded(&record)
+	var recorder http.Response
+	max.HTTPClient = stubHTTPOkRecorded(&recorder)
 
 	payload, err := max.Delete("/zones/pull.json/123456")
 	Go(T).AssertNil(err)
 	Go(T).RefuteNil(payload)
 
-	Go(T).AssertEqual(record.Request.Method, "DELETE")
-	Go(T).AssertEqual(record.Request.URL.Path, "/alias/zones/pull.json/123456")
-	Go(T).AssertEqual(record.Request.URL.Query().Encode(), "")
-	Go(T).AssertEqual(record.Request.Header.Get("Content-Type"), contentType)
-	Go(T).RefuteEqual(record.Request.Header.Get("Authorization"), "")
+	Go(T).AssertEqual(recorder.Request.Method, "DELETE")
+	Go(T).AssertEqual(recorder.Request.URL.Path, "/alias/zones/pull.json/123456")
+	Go(T).AssertEqual(recorder.Request.URL.Query().Encode(), "")
+	Go(T).AssertEqual(recorder.Request.Header.Get("Content-Type"), contentType)
+	Go(T).RefuteEqual(recorder.Request.Header.Get("Authorization"), "")
 }
 
 func TestMaxCDN_PurgeZone(T *testing.T) {
 	max := NewMaxCDN("alias", "token", "secret")
 
-	var record http.Response
-	max.HTTPClient = stubHTTPOkRecorded(&record)
+	var recorder http.Response
+	max.HTTPClient = stubHTTPOkRecorded(&recorder)
 
 	payload, err := max.PurgeZone(123456)
 	Go(T).AssertNil(err)
 	Go(T).RefuteNil(payload)
 
-	Go(T).AssertEqual(record.Request.Method, "DELETE")
-	Go(T).AssertEqual(record.Request.URL.Path, "/alias/zones/pull.json/123456/cache")
-	Go(T).AssertEqual(record.Request.URL.Query().Encode(), "")
-	Go(T).AssertEqual(record.Request.Header.Get("Content-Type"), contentType)
-	Go(T).RefuteEqual(record.Request.Header.Get("Authorization"), "")
+	Go(T).AssertEqual(recorder.Request.Method, "DELETE")
+	Go(T).AssertEqual(recorder.Request.URL.Path, "/alias/zones/pull.json/123456/cache")
+	Go(T).AssertEqual(recorder.Request.URL.Query().Encode(), "")
+	Go(T).AssertEqual(recorder.Request.Header.Get("Content-Type"), contentType)
+	Go(T).RefuteEqual(recorder.Request.Header.Get("Authorization"), "")
 }
 
 // Overly elaborte examples go...
@@ -435,6 +447,7 @@ func (crt *stubRoundTripper) RoundTrip(r *http.Request) (*http.Response, error) 
 	if err != nil {
 		panic(err)
 	}
+
 	crt.ResponseRecord.Body = ioutil.NopCloser(bytes.NewBuffer(read))
 	crt.ResponseRecord.StatusCode = code
 	crt.ResponseRecord.Request = r
@@ -442,10 +455,10 @@ func (crt *stubRoundTripper) RoundTrip(r *http.Request) (*http.Response, error) 
 	return crt.ResponseRecord, nil
 }
 
-func stubHTTPOkRecorded(record *http.Response) *http.Client {
+func stubHTTPOkRecorded(recorder *http.Response) *http.Client {
 	return &http.Client{
 		Transport: &stubRoundTripper{
-			ResponseRecord: record,
+			ResponseRecord: recorder,
 		},
 	}
 }
@@ -454,6 +467,11 @@ func stubHTTPOk() *http.Client {
 	return stubHTTPOkRecorded(new(http.Response))
 }
 
-func stubHTTPErr() *http.Client {
-	return &http.Client{Transport: &stubRoundTripper{Error: true}}
+func stubHTTPErrRecorded(recorder *http.Response) *http.Client {
+	return &http.Client{
+		Transport: &stubRoundTripper{
+			ResponseRecord: recorder,
+			Error:          true,
+		},
+	}
 }

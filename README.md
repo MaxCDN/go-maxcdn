@@ -21,25 +21,33 @@ At this time it should be considered very alpha.
 	    panic(err)
 	}
 	
-	if payload.Error.Message != "" {
-	    panic(errors.New(fmt.Sprintf("%s %s", payload.Error.Type, payload.Error.Message)))
-	}
-	
 	fmt.Printf("%#v\n", payload.Data)
 
 ### Constants
 
 ```go
-const (
-    ApiPath     = "https://rws.netdna.com"
-    UserAgent   = "Go MaxCDN API Client"
-    ContentType = "application/x-www-form-urlencoded"
-)
+const APIHost = "https://rws.netdna.com"
 ```
 
+> APIHost is the hostname, including protocol, to MaxCDN's API.
 
 
 ### Types
+
+#### GenericResponse
+
+```go
+type GenericResponse struct {
+    Code  float64                `json:"code"`
+    Data  map[string]interface{} `json:"data"`
+    Error struct {
+        Message string `json:"message"`
+        Type    string `json:"type"`
+    } `json:"error"`
+}
+```
+
+
 
 #### MaxCDN
 
@@ -47,7 +55,7 @@ const (
 type MaxCDN struct {
     Alias string
 
-    HttpClient *http.Client
+    HTTPClient *http.Client
     // contains filtered or unexported fields
 }
 ```
@@ -68,8 +76,9 @@ func NewMaxCDN(alias, token, secret string) *MaxCDN
 #### Delete
 
 ```go
-func (max *MaxCDN) Delete(endpoint string) (*Response, error)
+func (max *MaxCDN) Delete(endpoint string) (*GenericResponse, error)
 ```
+> Delete does an OAuth signed http.Delete
 
 
 
@@ -84,10 +93,6 @@ func (max *MaxCDN) Delete(endpoint string) (*Response, error)
 	    panic(err)
 	}
 	
-	if payload.Error.Message != "" {
-	    panic(errors.New(fmt.Sprintf("%s %s", payload.Error.Type, payload.Error.Message)))
-	}
-	
 	if payload.Code == 200 {
 	    fmt.Println("Purge succeeded")
 	}
@@ -96,8 +101,9 @@ func (max *MaxCDN) Delete(endpoint string) (*Response, error)
 #### Get
 
 ```go
-func (max *MaxCDN) Get(endpoint string, form url.Values) (*Response, error)
+func (max *MaxCDN) Get(endpoint string, form url.Values) (*GenericResponse, error)
 ```
+> Get does an OAuth signed http.Get
 
 
 
@@ -109,18 +115,15 @@ func (max *MaxCDN) Get(endpoint string, form url.Values) (*Response, error)
 	    panic(err)
 	}
 	
-	if payload.Error.Message != "" {
-	    panic(errors.New(fmt.Sprintf("%s %s", payload.Error.Type, payload.Error.Message)))
-	}
-	
 	fmt.Printf("%#v\n", payload.Data)
 
 
 #### Post
 
 ```go
-func (max *MaxCDN) Post(endpoint string, form url.Values) (*Response, error)
+func (max *MaxCDN) Post(endpoint string, form url.Values) (*GenericResponse, error)
 ```
+> Post does an OAuth signed http.Post
 
 
 
@@ -138,21 +141,63 @@ func (max *MaxCDN) Post(endpoint string, form url.Values) (*Response, error)
 	    panic(err)
 	}
 	
-	if payload.Error.Message != "" {
-	    panic(errors.New(fmt.Sprintf("%s %s", payload.Error.Type, payload.Error.Message)))
-	}
-	
 	data := payload.Data["pullzone"].(map[string]interface{})
 	if data["name"] == "newzone" {
 	    fmt.Println("Successfully created new Pull Zone.")
 	}
 
 
+#### PurgeZone
+
+```go
+func (max *MaxCDN) PurgeZone(zone int) (*GenericResponse, error)
+```
+> PurgeZone purges a specified zones cache.
+
+
+
+##### Example:
+	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
+	
+	payload, err := max.PurgeZone(123456)
+	if err != nil {
+	    panic(err)
+	}
+	
+	if payload.Code == 200 {
+	    fmt.Println("Purge succeeded")
+	}
+
+
+#### PurgeZones
+
+```go
+func (max *MaxCDN) PurgeZones(zones []int) (responses []GenericResponse, last error)
+```
+> PurgeZones purges a multiple zones caches.
+
+
+
+##### Example:
+	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
+	
+	zones := []int{123456, 234567, 345678}
+	payloads, err := max.PurgeZones(zones)
+	if err != nil {
+	    panic(err)
+	}
+	
+	if len(payloads) == len(zones) {
+	    fmt.Printf("Purges succeeded")
+	}
+
+
 #### Put
 
 ```go
-func (max *MaxCDN) Put(endpoint string, form url.Values) (*Response, error)
+func (max *MaxCDN) Put(endpoint string, form url.Values) (*GenericResponse, error)
 ```
+> Put does an OAuth signed http.Put
 
 
 
@@ -167,26 +212,7 @@ func (max *MaxCDN) Put(endpoint string, form url.Values) (*Response, error)
 	    panic(err)
 	}
 	
-	if payload.Error.Message != "" {
-	    panic(errors.New(fmt.Sprintf("%s %s", payload.Error.Type, payload.Error.Message)))
-	}
-	
 	fmt.Printf("%#v\n", payload.Data)
-
-
-#### Response
-
-```go
-type Response struct {
-    Code  float64                `json:"code"`
-    Data  map[string]interface{} `json:"data"`
-    Error struct {
-        Message string `json:"message"`
-        Type    string `json:"type"`
-    } `json:"error"`
-}
-```
-
 
 
 

@@ -15,9 +15,10 @@ import (
 	"github.com/garyburd/go-oauth/oauth"
 )
 
+// APIHost is the hostname, including protocol, to MaxCDN's API.
+const APIHost = "https://rws.netdna.com"
+
 const (
-	// APIHost is the hostname, including protocol, to MaxCDN's API.
-	APIHost     = "https://rws.netdna.com"
 	userAgent   = "Go MaxCDN API Client"
 	contentType = "application/x-www-form-urlencoded"
 )
@@ -166,7 +167,7 @@ func (max *MaxCDN) do(method, endpoint string, form url.Values) (response *Gener
 	rr := r.(GenericResponse)
 
 	if e == nil && (rr.Error.Message != "" || rr.Error.Type != "") {
-		e = errors.New(fmt.Sprintf("%s, %s", rr.Error.Type, rr.Error.Message))
+		e = fmt.Errorf("%s: %s", rr.Error.Type, rr.Error.Message)
 	}
 
 	return &rr, e
