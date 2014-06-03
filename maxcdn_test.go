@@ -122,11 +122,25 @@ func TestMaxCDN_Delete(T *testing.T) {
 // $ ALIAS=your_alias TOKEN=your_token SECRET=your_secret go test
 
 func Example() {
-	// This, like all examples are meant to be functional integration tests
-	// as well as examples for documentation. To run these as integration tests
-	// export your ALIAS, TOKEN and SECRET to your envioronment before running
-	// 'go test', otherwise the http request will be stubbed using the json files
-	// in './_fixtures/*.json'.
+	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
+
+	payload, err := max.Get("/account.json", nil)
+	if err != nil {
+		panic(err)
+	}
+
+	if payload.Error.Message != "" {
+		panic(errors.New(fmt.Sprintf("%s %s", payload.Error.Type, payload.Error.Message)))
+	}
+
+	fmt.Printf("%#v\n", payload.Data)
+}
+
+func Example_Functional() {
+	// This, like all examples are meant to be functional integration tests.
+	// To run these as integration tests export your ALIAS, TOKEN and SECRET
+	//to your envioronment before running 'go test', otherwise the http
+	// request will be stubbed using the json files in './_fixtures/*.json'.
 
 	handleErrors := func(r *Response, e error) {
 		if e != nil {
@@ -161,22 +175,43 @@ func ExampleNewMaxCDN() {
 }
 
 func ExampleMaxCDN_Get() {
-	max := NewMaxCDN(alias, token, secret)
+	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
+
 	payload, err := max.Get("/account.json", nil)
 	if err != nil {
 		panic(err)
 	}
 
-	data := payload.Data["account"].(map[string]interface{})
-	fmt.Println("%#v\n", data)
+	if payload.Error.Message != "" {
+		panic(errors.New(fmt.Sprintf("%s %s", payload.Error.Type, payload.Error.Message)))
+	}
+
+	fmt.Printf("%#v\n", payload.Data)
 }
 
 func ExampleMaxCDN_Put() {
-	// This, like all examples are meant to be functional integration tests
-	// as well as examples for documentation. To run these as integration tests
-	// export your ALIAS, TOKEN and SECRET to your envioronment before running
-	// 'go test', otherwise the http request will be stubbed using the json files
-	// in './_fixtures/*.json'.
+	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
+
+	form := url.Values{}
+	form.Set("name", "example_name")
+	payload, err := max.Put("/account.json", form)
+
+	if err != nil {
+		panic(err)
+	}
+
+	if payload.Error.Message != "" {
+		panic(errors.New(fmt.Sprintf("%s %s", payload.Error.Type, payload.Error.Message)))
+	}
+
+	fmt.Printf("%#v\n", payload.Data)
+}
+
+func Example_Functional_MaxCDN_Put() {
+	// This, like all examples are meant to be functional integration tests.
+	// To run these as integration tests export your ALIAS, TOKEN and SECRET
+	//to your envioronment before running 'go test', otherwise the http
+	// request will be stubbed using the json files in './_fixtures/*.json'.
 
 	// I'm using a timestamp as unique name for testing, you shouldn't
 	// do this.
@@ -206,14 +241,30 @@ func ExampleMaxCDN_Put() {
 }
 
 func ExampleMaxCDN_Delete() {
-	// This, like all examples are meant to be functional integration tests
-	// as well as examples for documentation. To run these as integration tests
-	// export your ALIAS, TOKEN and SECRET to your envioronment before running
-	// 'go test', otherwise the http request will be stubbed using the json files
-	// in './_fixtures/*.json'.
+	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
 
 	// This specific example shows how to purge a cache without using the Purge
 	// methods, more as an example of using Delete, then anything, really.
+
+	payload, err := max.Delete(fmt.Sprintf("/zones/pull.json/%d/cache", 123456))
+	if err != nil {
+		panic(err)
+	}
+
+	if payload.Error.Message != "" {
+		panic(errors.New(fmt.Sprintf("%s %s", payload.Error.Type, payload.Error.Message)))
+	}
+
+	if payload.Code == 200 {
+		fmt.Println("Purge succeeded")
+	}
+}
+
+func Example_Functional_MaxCDN_Delete() {
+	// This, like all examples are meant to be functional integration tests.
+	// To run these as integration tests export your ALIAS, TOKEN and SECRET
+	//to your envioronment before running 'go test', otherwise the http
+	// request will be stubbed using the json files in './_fixtures/*.json'.
 
 	handleErrors := func(r *Response, e error) {
 		if e != nil {
@@ -251,11 +302,35 @@ func ExampleMaxCDN_Delete() {
 }
 
 func ExampleMaxCDN_Post() {
-	// This, like all examples are meant to be functional integration tests
-	// as well as examples for documentation. To run these as integration tests
-	// export your ALIAS, TOKEN and SECRET to your envioronment before running
-	// 'go test', otherwise the http request will be stubbed using the json files
-	// in './_fixtures/*.json'.
+	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
+
+	form := url.Values{}
+	form.Set("name", "newzone")
+
+	// When creating a new zone, the url must be real and resolve.
+	form.Set("url", "http://www.example.com")
+
+	payload, err := max.Post("/zones/pull.json", form)
+	if err != nil {
+		panic(err)
+	}
+
+	if payload.Error.Message != "" {
+		panic(errors.New(fmt.Sprintf("%s %s", payload.Error.Type, payload.Error.Message)))
+	}
+
+	data := payload.Data["pullzone"].(map[string]interface{})
+	if data["name"] == "newzone" {
+		fmt.Println("Successfully created new Pull Zone.")
+	}
+
+}
+
+func Example_Functional_MaxCDN_Post() {
+	// This, like all examples are meant to be functional integration tests.
+	// To run these as integration tests export your ALIAS, TOKEN and SECRET
+	//to your envioronment before running 'go test', otherwise the http
+	// request will be stubbed using the json files in './_fixtures/*.json'.
 
 	handleErrors := func(r *Response, e error) {
 		if e != nil {
