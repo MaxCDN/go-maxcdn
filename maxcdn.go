@@ -1,6 +1,7 @@
 // Package maxcdn is the golang bindings for MaxCDN's REST API.
 //
-// At this time it should be considered very alpha.
+// This package should be considered beta. The final release will be moved to
+// `github.com/maxcdn/go-maxcdn`.
 package maxcdn
 
 import (
