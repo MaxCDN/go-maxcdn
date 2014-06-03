@@ -16,49 +16,54 @@ import (
 )
 
 const (
-	ApiPath     = "https://rws.netdna.com"
-	UserAgent   = "Go MaxCDN API Client"
-	ContentType = "application/x-www-form-urlencoded"
+	// APIHost is the hostname, including protocol, to MaxCDN's API.
+	APIHost     = "https://rws.netdna.com"
+	userAgent   = "Go MaxCDN API Client"
+	contentType = "application/x-www-form-urlencoded"
 )
 
 // MaxCDN is the core struct for interacting with MaxCDN.
 //
-// HttpClient can be overridden as needed, but will be set to
+// HTTPClient can be overridden as needed, but will be set to
 // http.DefaultClient by default.
 type MaxCDN struct {
 	Alias      string
 	client     oauth.Client
-	HttpClient *http.Client
+	HTTPClient *http.Client
 }
 
 // NewMaxCDN sets up a new MaxCDN instance.
 func NewMaxCDN(alias, token, secret string) *MaxCDN {
 	return &MaxCDN{
-		HttpClient: http.DefaultClient,
+		HTTPClient: http.DefaultClient,
 		Alias:      alias,
 		client: oauth.Client{
 			Credentials: oauth.Credentials{
 				Token:  token,
 				Secret: secret,
 			},
-			TemporaryCredentialRequestURI: ApiPath + "oauth/request_token",
-			TokenRequestURI:               ApiPath + "oauth/access_token",
+			TemporaryCredentialRequestURI: APIHost + "oauth/request_token",
+			TokenRequestURI:               APIHost + "oauth/access_token",
 		},
 	}
 }
 
+// Get does an OAuth signed http.Get
 func (max *MaxCDN) Get(endpoint string, form url.Values) (*GenericResponse, error) {
 	return max.do("GET", endpoint, form)
 }
 
+// Post does an OAuth signed http.Post
 func (max *MaxCDN) Post(endpoint string, form url.Values) (*GenericResponse, error) {
 	return max.do("POST", endpoint, form)
 }
 
+// Put does an OAuth signed http.Put
 func (max *MaxCDN) Put(endpoint string, form url.Values) (*GenericResponse, error) {
 	return max.do("PUT", endpoint, form)
 }
 
+// Delete does an OAuth signed http.Delete
 func (max *MaxCDN) Delete(endpoint string) (*GenericResponse, error) {
 	return max.do("DELETE", endpoint, nil)
 }
@@ -68,7 +73,7 @@ func (max *MaxCDN) PurgeZone(zone int) (*GenericResponse, error) {
 	return max.Delete(fmt.Sprintf("/zones/pull.json/%d/cache", zone))
 }
 
-// PurgeZone purges a multiple zones caches.
+// PurgeZones purges a multiple zones caches.
 func (max *MaxCDN) PurgeZones(zones []int) (responses []GenericResponse, last error) {
 	var rc chan *GenericResponse
 	var ec chan error
@@ -117,7 +122,7 @@ func (max *MaxCDN) PurgeZones(zones []int) (responses []GenericResponse, last er
 
 func (max *MaxCDN) url(endpoint string) string {
 	endpoint = strings.TrimPrefix(endpoint, "/")
-	return fmt.Sprintf("%s/%s/%s", ApiPath, max.Alias, endpoint)
+	return fmt.Sprintf("%s/%s/%s", APIHost, max.Alias, endpoint)
 }
 
 func (max *MaxCDN) do(method, endpoint string, form url.Values) (response *GenericResponse, err error) {
@@ -146,10 +151,10 @@ func (max *MaxCDN) do(method, endpoint string, form url.Values) (response *Gener
 	}
 
 	req.Header.Set("Authorization", max.client.AuthorizationHeader(nil, method, req.URL, form))
-	req.Header.Set("Content-Type", ContentType)
-	req.Header.Set("User-Agent", UserAgent)
+	req.Header.Set("Content-Type", contentType)
+	req.Header.Set("User-Agent", userAgent)
 
-	resp, err := max.HttpClient.Do(req)
+	resp, err := max.HTTPClient.Do(req)
 	defer resp.Body.Close()
 
 	if err != nil {
