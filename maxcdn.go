@@ -4,13 +4,13 @@
 package maxcdn
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
+	"sync"
 
 	"github.com/garyburd/go-oauth/oauth"
 )
@@ -20,16 +20,6 @@ const (
 	UserAgent   = "Go MaxCDN API Client"
 	ContentType = "application/x-www-form-urlencoded"
 )
-
-// Response is the core data type for JSON responses from API calls.
-type Response struct {
-	Code  float64                `json:"code"`
-	Data  map[string]interface{} `json:"data"`
-	Error struct {
-		Message string `json:"message"`
-		Type    string `json:"type"`
-	} `json:"error"`
-}
 
 // MaxCDN is the core struct for interacting with MaxCDN.
 //
@@ -57,28 +47,80 @@ func NewMaxCDN(alias, token, secret string) *MaxCDN {
 	}
 }
 
-func (max *MaxCDN) Get(endpoint string, form url.Values) (*Response, error) {
+func (max *MaxCDN) Get(endpoint string, form url.Values) (*GenericResponse, error) {
 	return max.do("GET", endpoint, form)
 }
 
-func (max *MaxCDN) Post(endpoint string, form url.Values) (*Response, error) {
+func (max *MaxCDN) Post(endpoint string, form url.Values) (*GenericResponse, error) {
 	return max.do("POST", endpoint, form)
 }
 
-func (max *MaxCDN) Put(endpoint string, form url.Values) (*Response, error) {
+func (max *MaxCDN) Put(endpoint string, form url.Values) (*GenericResponse, error) {
 	return max.do("PUT", endpoint, form)
 }
 
-func (max *MaxCDN) Delete(endpoint string) (*Response, error) {
+func (max *MaxCDN) Delete(endpoint string) (*GenericResponse, error) {
 	return max.do("DELETE", endpoint, nil)
 }
+
+// PurgeZone purges a specified zones cache.
+func (max *MaxCDN) PurgeZone(zone int) (*GenericResponse, error) {
+	return max.Delete(fmt.Sprintf("/zones/pull.json/%d/cache", zone))
+}
+
+// PurgeZone purges a multiple zones caches.
+func (max *MaxCDN) PurgeZones(zones []int) (responses []GenericResponse, last error) {
+	var rc chan *GenericResponse
+	var ec chan error
+
+	waiter := sync.WaitGroup{}
+	mutex := sync.Mutex{}
+
+	done := func() {
+		waiter.Done()
+	}
+
+	send := func(zone int) {
+		defer done()
+		r, e := max.PurgeZone(zone)
+
+		rc <- r
+		ec <- e
+	}
+
+	collect := func() {
+		defer done()
+		r := <-rc
+		e := <-ec
+
+		mutex.Lock()
+		responses = append(responses, *r)
+		last = e
+		mutex.Unlock()
+	}
+
+	for _, zone := range zones {
+		waiter.Add(2)
+		go send(zone)
+		go collect()
+	}
+
+	waiter.Wait()
+	return
+}
+
+// TODO:
+//
+// func (max *MaxCDN) PurgeFiles(files []string) (responses []Genericresponse, last error)
+//
+// max.Delete will have to support form params first
 
 func (max *MaxCDN) url(endpoint string) string {
 	endpoint = strings.TrimPrefix(endpoint, "/")
 	return fmt.Sprintf("%s/%s/%s", ApiPath, max.Alias, endpoint)
 }
 
-func (max *MaxCDN) do(method, endpoint string, form url.Values) (response *Response, err error) {
+func (max *MaxCDN) do(method, endpoint string, form url.Values) (response *GenericResponse, err error) {
 	var req *http.Request
 
 	req, err = http.NewRequest(method, max.url(endpoint), nil)
@@ -114,19 +156,13 @@ func (max *MaxCDN) do(method, endpoint string, form url.Values) (response *Respo
 		return
 	}
 
-	return max.parse(resp)
-}
+	parser := &genericParser{}
+	r, e := parser.parse(resp)
+	rr := r.(GenericResponse)
 
-func (max *MaxCDN) parse(resp *http.Response) (*Response, error) {
-	// process the response
-
-	data, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
+	if e == nil && (rr.Error.Message != "" || rr.Error.Type != "") {
+		e = errors.New(fmt.Sprintf("%s, %s", rr.Error.Type, rr.Error.Message))
 	}
 
-	var payload Response
-	err = json.Unmarshal(data, &payload)
-
-	return &payload, err
+	return &rr, e
 }
