@@ -13,7 +13,8 @@ Package maxcdn is the golang bindings for MaxCDN's REST API.
 
 At this time it should be considered very alpha.
 
-##### Example:
+``` go
+    // Example:
 	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
 	
 	payload, err := max.Get("/account.json", nil)
@@ -23,10 +24,11 @@ At this time it should be considered very alpha.
 	
 	fmt.Printf("%#v\n", payload.Data)
 
-### Constants
+```
+### Variables
 
 ```go
-const APIHost = "https://rws.netdna.com"
+var APIHost = "https://rws.netdna.com"
 ```
 
 > APIHost is the hostname, including protocol, to MaxCDN's API.
@@ -48,7 +50,18 @@ type GenericResponse struct {
 ```
 
 
+``` go
+    // Example:
+	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
+	
+	payload, err := max.Get("/account.json", nil)
+	if err != nil {
+	    panic(err)
+	}
+	
+	fmt.Printf("%#v\n", payload.Data)
 
+```
 #### MaxCDN
 
 ```go
@@ -61,7 +74,18 @@ type MaxCDN struct {
 ```
 
 
+``` go
+    // Example:
+	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
+	
+	payload, err := max.Get("/account.json", nil)
+	if err != nil {
+	    panic(err)
+	}
+	
+	fmt.Printf("%#v\n", payload.Data)
 
+```
 #### NewMaxCDN
 
 ```go
@@ -69,10 +93,18 @@ func NewMaxCDN(alias, token, secret string) *MaxCDN
 ```
 > NewMaxCDN sets up a new MaxCDN instance.
 
-##### Example:
+``` go
+    // Example:
 	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
-	fmt.Printf("%#v\n", max)
+	
+	payload, err := max.Get("/account.json", nil)
+	if err != nil {
+	    panic(err)
+	}
+	
+	fmt.Printf("%#v\n", payload.Data)
 
+```
 #### Delete
 
 ```go
@@ -82,21 +114,18 @@ func (max *MaxCDN) Delete(endpoint string) (*GenericResponse, error)
 
 
 
-##### Example:
+``` go
+    // Example:
 	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
 	
-	// This specific example shows how to purge a cache without using the Purge
-	// methods, more as an example of using Delete, then anything, really.
-	
-	payload, err := max.Delete(fmt.Sprintf("/zones/pull.json/%d/cache", 123456))
+	payload, err := max.Get("/account.json", nil)
 	if err != nil {
 	    panic(err)
 	}
 	
-	if payload.Code == 200 {
-	    fmt.Println("Purge succeeded")
-	}
+	fmt.Printf("%#v\n", payload.Data)
 
+```
 
 #### Get
 
@@ -107,7 +136,8 @@ func (max *MaxCDN) Get(endpoint string, form url.Values) (*GenericResponse, erro
 
 
 
-##### Example:
+``` go
+    // Example:
 	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
 	
 	payload, err := max.Get("/account.json", nil)
@@ -117,6 +147,7 @@ func (max *MaxCDN) Get(endpoint string, form url.Values) (*GenericResponse, erro
 	
 	fmt.Printf("%#v\n", payload.Data)
 
+```
 
 #### Post
 
@@ -127,25 +158,18 @@ func (max *MaxCDN) Post(endpoint string, form url.Values) (*GenericResponse, err
 
 
 
-##### Example:
+``` go
+    // Example:
 	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
 	
-	form := url.Values{}
-	form.Set("name", "newzone")
-	
-	// When creating a new zone, the url must be real and resolve.
-	form.Set("url", "http://www.example.com")
-	
-	payload, err := max.Post("/zones/pull.json", form)
+	payload, err := max.Get("/account.json", nil)
 	if err != nil {
 	    panic(err)
 	}
 	
-	data := payload.Data["pullzone"].(map[string]interface{})
-	if data["name"] == "newzone" {
-	    fmt.Println("Successfully created new Pull Zone.")
-	}
+	fmt.Printf("%#v\n", payload.Data)
 
+```
 
 #### PurgeZone
 
@@ -156,18 +180,18 @@ func (max *MaxCDN) PurgeZone(zone int) (*GenericResponse, error)
 
 
 
-##### Example:
+``` go
+    // Example:
 	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
 	
-	payload, err := max.PurgeZone(123456)
+	payload, err := max.Get("/account.json", nil)
 	if err != nil {
 	    panic(err)
 	}
 	
-	if payload.Code == 200 {
-	    fmt.Println("Purge succeeded")
-	}
+	fmt.Printf("%#v\n", payload.Data)
 
+```
 
 #### PurgeZones
 
@@ -178,19 +202,18 @@ func (max *MaxCDN) PurgeZones(zones []int) (responses []GenericResponse, last er
 
 
 
-##### Example:
+``` go
+    // Example:
 	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
 	
-	zones := []int{123456, 234567, 345678}
-	payloads, err := max.PurgeZones(zones)
+	payload, err := max.Get("/account.json", nil)
 	if err != nil {
 	    panic(err)
 	}
 	
-	if len(payloads) == len(zones) {
-	    fmt.Printf("Purges succeeded")
-	}
+	fmt.Printf("%#v\n", payload.Data)
 
+```
 
 #### Put
 
@@ -201,18 +224,17 @@ func (max *MaxCDN) Put(endpoint string, form url.Values) (*GenericResponse, erro
 
 
 
-##### Example:
+``` go
+    // Example:
 	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
 	
-	form := url.Values{}
-	form.Set("name", "example_name")
-	payload, err := max.Put("/account.json", form)
-	
+	payload, err := max.Get("/account.json", nil)
 	if err != nil {
 	    panic(err)
 	}
 	
 	fmt.Printf("%#v\n", payload.Data)
 
+```
 
 

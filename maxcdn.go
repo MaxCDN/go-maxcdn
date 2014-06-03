@@ -15,13 +15,13 @@ import (
 	"github.com/garyburd/go-oauth/oauth"
 )
 
-// APIHost is the hostname, including protocol, to MaxCDN's API.
-const APIHost = "https://rws.netdna.com"
-
 const (
 	userAgent   = "Go MaxCDN API Client"
 	contentType = "application/x-www-form-urlencoded"
 )
+
+// APIHost is the hostname, including protocol, to MaxCDN's API.
+var APIHost = "https://rws.netdna.com"
 
 // MaxCDN is the core struct for interacting with MaxCDN.
 //
