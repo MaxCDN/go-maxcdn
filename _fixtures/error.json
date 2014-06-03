@@ -1,0 +1,6 @@
+{
+    "error": {
+        "type": "Test Error",
+        "message": "Test Error Message"
+    }
+}

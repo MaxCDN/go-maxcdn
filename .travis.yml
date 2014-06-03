@@ -1,0 +1,10 @@
+language: go
+
+install:
+  - go get github.com/jmervine/GoT
+
+go:
+  - 1.1
+  - 1.2
+  - tip
+
