@@ -2,6 +2,7 @@ language: go
 
 install:
   - go get github.com/jmervine/GoT
+  - go get github.com/garyburd/go-oauth/oauth
 
 go:
   - 1.1
