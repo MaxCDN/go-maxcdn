@@ -1,5 +1,5 @@
-custom mapper example
-=====================
+maxpopular example
+==================
 
 This example shows two things, first and primarily how to set up a custom mapper, should you need one. Second, a basic `Get`.
 
@@ -16,17 +16,17 @@ Trying this example:
 --------------------
 
 ```
-$ cd examples/custom_mapper
-$ go build -o popular
+$ cd examples/maxpopular
+$ go build
 
-$ ./purge -h
-Usage of ./popular:
+$ ./maxpopular -h
+Usage of ./maxpopular:
   -alias="": MaxCDN consumer alias.
   -secret="": MaxCDN consumer secret.
   -token="": MaxCDN consumer token.
   -top=0: Only show top N results, zero shows all.
 
-$ ./popular -alias YOUR_ALIAS -token YOUR_TOKEN -secret YOUR_SECRET -top 5
+$ ./maxpopular -alias YOUR_ALIAS -token YOUR_TOKEN -secret YOUR_SECRET -top 5
       hits | file
    -----------------
       6295 | /bootstrap/favicon.ico
@@ -35,5 +35,21 @@ $ ./popular -alias YOUR_ALIAS -token YOUR_TOKEN -secret YOUR_SECRET -top 5
        133 | /bootstrap/images/apple-touch-icon-114x114.png
        107 | /bootstrap/images/apple-touch-icon.png
 
+```
+
+Installing this example:
+------------------------
+
+This can also be installed for system wide use if your `GOBIN` is set via the following:
+
+```bash
+$ go get github.com/jmervine/go-maxcdn
+$ go install github.com/jmervine/go-maxcdn/examples/maxpopular
+$ maxpopular -h
+Usage of maxpopular:
+  -alias="": MaxCDN consumer alias.
+  -secret="": MaxCDN consumer secret.
+  -token="": MaxCDN consumer token.
+  -top=0: Only show top N results, zero shows all.
 ```
 

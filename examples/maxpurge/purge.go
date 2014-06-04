@@ -7,7 +7,7 @@ import (
     "time"
     "strconv"
 
-    "../.."
+    "github.com/jmervine/go-maxcdn"
 )
 
 var alias, token, secret, zone, file string

@@ -6,7 +6,7 @@ import (
     "flag"
     "encoding/json"
 
-    "../.."
+    "github.com/jmervine/go-maxcdn"
 )
 
 var alias, token, secret string
