@@ -205,6 +205,13 @@ func (max *MaxCDN) url(endpoint string) string {
 	return fmt.Sprintf("%s/%s/%s", APIHost, max.Alias, endpoint)
 }
 
+// Do is a generic method to interact with MaxCDN's RESTful API. It's
+// used by all other methods.
+//
+// It's purpose though would be for you to generate your own struct more
+// exactly mapping the json response to your purpose. More specific
+// responses are planned for future versions, but there are too many make
+// it worth implementing all of them, so this support should remain.
 func (max *MaxCDN) Do(method, endpoint string, form url.Values) (raw []byte, err error) {
 	var req *http.Request
 
