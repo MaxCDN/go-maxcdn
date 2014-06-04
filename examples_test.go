@@ -58,13 +58,6 @@ func ExampleNewMaxCDN() {
 
 func ExampleMaxCDN_Do() {
 	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
-
-	// Below is pretty much exactly what 'maxcdn.Get' is doing.
-	// The purpose though would be for you to generate your
-	// own struct more exactly mapping the json response to
-	// your purpose. More specific responses are planned for
-	// future versions, but there are too many make it worth
-	// implementing all of them, so this support should remain.
 	raw, err := max.Do("GET", "/account.json", nil)
 
 	if err != nil {
