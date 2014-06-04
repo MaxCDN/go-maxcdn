@@ -16,7 +16,7 @@ Trying this example:
 --------------------
 
 ```
-$ cd _example/custom_mapper
+$ cd examples/custom_mapper
 $ go build -o popular
 
 $ ./purge -h

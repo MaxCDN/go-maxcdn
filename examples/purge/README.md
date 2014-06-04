@@ -7,7 +7,7 @@ Trying this example:
 --------------------
 
 ```
-$ cd _example/purge
+$ cd examples/purge
 $ go build -o purge
 
 $ ./purge -h
