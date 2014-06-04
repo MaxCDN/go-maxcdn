@@ -8,13 +8,13 @@ import (
 
 // GenericResponse is the generic data type for JSON responses from API calls.
 type GenericResponse struct {
-	Code  float64                `json:"code"`
+	Code  int                    `json:"code"`
 	Data  map[string]interface{} `json:"data"`
+	Raw   string                 // include raw json in GenericResponse
 	Error struct {
 		Message string `json:"message"`
 		Type    string `json:"type"`
 	} `json:"error"`
-	Raw string // include raw json in GenericResponse
 }
 
 // Parse turns an http response in to a GenericResponse
