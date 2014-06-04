@@ -2,15 +2,16 @@ package maxcdn
 
 import (
 	"encoding/json"
-	"io/ioutil"
-	"net/http"
+	"fmt"
+	//"io/ioutil"
+	//"net/http"
 )
 
 // GenericResponse is the generic data type for JSON responses from API calls.
 type GenericResponse struct {
 	Code  int                    `json:"code"`
 	Data  map[string]interface{} `json:"data"`
-	Raw   string                 // include raw json in GenericResponse
+	Raw   []byte                 // include raw json in GenericResponse
 	Error struct {
 		Message string `json:"message"`
 		Type    string `json:"type"`
@@ -18,15 +19,18 @@ type GenericResponse struct {
 }
 
 // Parse turns an http response in to a GenericResponse
-func (mapper *GenericResponse) Parse(r *http.Response) error {
-	data, err := ioutil.ReadAll(r.Body)
+func (mapper *GenericResponse) Parse(raw []byte) (err error) {
+	mapper.Raw = raw // include raw json in GenericResponse
+
+	err = json.Unmarshal(raw, &mapper)
 	if err != nil {
 		return err
 	}
 
-	err = json.Unmarshal(data, &mapper)
+	if mapper.Error.Message != "" || mapper.Error.Type != "" {
+		err = fmt.Errorf("%s: %s", mapper.Error.Type, mapper.Error.Message)
+	}
 
-	mapper.Raw = string(data) // include raw json in GenericResponse
 	return err
 }
 

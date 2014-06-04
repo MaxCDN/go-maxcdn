@@ -51,23 +51,51 @@ func NewMaxCDN(alias, token, secret string) *MaxCDN {
 }
 
 // Get does an OAuth signed http.Get
-func (max *MaxCDN) Get(endpoint string, form url.Values) (*GenericResponse, error) {
-	return max.do("GET", endpoint, form)
+func (max *MaxCDN) Get(endpoint string, form url.Values) (mapper *GenericResponse, err error) {
+	mapper = new(GenericResponse)
+	raw, err := max.Do("GET", endpoint, form)
+	if err != nil {
+		return
+	}
+
+	err = mapper.Parse(raw)
+	return
 }
 
 // Post does an OAuth signed http.Post
-func (max *MaxCDN) Post(endpoint string, form url.Values) (*GenericResponse, error) {
-	return max.do("POST", endpoint, form)
+func (max *MaxCDN) Post(endpoint string, form url.Values) (mapper *GenericResponse, err error) {
+	mapper = new(GenericResponse)
+	raw, err := max.Do("POST", endpoint, form)
+	if err != nil {
+		return
+	}
+
+	err = mapper.Parse(raw)
+	return
 }
 
 // Put does an OAuth signed http.Put
-func (max *MaxCDN) Put(endpoint string, form url.Values) (*GenericResponse, error) {
-	return max.do("PUT", endpoint, form)
+func (max *MaxCDN) Put(endpoint string, form url.Values) (mapper *GenericResponse, err error) {
+	mapper = new(GenericResponse)
+	raw, err := max.Do("PUT", endpoint, form)
+	if err != nil {
+		return
+	}
+
+	err = mapper.Parse(raw)
+	return
 }
 
 // Delete does an OAuth signed http.Delete
-func (max *MaxCDN) Delete(endpoint string) (*GenericResponse, error) {
-	return max.do("DELETE", endpoint, nil)
+func (max *MaxCDN) Delete(endpoint string) (mapper *GenericResponse, err error) {
+	mapper = new(GenericResponse)
+	raw, err := max.Do("DELETE", endpoint, nil)
+	if err != nil {
+		return
+	}
+
+	err = mapper.Parse(raw)
+	return
 }
 
 // PurgeZone purges a specified zones cache.
@@ -117,10 +145,18 @@ func (max *MaxCDN) PurgeZones(zones []int) (responses []GenericResponse, last er
 }
 
 // PurgeFile purges a specified file by zone from cache.
-func (max *MaxCDN) PurgeFile(zone int, file string) (*GenericResponse, error) {
+func (max *MaxCDN) PurgeFile(zone int, file string) (mapper *GenericResponse, err error) {
 	form := url.Values{}
 	form.Set("file", file)
-	return max.do("DELETE", fmt.Sprintf("/zones/pull.json/%d/cache", zone), form)
+
+	mapper = new(GenericResponse)
+	raw, err := max.Do("DELETE", fmt.Sprintf("/zones/pull.json/%d/cache", zone), form)
+	if err != nil {
+		return
+	}
+
+	err = mapper.Parse(raw)
+	return
 }
 
 // PurgeFiles purges multiple files from a zone.
@@ -169,7 +205,7 @@ func (max *MaxCDN) url(endpoint string) string {
 	return fmt.Sprintf("%s/%s/%s", APIHost, max.Alias, endpoint)
 }
 
-func (max *MaxCDN) do(method, endpoint string, form url.Values) (response *GenericResponse, err error) {
+func (max *MaxCDN) Do(method, endpoint string, form url.Values) (raw []byte, err error) {
 	var req *http.Request
 
 	req, err = http.NewRequest(method, max.url(endpoint), nil)
@@ -198,18 +234,12 @@ func (max *MaxCDN) do(method, endpoint string, form url.Values) (response *Gener
 	req.Header.Set("Content-Type", contentType)
 	req.Header.Set("User-Agent", userAgent)
 
-	resp, err := max.HTTPClient.Do(req)
-	defer resp.Body.Close()
+	response, err := max.HTTPClient.Do(req)
+	defer response.Body.Close()
 
-	if err != nil {
-		return
-	}
+	return ioutil.ReadAll(response.Body)
 
-	var mapper GenericResponse
-	err = mapper.Parse(resp)
-	if err == nil && (mapper.Error.Message != "" || mapper.Error.Type != "") {
-		err = fmt.Errorf("%s (%s %s): %s", mapper.Error.Type, req.Method, req.URL.Path, mapper.Error.Message)
-	}
-
-	return &mapper, err
+	//var mapper GenericResponse
+	//err = mapper.Parse(resp)
+	//return &mapper, err
 }

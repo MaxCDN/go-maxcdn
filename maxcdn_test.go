@@ -34,7 +34,8 @@ func TestMaxCDN_ErrorResponse(T *testing.T) {
 	payload, err := max.Get("/account.json", nil)
 	Go(T).RefuteNil(err)
 	Go(T).RefuteNil(payload)
-	Go(T).AssertEqual(err, fmt.Errorf("%s", "Test Error (GET /alias/account.json): Test Error Message"))
+	Go(T).AssertEqual(err, fmt.Errorf("%s", "Test Error: Test Error Message"))
+	//Go(T).AssertEqual(err, fmt.Errorf("%s", "Test Error (GET /alias/account.json): Test Error Message"))
 }
 
 func TestMaxCDN_Get(T *testing.T) {

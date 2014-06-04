@@ -16,12 +16,37 @@ This package should be considered beta. The final release will be moved to
     // Example:
 	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
 	
+	// Basic Get
 	payload, err := max.Get("/account.json", nil)
 	if err != nil {
 	    panic(err)
 	}
 	
 	fmt.Printf("%#v\n", payload.Data)
+	
+	// Below is pretty much exactly what 'maxcdn.Get' is doing.
+	// The purpose though would be for you to generate your
+	// own struct more exactly mapping the json response to
+	// your purpose. More specific responses are planned for
+	// future versions, but there are too many make it worth
+	// implementing all of them, so this support should remain.
+	raw, err := max.Do("GET", "/account.json", nil)
+	
+	if err != nil {
+	    return
+	}
+	
+	mapper := new(GenericResponse)
+	mapper.Raw = raw // include raw json in GenericResponse
+	
+	err = json.Unmarshal(raw, &mapper)
+	if err != nil {
+	    panic(err)
+	}
+	
+	if mapper.Error.Message != "" || mapper.Error.Type != "" {
+	    err = fmt.Errorf("%s: %s", mapper.Error.Type, mapper.Error.Message)
+	}
 
 ```
 ### Variables
@@ -39,8 +64,9 @@ var APIHost = "https://rws.netdna.com"
 
 ```go
 type GenericResponse struct {
-    Code  float64                `json:"code"`
+    Code  int                    `json:"code"`
     Data  map[string]interface{} `json:"data"`
+    Raw   []byte                 // include raw json in GenericResponse
     Error struct {
         Message string `json:"message"`
         Type    string `json:"type"`
@@ -53,14 +79,48 @@ type GenericResponse struct {
     // Example:
 	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
 	
+	// Basic Get
 	payload, err := max.Get("/account.json", nil)
 	if err != nil {
 	    panic(err)
 	}
 	
 	fmt.Printf("%#v\n", payload.Data)
+	
+	// Below is pretty much exactly what 'maxcdn.Get' is doing.
+	// The purpose though would be for you to generate your
+	// own struct more exactly mapping the json response to
+	// your purpose. More specific responses are planned for
+	// future versions, but there are too many make it worth
+	// implementing all of them, so this support should remain.
+	raw, err := max.Do("GET", "/account.json", nil)
+	
+	if err != nil {
+	    return
+	}
+	
+	mapper := new(GenericResponse)
+	mapper.Raw = raw // include raw json in GenericResponse
+	
+	err = json.Unmarshal(raw, &mapper)
+	if err != nil {
+	    panic(err)
+	}
+	
+	if mapper.Error.Message != "" || mapper.Error.Type != "" {
+	    err = fmt.Errorf("%s: %s", mapper.Error.Type, mapper.Error.Message)
+	}
 
 ```
+#### Parse
+
+```go
+func (mapper *GenericResponse) Parse(raw []byte) (err error)
+```
+> Parse turns an http response in to a GenericResponse
+
+
+
 #### MaxCDN
 
 ```go
@@ -77,12 +137,37 @@ type MaxCDN struct {
     // Example:
 	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
 	
+	// Basic Get
 	payload, err := max.Get("/account.json", nil)
 	if err != nil {
 	    panic(err)
 	}
 	
 	fmt.Printf("%#v\n", payload.Data)
+	
+	// Below is pretty much exactly what 'maxcdn.Get' is doing.
+	// The purpose though would be for you to generate your
+	// own struct more exactly mapping the json response to
+	// your purpose. More specific responses are planned for
+	// future versions, but there are too many make it worth
+	// implementing all of them, so this support should remain.
+	raw, err := max.Do("GET", "/account.json", nil)
+	
+	if err != nil {
+	    return
+	}
+	
+	mapper := new(GenericResponse)
+	mapper.Raw = raw // include raw json in GenericResponse
+	
+	err = json.Unmarshal(raw, &mapper)
+	if err != nil {
+	    panic(err)
+	}
+	
+	if mapper.Error.Message != "" || mapper.Error.Type != "" {
+	    err = fmt.Errorf("%s: %s", mapper.Error.Type, mapper.Error.Message)
+	}
 
 ```
 #### NewMaxCDN
@@ -96,18 +181,43 @@ func NewMaxCDN(alias, token, secret string) *MaxCDN
     // Example:
 	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
 	
+	// Basic Get
 	payload, err := max.Get("/account.json", nil)
 	if err != nil {
 	    panic(err)
 	}
 	
 	fmt.Printf("%#v\n", payload.Data)
+	
+	// Below is pretty much exactly what 'maxcdn.Get' is doing.
+	// The purpose though would be for you to generate your
+	// own struct more exactly mapping the json response to
+	// your purpose. More specific responses are planned for
+	// future versions, but there are too many make it worth
+	// implementing all of them, so this support should remain.
+	raw, err := max.Do("GET", "/account.json", nil)
+	
+	if err != nil {
+	    return
+	}
+	
+	mapper := new(GenericResponse)
+	mapper.Raw = raw // include raw json in GenericResponse
+	
+	err = json.Unmarshal(raw, &mapper)
+	if err != nil {
+	    panic(err)
+	}
+	
+	if mapper.Error.Message != "" || mapper.Error.Type != "" {
+	    err = fmt.Errorf("%s: %s", mapper.Error.Type, mapper.Error.Message)
+	}
 
 ```
 #### Delete
 
 ```go
-func (max *MaxCDN) Delete(endpoint string) (*GenericResponse, error)
+func (max *MaxCDN) Delete(endpoint string) (mapper *GenericResponse, err error)
 ```
 > Delete does an OAuth signed http.Delete
 
@@ -117,19 +227,90 @@ func (max *MaxCDN) Delete(endpoint string) (*GenericResponse, error)
     // Example:
 	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
 	
+	// Basic Get
 	payload, err := max.Get("/account.json", nil)
 	if err != nil {
 	    panic(err)
 	}
 	
 	fmt.Printf("%#v\n", payload.Data)
+	
+	// Below is pretty much exactly what 'maxcdn.Get' is doing.
+	// The purpose though would be for you to generate your
+	// own struct more exactly mapping the json response to
+	// your purpose. More specific responses are planned for
+	// future versions, but there are too many make it worth
+	// implementing all of them, so this support should remain.
+	raw, err := max.Do("GET", "/account.json", nil)
+	
+	if err != nil {
+	    return
+	}
+	
+	mapper := new(GenericResponse)
+	mapper.Raw = raw // include raw json in GenericResponse
+	
+	err = json.Unmarshal(raw, &mapper)
+	if err != nil {
+	    panic(err)
+	}
+	
+	if mapper.Error.Message != "" || mapper.Error.Type != "" {
+	    err = fmt.Errorf("%s: %s", mapper.Error.Type, mapper.Error.Message)
+	}
+
+```
+
+#### Do
+
+```go
+func (max *MaxCDN) Do(method, endpoint string, form url.Values) (raw []byte, err error)
+```
+
+
+
+``` go
+    // Example:
+	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
+	
+	// Basic Get
+	payload, err := max.Get("/account.json", nil)
+	if err != nil {
+	    panic(err)
+	}
+	
+	fmt.Printf("%#v\n", payload.Data)
+	
+	// Below is pretty much exactly what 'maxcdn.Get' is doing.
+	// The purpose though would be for you to generate your
+	// own struct more exactly mapping the json response to
+	// your purpose. More specific responses are planned for
+	// future versions, but there are too many make it worth
+	// implementing all of them, so this support should remain.
+	raw, err := max.Do("GET", "/account.json", nil)
+	
+	if err != nil {
+	    return
+	}
+	
+	mapper := new(GenericResponse)
+	mapper.Raw = raw // include raw json in GenericResponse
+	
+	err = json.Unmarshal(raw, &mapper)
+	if err != nil {
+	    panic(err)
+	}
+	
+	if mapper.Error.Message != "" || mapper.Error.Type != "" {
+	    err = fmt.Errorf("%s: %s", mapper.Error.Type, mapper.Error.Message)
+	}
 
 ```
 
 #### Get
 
 ```go
-func (max *MaxCDN) Get(endpoint string, form url.Values) (*GenericResponse, error)
+func (max *MaxCDN) Get(endpoint string, form url.Values) (mapper *GenericResponse, err error)
 ```
 > Get does an OAuth signed http.Get
 
@@ -139,19 +320,44 @@ func (max *MaxCDN) Get(endpoint string, form url.Values) (*GenericResponse, erro
     // Example:
 	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
 	
+	// Basic Get
 	payload, err := max.Get("/account.json", nil)
 	if err != nil {
 	    panic(err)
 	}
 	
 	fmt.Printf("%#v\n", payload.Data)
+	
+	// Below is pretty much exactly what 'maxcdn.Get' is doing.
+	// The purpose though would be for you to generate your
+	// own struct more exactly mapping the json response to
+	// your purpose. More specific responses are planned for
+	// future versions, but there are too many make it worth
+	// implementing all of them, so this support should remain.
+	raw, err := max.Do("GET", "/account.json", nil)
+	
+	if err != nil {
+	    return
+	}
+	
+	mapper := new(GenericResponse)
+	mapper.Raw = raw // include raw json in GenericResponse
+	
+	err = json.Unmarshal(raw, &mapper)
+	if err != nil {
+	    panic(err)
+	}
+	
+	if mapper.Error.Message != "" || mapper.Error.Type != "" {
+	    err = fmt.Errorf("%s: %s", mapper.Error.Type, mapper.Error.Message)
+	}
 
 ```
 
 #### Post
 
 ```go
-func (max *MaxCDN) Post(endpoint string, form url.Values) (*GenericResponse, error)
+func (max *MaxCDN) Post(endpoint string, form url.Values) (mapper *GenericResponse, err error)
 ```
 > Post does an OAuth signed http.Post
 
@@ -161,19 +367,44 @@ func (max *MaxCDN) Post(endpoint string, form url.Values) (*GenericResponse, err
     // Example:
 	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
 	
+	// Basic Get
 	payload, err := max.Get("/account.json", nil)
 	if err != nil {
 	    panic(err)
 	}
 	
 	fmt.Printf("%#v\n", payload.Data)
+	
+	// Below is pretty much exactly what 'maxcdn.Get' is doing.
+	// The purpose though would be for you to generate your
+	// own struct more exactly mapping the json response to
+	// your purpose. More specific responses are planned for
+	// future versions, but there are too many make it worth
+	// implementing all of them, so this support should remain.
+	raw, err := max.Do("GET", "/account.json", nil)
+	
+	if err != nil {
+	    return
+	}
+	
+	mapper := new(GenericResponse)
+	mapper.Raw = raw // include raw json in GenericResponse
+	
+	err = json.Unmarshal(raw, &mapper)
+	if err != nil {
+	    panic(err)
+	}
+	
+	if mapper.Error.Message != "" || mapper.Error.Type != "" {
+	    err = fmt.Errorf("%s: %s", mapper.Error.Type, mapper.Error.Message)
+	}
 
 ```
 
 #### PurgeFile
 
 ```go
-func (max *MaxCDN) PurgeFile(zone int, file string) (*GenericResponse, error)
+func (max *MaxCDN) PurgeFile(zone int, file string) (mapper *GenericResponse, err error)
 ```
 > PurgeFile purges a specified file by zone from cache.
 
@@ -183,12 +414,37 @@ func (max *MaxCDN) PurgeFile(zone int, file string) (*GenericResponse, error)
     // Example:
 	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
 	
+	// Basic Get
 	payload, err := max.Get("/account.json", nil)
 	if err != nil {
 	    panic(err)
 	}
 	
 	fmt.Printf("%#v\n", payload.Data)
+	
+	// Below is pretty much exactly what 'maxcdn.Get' is doing.
+	// The purpose though would be for you to generate your
+	// own struct more exactly mapping the json response to
+	// your purpose. More specific responses are planned for
+	// future versions, but there are too many make it worth
+	// implementing all of them, so this support should remain.
+	raw, err := max.Do("GET", "/account.json", nil)
+	
+	if err != nil {
+	    return
+	}
+	
+	mapper := new(GenericResponse)
+	mapper.Raw = raw // include raw json in GenericResponse
+	
+	err = json.Unmarshal(raw, &mapper)
+	if err != nil {
+	    panic(err)
+	}
+	
+	if mapper.Error.Message != "" || mapper.Error.Type != "" {
+	    err = fmt.Errorf("%s: %s", mapper.Error.Type, mapper.Error.Message)
+	}
 
 ```
 
@@ -205,12 +461,37 @@ func (max *MaxCDN) PurgeFiles(zone int, files []string) (responses []GenericResp
     // Example:
 	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
 	
+	// Basic Get
 	payload, err := max.Get("/account.json", nil)
 	if err != nil {
 	    panic(err)
 	}
 	
 	fmt.Printf("%#v\n", payload.Data)
+	
+	// Below is pretty much exactly what 'maxcdn.Get' is doing.
+	// The purpose though would be for you to generate your
+	// own struct more exactly mapping the json response to
+	// your purpose. More specific responses are planned for
+	// future versions, but there are too many make it worth
+	// implementing all of them, so this support should remain.
+	raw, err := max.Do("GET", "/account.json", nil)
+	
+	if err != nil {
+	    return
+	}
+	
+	mapper := new(GenericResponse)
+	mapper.Raw = raw // include raw json in GenericResponse
+	
+	err = json.Unmarshal(raw, &mapper)
+	if err != nil {
+	    panic(err)
+	}
+	
+	if mapper.Error.Message != "" || mapper.Error.Type != "" {
+	    err = fmt.Errorf("%s: %s", mapper.Error.Type, mapper.Error.Message)
+	}
 
 ```
 
@@ -227,12 +508,37 @@ func (max *MaxCDN) PurgeZone(zone int) (*GenericResponse, error)
     // Example:
 	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
 	
+	// Basic Get
 	payload, err := max.Get("/account.json", nil)
 	if err != nil {
 	    panic(err)
 	}
 	
 	fmt.Printf("%#v\n", payload.Data)
+	
+	// Below is pretty much exactly what 'maxcdn.Get' is doing.
+	// The purpose though would be for you to generate your
+	// own struct more exactly mapping the json response to
+	// your purpose. More specific responses are planned for
+	// future versions, but there are too many make it worth
+	// implementing all of them, so this support should remain.
+	raw, err := max.Do("GET", "/account.json", nil)
+	
+	if err != nil {
+	    return
+	}
+	
+	mapper := new(GenericResponse)
+	mapper.Raw = raw // include raw json in GenericResponse
+	
+	err = json.Unmarshal(raw, &mapper)
+	if err != nil {
+	    panic(err)
+	}
+	
+	if mapper.Error.Message != "" || mapper.Error.Type != "" {
+	    err = fmt.Errorf("%s: %s", mapper.Error.Type, mapper.Error.Message)
+	}
 
 ```
 
@@ -249,19 +555,44 @@ func (max *MaxCDN) PurgeZones(zones []int) (responses []GenericResponse, last er
     // Example:
 	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
 	
+	// Basic Get
 	payload, err := max.Get("/account.json", nil)
 	if err != nil {
 	    panic(err)
 	}
 	
 	fmt.Printf("%#v\n", payload.Data)
+	
+	// Below is pretty much exactly what 'maxcdn.Get' is doing.
+	// The purpose though would be for you to generate your
+	// own struct more exactly mapping the json response to
+	// your purpose. More specific responses are planned for
+	// future versions, but there are too many make it worth
+	// implementing all of them, so this support should remain.
+	raw, err := max.Do("GET", "/account.json", nil)
+	
+	if err != nil {
+	    return
+	}
+	
+	mapper := new(GenericResponse)
+	mapper.Raw = raw // include raw json in GenericResponse
+	
+	err = json.Unmarshal(raw, &mapper)
+	if err != nil {
+	    panic(err)
+	}
+	
+	if mapper.Error.Message != "" || mapper.Error.Type != "" {
+	    err = fmt.Errorf("%s: %s", mapper.Error.Type, mapper.Error.Message)
+	}
 
 ```
 
 #### Put
 
 ```go
-func (max *MaxCDN) Put(endpoint string, form url.Values) (*GenericResponse, error)
+func (max *MaxCDN) Put(endpoint string, form url.Values) (mapper *GenericResponse, err error)
 ```
 > Put does an OAuth signed http.Put
 
@@ -271,12 +602,37 @@ func (max *MaxCDN) Put(endpoint string, form url.Values) (*GenericResponse, erro
     // Example:
 	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
 	
+	// Basic Get
 	payload, err := max.Get("/account.json", nil)
 	if err != nil {
 	    panic(err)
 	}
 	
 	fmt.Printf("%#v\n", payload.Data)
+	
+	// Below is pretty much exactly what 'maxcdn.Get' is doing.
+	// The purpose though would be for you to generate your
+	// own struct more exactly mapping the json response to
+	// your purpose. More specific responses are planned for
+	// future versions, but there are too many make it worth
+	// implementing all of them, so this support should remain.
+	raw, err := max.Do("GET", "/account.json", nil)
+	
+	if err != nil {
+	    return
+	}
+	
+	mapper := new(GenericResponse)
+	mapper.Raw = raw // include raw json in GenericResponse
+	
+	err = json.Unmarshal(raw, &mapper)
+	if err != nil {
+	    panic(err)
+	}
+	
+	if mapper.Error.Message != "" || mapper.Error.Type != "" {
+	    err = fmt.Errorf("%s: %s", mapper.Error.Type, mapper.Error.Message)
+	}
 
 ```
 
