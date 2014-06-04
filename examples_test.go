@@ -38,7 +38,7 @@ func Example() {
 		return
 	}
 
-	mapper := new(GenericResponse)
+	mapper := GenericResponse{}
 	mapper.Raw = raw // include raw json in GenericResponse
 
 	err = json.Unmarshal(raw, &mapper)
@@ -71,7 +71,7 @@ func ExampleMaxCDN_Do() {
 		return
 	}
 
-	mapper := new(GenericResponse)
+	mapper := GenericResponse{}
 	mapper.Raw = raw // include raw json in GenericResponse
 
 	err = json.Unmarshal(raw, &mapper)

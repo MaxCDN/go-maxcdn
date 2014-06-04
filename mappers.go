@@ -20,8 +20,6 @@ type GenericResponse struct {
 
 // Parse turns an http response in to a GenericResponse
 func (mapper *GenericResponse) Parse(raw []byte) (err error) {
-	mapper.Raw = raw // include raw json in GenericResponse
-
 	err = json.Unmarshal(raw, &mapper)
 	if err != nil {
 		return err

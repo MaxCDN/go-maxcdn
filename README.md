@@ -36,7 +36,7 @@ This package should be considered beta. The final release will be moved to
 	    return
 	}
 	
-	mapper := new(GenericResponse)
+	mapper := GenericResponse{}
 	mapper.Raw = raw // include raw json in GenericResponse
 	
 	err = json.Unmarshal(raw, &mapper)
@@ -99,7 +99,7 @@ type GenericResponse struct {
 	    return
 	}
 	
-	mapper := new(GenericResponse)
+	mapper := GenericResponse{}
 	mapper.Raw = raw // include raw json in GenericResponse
 	
 	err = json.Unmarshal(raw, &mapper)
@@ -157,7 +157,7 @@ type MaxCDN struct {
 	    return
 	}
 	
-	mapper := new(GenericResponse)
+	mapper := GenericResponse{}
 	mapper.Raw = raw // include raw json in GenericResponse
 	
 	err = json.Unmarshal(raw, &mapper)
@@ -201,7 +201,7 @@ func NewMaxCDN(alias, token, secret string) *MaxCDN
 	    return
 	}
 	
-	mapper := new(GenericResponse)
+	mapper := GenericResponse{}
 	mapper.Raw = raw // include raw json in GenericResponse
 	
 	err = json.Unmarshal(raw, &mapper)
@@ -247,7 +247,7 @@ func (max *MaxCDN) Delete(endpoint string) (mapper *GenericResponse, err error)
 	    return
 	}
 	
-	mapper := new(GenericResponse)
+	mapper := GenericResponse{}
 	mapper.Raw = raw // include raw json in GenericResponse
 	
 	err = json.Unmarshal(raw, &mapper)
@@ -293,7 +293,7 @@ func (max *MaxCDN) Do(method, endpoint string, form url.Values) (raw []byte, err
 	    return
 	}
 	
-	mapper := new(GenericResponse)
+	mapper := GenericResponse{}
 	mapper.Raw = raw // include raw json in GenericResponse
 	
 	err = json.Unmarshal(raw, &mapper)
@@ -340,7 +340,7 @@ func (max *MaxCDN) Get(endpoint string, form url.Values) (mapper *GenericRespons
 	    return
 	}
 	
-	mapper := new(GenericResponse)
+	mapper := GenericResponse{}
 	mapper.Raw = raw // include raw json in GenericResponse
 	
 	err = json.Unmarshal(raw, &mapper)
@@ -387,7 +387,7 @@ func (max *MaxCDN) Post(endpoint string, form url.Values) (mapper *GenericRespon
 	    return
 	}
 	
-	mapper := new(GenericResponse)
+	mapper := GenericResponse{}
 	mapper.Raw = raw // include raw json in GenericResponse
 	
 	err = json.Unmarshal(raw, &mapper)
@@ -434,7 +434,7 @@ func (max *MaxCDN) PurgeFile(zone int, file string) (mapper *GenericResponse, er
 	    return
 	}
 	
-	mapper := new(GenericResponse)
+	mapper := GenericResponse{}
 	mapper.Raw = raw // include raw json in GenericResponse
 	
 	err = json.Unmarshal(raw, &mapper)
@@ -481,7 +481,7 @@ func (max *MaxCDN) PurgeFiles(zone int, files []string) (responses []GenericResp
 	    return
 	}
 	
-	mapper := new(GenericResponse)
+	mapper := GenericResponse{}
 	mapper.Raw = raw // include raw json in GenericResponse
 	
 	err = json.Unmarshal(raw, &mapper)
@@ -528,7 +528,7 @@ func (max *MaxCDN) PurgeZone(zone int) (*GenericResponse, error)
 	    return
 	}
 	
-	mapper := new(GenericResponse)
+	mapper := GenericResponse{}
 	mapper.Raw = raw // include raw json in GenericResponse
 	
 	err = json.Unmarshal(raw, &mapper)
@@ -575,7 +575,7 @@ func (max *MaxCDN) PurgeZones(zones []int) (responses []GenericResponse, last er
 	    return
 	}
 	
-	mapper := new(GenericResponse)
+	mapper := GenericResponse{}
 	mapper.Raw = raw // include raw json in GenericResponse
 	
 	err = json.Unmarshal(raw, &mapper)
@@ -622,7 +622,7 @@ func (max *MaxCDN) Put(endpoint string, form url.Values) (mapper *GenericRespons
 	    return
 	}
 	
-	mapper := new(GenericResponse)
+	mapper := GenericResponse{}
 	mapper.Raw = raw // include raw json in GenericResponse
 	
 	err = json.Unmarshal(raw, &mapper)
