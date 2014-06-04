@@ -1,0 +1,19 @@
+{
+    "code": 200,
+    "data": {
+        "current_page_size": 0,
+        "page": 1,
+        "page_size": "50",
+        "pages": 0,
+        "popularfiles": [
+            { "uri": "/master.css" },
+            { "uri": "/master.js" }
+        ],
+        "summary": {
+            "hit": null,
+            "size": null
+        },
+        "total": "0"
+    }
+}
+

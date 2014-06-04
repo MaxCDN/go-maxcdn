@@ -75,7 +75,7 @@ func (max *MaxCDN) PurgeZone(zone int) (*GenericResponse, error) {
 	return max.Delete(fmt.Sprintf("/zones/pull.json/%d/cache", zone))
 }
 
-// PurgeZones purges a multiple zones caches.
+// PurgeZones purges multiple zones caches.
 func (max *MaxCDN) PurgeZones(zones []int) (responses []GenericResponse, last error) {
 	var rc chan *GenericResponse
 	var ec chan error
@@ -116,11 +116,53 @@ func (max *MaxCDN) PurgeZones(zones []int) (responses []GenericResponse, last er
 	return
 }
 
-// TODO:
-//
-// func (max *MaxCDN) PurgeFiles(files []string) (responses []Genericresponse, last error)
-//
-// max.Delete will have to support form params first
+// PurgeFile purges a specified file by zone from cache.
+func (max *MaxCDN) PurgeFile(zone int, file string) (*GenericResponse, error) {
+	form := url.Values{}
+	form.Set("file", file)
+	return max.do("DELETE", fmt.Sprintf("/zones/pull.json/%d/cache", zone), form)
+}
+
+// PurgeFiles purges multiple files from a zone.
+func (max *MaxCDN) PurgeFiles(zone int, files []string) (responses []GenericResponse, last error) {
+	var rc chan *GenericResponse
+	var ec chan error
+
+	waiter := sync.WaitGroup{}
+	mutex := sync.Mutex{}
+
+	done := func() {
+		waiter.Done()
+	}
+
+	send := func(file string) {
+		defer done()
+		r, e := max.PurgeFile(zone, file)
+
+		rc <- r
+		ec <- e
+	}
+
+	collect := func() {
+		defer done()
+		r := <-rc
+		e := <-ec
+
+		mutex.Lock()
+		responses = append(responses, *r)
+		last = e
+		mutex.Unlock()
+	}
+
+	for _, file := range files {
+		waiter.Add(2)
+		go send(file)
+		go collect()
+	}
+
+	waiter.Wait()
+	return
+}
 
 func (max *MaxCDN) url(endpoint string) string {
 	endpoint = strings.TrimPrefix(endpoint, "/")
@@ -168,7 +210,7 @@ func (max *MaxCDN) do(method, endpoint string, form url.Values) (response *Gener
 	rr := r.(GenericResponse)
 
 	if e == nil && (rr.Error.Message != "" || rr.Error.Type != "") {
-		e = fmt.Errorf("%s: %s", rr.Error.Type, rr.Error.Message)
+		e = fmt.Errorf("%s (%s %s): %s", rr.Error.Type, req.Method, req.URL.Path, rr.Error.Message)
 	}
 
 	return &rr, e
