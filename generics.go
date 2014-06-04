@@ -14,28 +14,20 @@ type GenericResponse struct {
 		Message string `json:"message"`
 		Type    string `json:"type"`
 	} `json:"error"`
+	Raw string // include raw json in GenericResponse
 }
 
-type response interface {
-}
-
-type parser interface {
-	parse(r *http.Response) (*response, error)
-}
-
-type genericParser struct {
-}
-
-func (p *genericParser) parse(r *http.Response) (response, error) {
+// Parse turns an http response in to a GenericResponse
+func (mapper *GenericResponse) Parse(r *http.Response) error {
 	data, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	var payload GenericResponse
-	err = json.Unmarshal(data, &payload)
+	err = json.Unmarshal(data, &mapper)
 
-	return payload, err
+	mapper.Raw = string(data) // include raw json in GenericResponse
+	return err
 }
 
 // Specific types

@@ -205,13 +205,11 @@ func (max *MaxCDN) do(method, endpoint string, form url.Values) (response *Gener
 		return
 	}
 
-	parser := &genericParser{}
-	r, e := parser.parse(resp)
-	rr := r.(GenericResponse)
-
-	if e == nil && (rr.Error.Message != "" || rr.Error.Type != "") {
-		e = fmt.Errorf("%s (%s %s): %s", rr.Error.Type, req.Method, req.URL.Path, rr.Error.Message)
+	var mapper GenericResponse
+	err = mapper.Parse(resp)
+	if err == nil && (mapper.Error.Message != "" || mapper.Error.Type != "") {
+		err = fmt.Errorf("%s (%s %s): %s", mapper.Error.Type, req.Method, req.URL.Path, mapper.Error.Message)
 	}
 
-	return &rr, e
+	return &mapper, err
 }
