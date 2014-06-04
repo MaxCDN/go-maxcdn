@@ -106,7 +106,7 @@ func ensureArg(arg string, key string) string {
             return env
         }
         flag.Usage()
-        os.Exit(1)
+        os.Exit(0)
     }
     return arg
 }
