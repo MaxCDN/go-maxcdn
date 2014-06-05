@@ -1,19 +1,19 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"net/url"
 	"os"
-	"strconv"
 	"text/tabwriter"
 	"text/template"
-	"time"
 
 	"github.com/codegangsta/cli"
 	"github.com/jmervine/go-maxcdn"
 )
 
-var alias, token, secret, zone, file string
-var start time.Time
+var alias, token, secret, method, path string
+var pretty, help bool
 
 func init() {
 
@@ -26,7 +26,7 @@ Options:
 
 	app := cli.NewApp()
 
-	app.Name = "maxpurge"
+	app.Name = "maxcurl"
 	app.Version = "0.0.1"
 
 	cli.HelpPrinter = helpPrinter
@@ -35,42 +35,50 @@ Options:
 		cli.StringFlag{"alias, a", "", "[required] consumer alias"},
 		cli.StringFlag{"token, t", "", "[required] consumer token"},
 		cli.StringFlag{"secret, s", "", "[required] consumer secret"},
-		cli.StringFlag{"zone, z", "", "[required] zone to be purged"},
-		cli.StringFlag{"file, f", "", "cached file to be purged"},
+		cli.StringFlag{"path, p", "", "[required] request path, e.g. /account.json"},
+
+		cli.StringFlag{"method, X", "GET", "request method"},
+		cli.BoolFlag{"pretty, pp", "pretty print json output"},
 	}
 
 	app.Action = func(c *cli.Context) {
 		alias = ensureArg(c.String("alias"), "ALIAS", c)
 		token = ensureArg(c.String("token"), "TOKEN", c)
 		secret = ensureArg(c.String("secret"), "SECRET", c)
-		zone = ensureArg(c.String("zone"), "ZONE", c)
-		file = c.String("file")
+		method = c.String("method")
+		path = c.String("path")
+		pretty = c.Bool("pretty")
+
+		if path == "" {
+			cli.ShowAppHelp(c)
+		}
 	}
 
 	app.Run(os.Args)
-
-	start = time.Now()
 }
 
 func main() {
 	max := maxcdn.NewMaxCDN(alias, token, secret)
 
-	i, err := strconv.ParseInt(zone, 0, 64)
+	u, err := url.Parse(path)
 	check(err)
 
-	zoneid := int(i)
+	path = u.Path
+	form := u.Query()
 
-	var response *maxcdn.GenericResponse
-	if file != "" {
-		response, err = max.PurgeFile(zoneid, file)
-	} else {
-		response, err = max.PurgeZone(zoneid)
-	}
+	raw, err := max.Do(method, path, form)
 	check(err)
 
-	if response.Code == 200 {
-		fmt.Printf("Purge successful after: %v.\n", time.Since(start))
+	if pretty {
+		var j interface{}
+		err = json.Unmarshal(raw, &j)
+		check(err)
+
+		raw, err = json.MarshalIndent(j, "", "  ")
+		check(err)
 	}
+
+	fmt.Printf("%v\n", string(raw))
 }
 
 func ensureArg(arg string, key string, c *cli.Context) string {
@@ -85,8 +93,7 @@ func ensureArg(arg string, key string, c *cli.Context) string {
 
 func check(err error) {
 	if err != nil {
-		fmt.Printf("%v.\n\nPurge failed after %v.\n", err, time.Since(start))
-		os.Exit(2)
+		panic(err)
 	}
 }
 
@@ -96,9 +103,8 @@ func helpPrinter(templ string, data interface{}) {
 	w := tabwriter.NewWriter(os.Stdout, 0, 8, 1, '\t', 0)
 	t := template.Must(template.New("help").Parse(templ))
 	err := t.Execute(w, data)
-	if err != nil {
-		panic(err)
-	}
+	check(err)
+
 	w.Flush()
 	os.Exit(0)
 }

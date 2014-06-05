@@ -20,6 +20,6 @@ readme: test
 
 format: .PHONY
 	# Gofmt Source
-	gofmt -s -w -l *.go
+	@gofmt -s -w -l $(shell find . -type f -name "*.go")
 
 .PHONY:

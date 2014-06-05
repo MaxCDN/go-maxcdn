@@ -12,8 +12,7 @@ MaxCDN Golang API.
 import "github.com/jmervine/go-maxcdn"
 ```
 {{else}}
-{{end}}{{comment_text .Doc "" "    "}}
-``` go
+{{end}}{{comment_text .Doc "" "    "}}```go
 {{example_text $ "" "    // "}}
 ```{{/*
 
@@ -47,7 +46,6 @@ import "github.com/jmervine/go-maxcdn"
 ### Types
 
 {{range .}}#### {{.Name}}
-
 ```go
 {{$tname := .Name}}{{node $ .Decl}}
 ```
@@ -57,30 +55,26 @@ import "github.com/jmervine/go-maxcdn"
 {{comment_text .Doc "> " ""}}
 {{end}}
 {{range .Vars}}{{node $ .Decl}}
-{{comment_text .Doc "> " ""}}
-{{end}}
-``` go
-{{example_text $ "" "    // "}}
+{{comment_text .Doc "> " ""}}```go
+{{example_text $ .Name "    // "}}
 ```
+{{end}}
 {{range .Funcs}}#### {{.Name}}
-
 ```go
 {{node $ .Decl}}
 ```
 {{comment_text .Doc "> " ""}}
-``` go
-{{example_text $ "" "    // "}}
+```go
+{{example_text $ .Name "    // "}}
 ```
 {{end}}{{range .Methods}}{{/* methods */}}#### {{.Name}}
-
 ```go
 {{node $ .Decl}}
 ```
 {{comment_text .Doc "> " ""}}
 {{$name := printf "%s_%s" $tname .Name}}
-{{if example_text $ $name ""}}
-``` go
-{{example_text $ "" "    // "}}
+{{if example_text $ $name ""}}```go
+{{example_text $ $name "    // "}}
 ```
 {{end}}
 {{end}}{{end}}{{end}}{{/*
@@ -89,13 +83,11 @@ import "github.com/jmervine/go-maxcdn"
 
 */}}{{with .Funcs}}
 {{range .}}#### {{.Name}}
-
 ```go
 {{node $ .Decl}}
 ```
-{{comment_text .Doc "> " ""}}
-``` go
-{{example_text $ "" "    // "}}
+{{comment_text .Doc "> " ""}}```go
+{{example_text $ .Name "    // "}}
 ```
 {{end}}{{end}}{{/*
 

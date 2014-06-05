@@ -20,11 +20,14 @@ $ cd examples/maxpopular
 $ go build
 
 $ ./maxpopular -h
-Usage of ./maxpopular:
-  -alias="": MaxCDN consumer alias.
-  -secret="": MaxCDN consumer secret.
-  -token="": MaxCDN consumer token.
-  -top=0: Only show top N results, zero shows all.
+Usage: maxpopular [arguments...]
+Options:
+   --alias, -a          [required] consumer alias
+   --token, -t          [required] consumer token
+   --secret, -s         [required] consumer secret
+   --top, -n '0'        show top N results, zero shows all
+   --version, -v        print the version
+   --help, -h           show help
 
 $ ./maxpopular -alias YOUR_ALIAS -token YOUR_TOKEN -secret YOUR_SECRET -top 5
       hits | file
@@ -46,10 +49,14 @@ This can also be installed for system wide use if your `GOBIN` is set via the fo
 $ go get github.com/jmervine/go-maxcdn
 $ go install github.com/jmervine/go-maxcdn/examples/maxpopular
 $ maxpopular -h
-Usage of maxpopular:
-  -alias="": MaxCDN consumer alias.
-  -secret="": MaxCDN consumer secret.
-  -token="": MaxCDN consumer token.
-  -top=0: Only show top N results, zero shows all.
+Usage: maxpopular [arguments...]
+Options:
+   --alias, -a          [required] consumer alias
+   --token, -t          [required] consumer token
+   --secret, -s         [required] consumer secret
+   --top, -n '0'        show top N results, zero shows all
+   --version, -v        print the version
+   --help, -h           show help
+
 ```
 

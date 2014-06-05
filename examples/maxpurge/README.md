@@ -11,12 +11,15 @@ $ cd examples/maxpurge
 $ go build -o maxpurge
 
 $ ./maxpurge -h
-Usage of ./maxpurge:
-  -alias="": MaxCDN consumer alias.
-  -file="": MaxCDN cached file to be purged (empty purges all).
-  -secret="": MaxCDN consumer secret.
-  -token="": MaxCDN consumer token.
-  -zone="": MaxCDN zone to be purged.
+Usage: maxpurge [arguments...]
+Options:
+   --alias, -a          [required] consumer alias
+   --token, -t          [required] consumer token
+   --secret, -s         [required] consumer secret
+   --zone, -z           [required] zone to be purged
+   --file, -f           cached file to be purged
+   --version, -v        print the version
+   --help, -h           show help
 
 $ ./maxpurge -alias YOUR_ALIAS -token YOUR_TOKEN -secret YOUR_SECRET \
     -zone 123456
@@ -36,11 +39,14 @@ This can also be installed for system wide use if your `GOBIN` is set via the fo
 $ go get github.com/jmervine/go-maxcdn
 $ go install github.com/jmervine/go-maxcdn/examples/maxpurge
 $ maxpurge -h
-Usage of maxpurge:
-  -alias="": MaxCDN consumer alias.
-  -file="": MaxCDN cached file to be maxpurged (empty maxpurges all).
-  -secret="": MaxCDN consumer secret.
-  -token="": MaxCDN consumer token.
-  -zone="": MaxCDN zone to be maxpurged.
+Usage: maxpurge [arguments...]
+Options:
+   --alias, -a          [required] consumer alias
+   --token, -t          [required] consumer token
+   --secret, -s         [required] consumer secret
+   --zone, -z           [required] zone to be purged
+   --file, -f           cached file to be purged
+   --version, -v        print the version
+   --help, -h           show help
 ```
 
