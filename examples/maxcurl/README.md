@@ -3,6 +3,10 @@ maxcurl example
 
 This example, beyond being a very useful tool in itself, shows the most basic `Do` usage.
 
+> All examples may seem to a be a bit overly complex, but that's because (a) the documentation
+> has examples for pretty much everything and (b) these are intended to be fully functional
+> and useful tools for interacting with MaxCDN's API.
+
 Trying this example:
 --------------------
 
@@ -12,15 +16,7 @@ $ go build
 
 $ ./maxcurl -h
 Usage: maxcurl [arguments...]
-Options:
-   --alias, -a          [required] consumer alias
-   --token, -t          [required] consumer token
-   --secret, -s         [required] consumer secret
-   --path, -p           [required] request path, e.g. /account.json
-   --method, -X 'GET'   request method
-   --pretty, --pp       pretty print json output
-   --version, -v        print the version
-   --help, -h           show help
+# ...
 
 $ ./maxcurl -p /zones/pull.json/count -pp
 {
@@ -41,14 +37,6 @@ $ go get github.com/jmervine/go-maxcdn
 $ go install github.com/jmervine/go-maxcdn/examples/maxcurl
 $ maxcurl -h
 Usage: maxcurl [arguments...]
-Options:
-   --alias, -a          [required] consumer alias
-   --token, -t          [required] consumer token
-   --secret, -s         [required] consumer secret
-   --path, -p           [required] request path, e.g. /account.json
-   --method, -X 'GET'   request method
-   --pretty, --pp       pretty print json output
-   --version, -v        print the version
-   --help, -h           show help
+# ...
 ```
 

@@ -3,6 +3,9 @@ maxpopular example
 
 This example shows two things, first and primarily how to set up a custom mapper, should you need one. Second, a basic `Get`.
 
+> All examples may seem to a be a bit overly complex, but that's because (a) the documentation
+> has examples for pretty much everything and (b) these are intended to be fully functional
+> and useful tools for interacting with MaxCDN's API.
 
 Custom Mapping:
 ---------------
@@ -21,13 +24,7 @@ $ go build
 
 $ ./maxpopular -h
 Usage: maxpopular [arguments...]
-Options:
-   --alias, -a          [required] consumer alias
-   --token, -t          [required] consumer token
-   --secret, -s         [required] consumer secret
-   --top, -n '0'        show top N results, zero shows all
-   --version, -v        print the version
-   --help, -h           show help
+# ...
 
 $ ./maxpopular -alias YOUR_ALIAS -token YOUR_TOKEN -secret YOUR_SECRET -top 5
       hits | file
@@ -50,13 +47,6 @@ $ go get github.com/jmervine/go-maxcdn
 $ go install github.com/jmervine/go-maxcdn/examples/maxpopular
 $ maxpopular -h
 Usage: maxpopular [arguments...]
-Options:
-   --alias, -a          [required] consumer alias
-   --token, -t          [required] consumer token
-   --secret, -s         [required] consumer secret
-   --top, -n '0'        show top N results, zero shows all
-   --version, -v        print the version
-   --help, -h           show help
+# ...
 
 ```
-

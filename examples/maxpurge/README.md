@@ -12,14 +12,7 @@ $ go build -o maxpurge
 
 $ ./maxpurge -h
 Usage: maxpurge [arguments...]
-Options:
-   --alias, -a          [required] consumer alias
-   --token, -t          [required] consumer token
-   --secret, -s         [required] consumer secret
-   --zone, -z           [required] zone to be purged
-   --file, -f           cached file to be purged
-   --version, -v        print the version
-   --help, -h           show help
+# ...
 
 $ ./maxpurge -alias YOUR_ALIAS -token YOUR_TOKEN -secret YOUR_SECRET \
     -zone 123456
@@ -40,13 +33,6 @@ $ go get github.com/jmervine/go-maxcdn
 $ go install github.com/jmervine/go-maxcdn/examples/maxpurge
 $ maxpurge -h
 Usage: maxpurge [arguments...]
-Options:
-   --alias, -a          [required] consumer alias
-   --token, -t          [required] consumer token
-   --secret, -s         [required] consumer secret
-   --zone, -z           [required] zone to be purged
-   --file, -f           cached file to be purged
-   --version, -v        print the version
-   --help, -h           show help
+# ...
 ```
 
