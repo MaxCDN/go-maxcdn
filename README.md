@@ -29,10 +29,10 @@ This package should be considered beta. The final release will be moved to
 	// your purpose. More specific responses are planned for
 	// future versions, but there are too many make it worth
 	// implementing all of them, so this support should remain.
-	raw, err := max.Do("GET", "/account.json", nil)
+	raw, res, err := max.Do("GET", "/account.json", nil)
 	
 	if err != nil {
-	    return
+	    panic(fmt.Errorf("[%s] %v", res.Status, err))
 	}
 	
 	mapper := GenericResponse{}
@@ -64,11 +64,12 @@ var APIHost = "https://rws.netdna.com"
 type GenericResponse struct {
     Code  int                    `json:"code"`
     Data  map[string]interface{} `json:"data"`
-    Raw   []byte                 // include raw json in GenericResponse
     Error struct {
         Message string `json:"message"`
         Type    string `json:"type"`
     } `json:"error"`
+    Raw      []byte         // include raw json in GenericResponse
+    Response *http.Response // include response in GenericResponse
 }
 ```
 
@@ -84,7 +85,12 @@ func (mapper *GenericResponse) Parse(raw []byte) (err error)
 #### MaxCDN
 ```go
 type MaxCDN struct {
+
+    // MaxCDN Consumer Alias
     Alias string
+
+    // Display raw http Request and Response for each http Transport
+    Verbose bool
 
     HTTPClient *http.Client
     // contains filtered or unexported fields
@@ -131,7 +137,7 @@ func (max *MaxCDN) Delete(endpoint string) (mapper *GenericResponse, err error)
 
 #### Do
 ```go
-func (max *MaxCDN) Do(method, endpoint string, form url.Values) (raw []byte, err error)
+func (max *MaxCDN) Do(method, endpoint string, form url.Values) (raw []byte, res *http.Response, err error)
 ```
 > Do is a generic method to interact with MaxCDN's RESTful API. It's used by
 > all other methods.
@@ -145,14 +151,15 @@ func (max *MaxCDN) Do(method, endpoint string, form url.Values) (raw []byte, err
 ```go
     // Example:
 	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
-	raw, err := max.Do("GET", "/account.json", nil)
+	raw, res, err := max.Do("GET", "/account.json", nil)
 	
 	if err != nil {
-	    return
+	    panic(fmt.Errorf("[%s] %v", res.Status, err))
 	}
 	
 	mapper := GenericResponse{}
-	mapper.Raw = raw // include raw json in GenericResponse
+	mapper.Response = res
+	mapper.Raw = raw
 	
 	err = json.Unmarshal(raw, &mapper)
 	if err != nil {

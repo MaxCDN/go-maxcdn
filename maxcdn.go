@@ -29,7 +29,12 @@ var APIHost = "https://rws.netdna.com"
 // HTTPClient can be overridden as needed, but will be set to
 // http.DefaultClient by default.
 type MaxCDN struct {
-	Alias      string
+
+	// MaxCDN Consumer Alias
+	Alias string
+
+	// Display raw http Request and Response for each http Transport
+	Verbose    bool
 	client     oauth.Client
 	HTTPClient *http.Client
 }
@@ -246,8 +251,16 @@ func (max *MaxCDN) Do(method, endpoint string, form url.Values) (raw []byte, res
 	req.Header.Set("Content-Type", contentType)
 	req.Header.Set("User-Agent", userAgent)
 
+	if max.Verbose {
+		fmt.Printf("Request:\n%+v\n", req)
+	}
+
 	res, err = max.HTTPClient.Do(req)
 	defer res.Body.Close()
+
+	if max.Verbose {
+		fmt.Printf("Response:\n%+v\n", res)
+	}
 
 	raw, err = ioutil.ReadAll(res.Body)
 
