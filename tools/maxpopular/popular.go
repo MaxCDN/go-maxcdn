@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"net/url"
 	"os"
 	"strings"
 	"text/tabwriter"
@@ -108,6 +109,8 @@ Sample configuration:
 		cli.StringFlag{"token, t", "", "[required] consumer token"},
 		cli.StringFlag{"secret, s", "", "[required] consumer secret"},
 		cli.StringFlag{"host, H", "", "override default API host"},
+		cli.StringFlag{"from", "", "report start data (YYYY-MM-DD)"},
+		cli.StringFlag{"to", "", "report end data (YYYY-MM-DD)"},
 		cli.IntFlag{"top, n", 0, "show top N results, zero shows all"},
 		cli.BoolFlag{"verbose", "display verbose http transport information"},
 	}
@@ -146,6 +149,8 @@ Sample configuration:
 		}
 
 		config.Verbose = c.Bool("verbose")
+		config.From = c.String("from")
+		config.To = c.String("to")
 		if v := c.String("host"); v != "" {
 			config.Host = v
 		}
@@ -163,7 +168,17 @@ func main() {
 	max.Verbose = config.Verbose
 
 	mapper := PopularFiles{}
-	raw, _, err := max.Do("GET", "/reports/popularfiles.json", nil)
+
+	form := make(url.Values)
+	if config.From != "" {
+		form.Set("date_from", config.From)
+	}
+
+	if config.To != "" {
+		form.Set("date_to", config.To)
+	}
+
+	raw, _, err := max.Do("GET", "/reports/popularfiles.json", form)
 	check(err)
 
 	err = mapper.Parse(raw)
@@ -204,12 +219,13 @@ func helpPrinter(templ string, data interface{}) {
  */
 
 type Config struct {
-	Host    string `yaml: host,omitempty`
-	Alias   string `yaml: alias,omitempty`
-	Token   string `yaml: token,omitempty`
-	Secret  string `yaml: secret,omitempty`
-	Top     int
-	Verbose bool
+	Host     string `yaml: host,omitempty`
+	Alias    string `yaml: alias,omitempty`
+	Token    string `yaml: token,omitempty`
+	Secret   string `yaml: secret,omitempty`
+	From, To string
+	Top      int
+	Verbose  bool
 }
 
 func LoadConfig(file string) (c Config, e error) {
