@@ -69,6 +69,7 @@ Sample configuration:
 		cli.StringFlag{"secret, s", "", "[required] consumer secret"},
 		cli.StringFlag{"method, X", "GET", "request method"},
 		cli.StringFlag{"host, H", "", "override default API host"},
+		cli.BoolFlag{"headers, i", "show headers with body"},
 		cli.BoolFlag{"pretty, pp", "pretty print json output"},
 	}
 
@@ -99,6 +100,7 @@ Sample configuration:
 		}
 
 		config.Method = c.String("method")
+		config.Headers = c.Bool("headers")
 		config.Path = c.Args().First()
 
 		if !config.Validate() {
@@ -132,7 +134,7 @@ func main() {
 	form := u.Query()
 
 	// request raw data from maxcdn
-	raw, _, err := max.Do(config.Method, config.Path, form)
+	raw, res, err := max.Do(config.Method, config.Path, form)
 	check(err)
 
 	if config.Pretty {
@@ -146,6 +148,9 @@ func main() {
 	}
 
 	// print
+	if config.Headers {
+		fmt.Println(fmtHeaders(res.Header))
+	}
 	fmt.Printf("%v\n", string(raw))
 }
 
@@ -167,6 +172,13 @@ func helpPrinter(templ string, data interface{}) {
 	os.Exit(0)
 }
 
+func fmtHeaders(headers map[string][]string) (out string) {
+	for k, v := range headers {
+		out += fmt.Sprintf("%s => %s\n", k, strings.Join(v, ", "))
+	}
+	return
+}
+
 /*
  * Config file handlers
  */
@@ -180,6 +192,7 @@ type Config struct {
 
 	// configs not from yaml
 	Method, Path string
+	Headers      bool
 }
 
 func LoadConfig(file string) (c Config, e error) {

@@ -250,5 +250,9 @@ func (max *MaxCDN) Do(method, endpoint string, form url.Values) (raw []byte, res
 	defer res.Body.Close()
 
 	raw, err = ioutil.ReadAll(res.Body)
+
+	// Note: returning the response along with the raw body and err seems a bit clunky,
+	// but there are valid use-cases having the raw response is useful. For an example,
+	// see tools/maxcurl/maxcurl.go and it's header flag implementation.
 	return raw, res, err
 }
