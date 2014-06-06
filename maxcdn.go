@@ -113,43 +113,33 @@ func (max *MaxCDN) PurgeZone(zone int) (*GenericResponse, error) {
 }
 
 // PurgeZones purges multiple zones caches.
-func (max *MaxCDN) PurgeZones(zones []int) (responses []GenericResponse, last error) {
-	var rc chan *GenericResponse
-	var ec chan error
+func (max *MaxCDN) PurgeZones(zones []int) (resps []*GenericResponse, last error) {
+	var resChannel = make(chan *GenericResponse)
+	var errChannel = make(chan error)
 
-	waiter := sync.WaitGroup{}
 	mutex := sync.Mutex{}
+	for _, zone := range zones {
+		go func(zone int) {
+			res, err := max.PurgeZone(zone)
 
-	done := func() {
-		waiter.Done()
+			resChannel <- res
+			errChannel <- err
+		}(zone)
 	}
 
-	send := func(zone int) {
-		defer done()
-		r, e := max.PurgeZone(zone)
+	// Wait for all responses to come back.
+	// TODO: Consider adding some method of timing out.
+	for _ = range zones {
+		res := <-resChannel
+		err := <-errChannel
 
-		rc <- r
-		ec <- e
-	}
-
-	collect := func() {
-		defer done()
-		r := <-rc
-		e := <-ec
-
+		// I think the mutex might be overkill here, but I'm being
+		// safe.
 		mutex.Lock()
-		responses = append(responses, *r)
-		last = e
+		resps = append(resps, res)
+		last = err
 		mutex.Unlock()
 	}
-
-	for _, zone := range zones {
-		waiter.Add(2)
-		go send(zone)
-		go collect()
-	}
-
-	waiter.Wait()
 	return
 }
 
@@ -170,43 +160,33 @@ func (max *MaxCDN) PurgeFile(zone int, file string) (mapper *GenericResponse, er
 }
 
 // PurgeFiles purges multiple files from a zone.
-func (max *MaxCDN) PurgeFiles(zone int, files []string) (responses []GenericResponse, last error) {
-	var rc chan *GenericResponse
-	var ec chan error
+func (max *MaxCDN) PurgeFiles(zone int, files []string) (resps []*GenericResponse, last error) {
+	var resChannel = make(chan *GenericResponse)
+	var errChannel = make(chan error)
 
-	waiter := sync.WaitGroup{}
 	mutex := sync.Mutex{}
+	for _, file := range files {
+		go func(file string) {
+			res, err := max.PurgeFile(zone, file)
 
-	done := func() {
-		waiter.Done()
+			resChannel <- res
+			errChannel <- err
+		}(file)
 	}
 
-	send := func(file string) {
-		defer done()
-		r, e := max.PurgeFile(zone, file)
+	// Wait for all responses to come back.
+	// TODO: Consider adding some method of timing out.
+	for _ = range files {
+		res := <-resChannel
+		err := <-errChannel
 
-		rc <- r
-		ec <- e
-	}
-
-	collect := func() {
-		defer done()
-		r := <-rc
-		e := <-ec
-
+		// I think the mutex might be overkill here, but I'm being
+		// safe.
 		mutex.Lock()
-		responses = append(responses, *r)
-		last = e
+		resps = append(resps, res)
+		last = err
 		mutex.Unlock()
 	}
-
-	for _, file := range files {
-		waiter.Add(2)
-		go send(file)
-		go collect()
-	}
-
-	waiter.Wait()
 	return
 }
 

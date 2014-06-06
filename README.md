@@ -245,7 +245,7 @@ func (max *MaxCDN) PurgeFile(zone int, file string) (mapper *GenericResponse, er
 
 #### PurgeFiles
 ```go
-func (max *MaxCDN) PurgeFiles(zone int, files []string) (responses []GenericResponse, last error)
+func (max *MaxCDN) PurgeFiles(zone int, files []string) (resps []*GenericResponse, last error)
 ```
 > PurgeFiles purges multiple files from a zone.
 
@@ -290,7 +290,7 @@ func (max *MaxCDN) PurgeZone(zone int) (*GenericResponse, error)
 
 #### PurgeZones
 ```go
-func (max *MaxCDN) PurgeZones(zones []int) (responses []GenericResponse, last error)
+func (max *MaxCDN) PurgeZones(zones []int) (resps []*GenericResponse, last error)
 ```
 > PurgeZones purges multiple zones caches.
 
