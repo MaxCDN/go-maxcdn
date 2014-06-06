@@ -234,7 +234,7 @@ func (max *MaxCDN) Do(method, endpoint string, form url.Values) (raw []byte, res
 
 	if max.Verbose {
 		if j, e := json.MarshalIndent(req, "", "  "); e == nil {
-			fmt.Printf("---\nRequest:\n%+v\n\n", j)
+			fmt.Printf("---\nRequest:\n%s\n\n", j)
 		}
 	}
 
@@ -243,7 +243,7 @@ func (max *MaxCDN) Do(method, endpoint string, form url.Values) (raw []byte, res
 
 	if max.Verbose {
 		if j, e := json.MarshalIndent(res, "", "  "); e == nil {
-			fmt.Printf("---\nResponse:\n%+v\n\n", j)
+			fmt.Printf("---\nResponse:\n%s\n\n", j)
 		}
 	}
 
