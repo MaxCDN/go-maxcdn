@@ -33,11 +33,11 @@ $ ./maxpurge -h
 Usage: maxpurge [arguments...]
 # ...
 
-$ ./maxpurge -alias YOUR_ALIAS -token YOUR_TOKEN -secret YOUR_SECRET \
+$ ./maxpurge -alias ALIAS -token TOKEN -secret SECRET \
     -zone 123456
 Purge successful after: 2.078010673s.
 
-$ ./maxpurge -alias YOUR_ALIAS -token YOUR_TOKEN -secret YOUR_SECRET \
+$ ./maxpurge -alias ALIAS -token TOKEN -secret SECRET \
     -zone 123456 -file "/master.css"
 Purge successful after: 1.078010673s.
 ```

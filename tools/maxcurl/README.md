@@ -24,10 +24,10 @@ $ cd tools/maxcurl
 $ go build
 
 $ ./maxcurl -h
-Usage: maxcurl [arguments...]
+Usage: maxcurl [arguments...] PATH
 # ...
 
-$ ./maxcurl -p /zones/pull.json/count -pp
+$ ./maxcurl -a ALIAS -t TOKEN -s SECRET -pp /zones/pull.json/count
 {
   "code": 200,
   "data": {

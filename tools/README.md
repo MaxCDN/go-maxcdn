@@ -12,3 +12,17 @@ secret: YOUR_SECRET
 ```
 
 See [sample.maxcdn.yml](sample.maxcdn.yml) for a more complete example.
+
+
+Installing:
+-----------
+
+This can also be installed for system wide use if your `GOBIN` is set via the following:
+
+```bash
+$ go get github.com/jmervine/go-maxcdn
+$ go install github.com/jmervine/go-maxcdn/tools/TOOL_NAME
+```
+
+See individal tool README for additional instructions.
+

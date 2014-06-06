@@ -36,7 +36,7 @@ $ ./maxpopular -h
 Usage: maxpopular [arguments...]
 # ...
 
-$ ./maxpopular -alias YOUR_ALIAS -token YOUR_TOKEN -secret YOUR_SECRET -top 5
+$ ./maxpopular -alias ALIAS -token TOKEN -secret SECRET -top 5
       hits | file
    -----------------
       6295 | /bootstrap/favicon.ico
