@@ -103,7 +103,8 @@ Sample configuration:
 		config.Headers = c.Bool("headers")
 		config.Path = c.Args().First()
 
-		if !config.Validate() {
+		if v := config.Validate(); v != "" {
+			fmt.Printf("argument error:\n%s\n", v)
 			cli.ShowAppHelp(c)
 		}
 
@@ -207,6 +208,22 @@ func LoadConfig(file string) (c Config, e error) {
 	return
 }
 
-func (c *Config) Validate() bool {
-	return (c.Alias != "" && c.Token != "" && c.Secret != "" && c.Path != "")
+func (c *Config) Validate() (out string) {
+	if c.Alias == "" {
+		out += "- missing alias value\n"
+	}
+
+	if c.Token == "" {
+		out += "- missing token value\n"
+	}
+
+	if c.Secret == "" {
+		out += "- missing secret value\n"
+	}
+
+	if c.Path == "" {
+		out += "- missing path value\n"
+	}
+
+	return
 }

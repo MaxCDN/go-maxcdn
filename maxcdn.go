@@ -232,14 +232,14 @@ func (max *MaxCDN) Do(method, endpoint string, form url.Values) (raw []byte, res
 	req.Header.Set("User-Agent", userAgent)
 
 	if max.Verbose {
-		fmt.Printf("Request:\n%+v\n", req)
+		fmt.Printf("---\nRequest:\n%+v\n\n", req)
 	}
 
 	res, err = max.HTTPClient.Do(req)
 	defer res.Body.Close()
 
 	if max.Verbose {
-		fmt.Printf("Response:\n%+v\n", res)
+		fmt.Printf("---\nResponse:\n%+v\n\n", res)
 	}
 
 	raw, err = ioutil.ReadAll(res.Body)

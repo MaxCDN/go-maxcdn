@@ -19,7 +19,6 @@ var start time.Time
 var config Config
 
 func init() {
-
 	// Override cli's default help template
 	cli.AppHelpTemplate = `Usage: {{.Name}} [arguments...]
 Options:
@@ -62,9 +61,10 @@ Sample configuration:
 		cli.StringFlag{"alias, a", "", "[required] consumer alias"},
 		cli.StringFlag{"token, t", "", "[required] consumer token"},
 		cli.StringFlag{"secret, s", "", "[required] consumer secret"},
-		cli.StringFlag{"zone, z", "", "[required] zone to be purged"},
-		cli.StringFlag{"file, f", "", "cached file to be purged"},
+		cli.IntSliceFlag{"zones, z", new(cli.IntSlice), "[required] zone to be purged"},
+		cli.StringSliceFlag{"files, f", new(cli.StringSlice), "cached file to be purged"},
 		cli.StringFlag{"host, H", "", "override default API host"},
+		cli.BoolFlag{"verbose", "display verbose http transport information"},
 	}
 
 	app.Action = func(c *cli.Context) {
@@ -93,16 +93,23 @@ Sample configuration:
 			config.Secret = v
 		}
 
-		if v := c.String("zone"); v != "" {
-			config.Zone = v
+		if v := c.IntSlice("zones"); len(v) != 0 {
+			config.Zones = v
 		} else if v := os.Getenv("ZONE"); v != "" {
-			config.Zone = v
+			zones := strings.Split(v, ",")
+			for i, z := range zones {
+				n, err := strconv.ParseInt(strings.TrimSpace(z), 0, 64)
+				check(err)
+
+				config.Zones[i] = int(n)
+			}
 		}
 
-		config.File = c.String("file")
+		config.Files = c.StringSlice("files")
+		config.Verbose = c.Bool("verbose")
 
-		if !config.Validate() {
-			fmt.Printf("%+v\n", config)
+		if v := config.Validate(); v != "" {
+			fmt.Printf("argument error:\n%s\n", v)
 			cli.ShowAppHelp(c)
 		}
 
@@ -122,28 +129,35 @@ Sample configuration:
 
 func main() {
 	max := maxcdn.NewMaxCDN(config.Alias, config.Token, config.Secret)
+	max.Verbose = config.Verbose
 
-	i, err := strconv.ParseInt(config.Zone, 0, 64)
-	check(err)
+	var response []*maxcdn.GenericResponse
+	var err error
+	var successful bool
 
-	zoneid := int(i)
-
-	var response *maxcdn.GenericResponse
-	if config.File != "" {
-		response, err = max.PurgeFile(zoneid, config.File)
+	if len(config.Files) != 0 {
+		var resps []*maxcdn.GenericResponse
+		for _, zone := range config.Zones {
+			resps, err = max.PurgeFiles(zone, config.Files)
+			response = append(response, resps...)
+		}
+		successful = len(response) == (len(config.Files) * len(config.Zones))
 	} else {
-		response, err = max.PurgeZone(zoneid)
+		response, err = max.PurgeZones(config.Zones)
+		successful = (len(response) == len(config.Zones))
 	}
 	check(err)
 
-	if response.Code == 200 {
+	if successful {
 		fmt.Printf("Purge successful after: %v.\n", time.Since(start))
+	} else {
+		check(fmt.Errorf("error: one or more of your purges did not succeed"))
 	}
 }
 
 func check(err error) {
 	if err != nil {
-		fmt.Printf("%v.\n\nPurge failed after %v.\n", err, time.Since(start))
+		fmt.Printf("%v\n\nPurge failed after %v.\n", err, time.Since(start))
 		os.Exit(2)
 	}
 }
@@ -166,14 +180,13 @@ func helpPrinter(templ string, data interface{}) {
  */
 
 type Config struct {
-	Host   string `yaml: host,omitempty`
-	Alias  string `yaml: alias,omitempty`
-	Token  string `yaml: token,omitempty`
-	Secret string `yaml: secret,omitempty`
-	Zone   string `yaml: secret,omitempty`
-
-	// configs not from yaml
-	File string
+	Host    string `yaml: host,omitempty`
+	Alias   string `yaml: alias,omitempty`
+	Token   string `yaml: token,omitempty`
+	Secret  string `yaml: secret,omitempty`
+	Zones   []int  `yaml: secret,omitempty`
+	Files   []string
+	Verbose bool
 }
 
 func LoadConfig(file string) (c Config, e error) {
@@ -188,6 +201,22 @@ func LoadConfig(file string) (c Config, e error) {
 	return
 }
 
-func (c *Config) Validate() bool {
-	return (c.Alias != "" && c.Token != "" && c.Secret != "" && c.Zone != "")
+func (c *Config) Validate() (out string) {
+	if c.Alias == "" {
+		out += "- missing alias value\n"
+	}
+
+	if c.Token == "" {
+		out += "- missing token value\n"
+	}
+
+	if c.Secret == "" {
+		out += "- missing secret value\n"
+	}
+
+	if len(c.Zones) == 0 {
+		out += "- missing zones value\n"
+	}
+
+	return
 }
