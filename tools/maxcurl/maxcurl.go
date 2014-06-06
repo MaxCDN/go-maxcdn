@@ -71,6 +71,7 @@ Sample configuration:
 		cli.StringFlag{"host, H", "", "override default API host"},
 		cli.BoolFlag{"headers, i", "show headers with body"},
 		cli.BoolFlag{"pretty, pp", "pretty print json output"},
+		cli.BoolFlag{"verbose", "display verbose http transport information"},
 	}
 
 	app.Action = func(c *cli.Context) {
@@ -108,6 +109,7 @@ Sample configuration:
 			cli.ShowAppHelp(c)
 		}
 
+		config.Verbose = c.Bool("verbose")
 		if v := c.String("host"); v != "" {
 			config.Host = v
 		}
@@ -126,6 +128,7 @@ Sample configuration:
 
 func main() {
 	max := maxcdn.NewMaxCDN(config.Alias, config.Token, config.Secret)
+	max.Verbose = config.Verbose
 
 	// seperate path and query
 	u, err := url.Parse(config.Path)
@@ -185,15 +188,14 @@ func fmtHeaders(headers map[string][]string) (out string) {
  */
 
 type Config struct {
-	Host   string `yaml: host,omitempty`
-	Alias  string `yaml: alias,omitempty`
-	Token  string `yaml: token,omitempty`
-	Secret string `yaml: secret,omitempty`
-	Pretty bool   `yaml: pretty,omitempty`
-
-	// configs not from yaml
+	Host         string `yaml: host,omitempty`
+	Alias        string `yaml: alias,omitempty`
+	Token        string `yaml: token,omitempty`
+	Secret       string `yaml: secret,omitempty`
+	Pretty       bool   `yaml: pretty,omitempty`
 	Method, Path string
 	Headers      bool
+	Verbose      bool
 }
 
 func LoadConfig(file string) (c Config, e error) {

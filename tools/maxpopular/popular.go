@@ -109,6 +109,7 @@ Sample configuration:
 		cli.StringFlag{"secret, s", "", "[required] consumer secret"},
 		cli.StringFlag{"host, H", "", "override default API host"},
 		cli.IntFlag{"top, n", 0, "show top N results, zero shows all"},
+		cli.BoolFlag{"verbose", "display verbose http transport information"},
 	}
 
 	app.Action = func(c *cli.Context) {
@@ -144,6 +145,7 @@ Sample configuration:
 			cli.ShowAppHelp(c)
 		}
 
+		config.Verbose = c.Bool("verbose")
 		if v := c.String("host"); v != "" {
 			config.Host = v
 		}
@@ -158,6 +160,7 @@ Sample configuration:
 
 func main() {
 	max := maxcdn.NewMaxCDN(config.Alias, config.Token, config.Secret)
+	max.Verbose = config.Verbose
 
 	mapper := PopularFiles{}
 	raw, _, err := max.Do("GET", "/reports/popularfiles.json", nil)
@@ -201,13 +204,12 @@ func helpPrinter(templ string, data interface{}) {
  */
 
 type Config struct {
-	Host   string `yaml: host,omitempty`
-	Alias  string `yaml: alias,omitempty`
-	Token  string `yaml: token,omitempty`
-	Secret string `yaml: secret,omitempty`
-
-	// configs not from yaml
-	Top int
+	Host    string `yaml: host,omitempty`
+	Alias   string `yaml: alias,omitempty`
+	Token   string `yaml: token,omitempty`
+	Secret  string `yaml: secret,omitempty`
+	Top     int
+	Verbose bool
 }
 
 func LoadConfig(file string) (c Config, e error) {
