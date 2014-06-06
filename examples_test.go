@@ -32,10 +32,10 @@ func Example() {
 	// your purpose. More specific responses are planned for
 	// future versions, but there are too many make it worth
 	// implementing all of them, so this support should remain.
-	raw, err := max.Do("GET", "/account.json", nil)
+	raw, res, err := max.Do("GET", "/account.json", nil)
 
 	if err != nil {
-		return
+		panic(fmt.Errorf("[%s] %v", res.Status, err))
 	}
 
 	mapper := GenericResponse{}
@@ -58,14 +58,15 @@ func ExampleNewMaxCDN() {
 
 func ExampleMaxCDN_Do() {
 	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
-	raw, err := max.Do("GET", "/account.json", nil)
+	raw, res, err := max.Do("GET", "/account.json", nil)
 
 	if err != nil {
-		return
+		panic(fmt.Errorf("[%s] %v", res.Status, err))
 	}
 
 	mapper := GenericResponse{}
-	mapper.Raw = raw // include raw json in GenericResponse
+	mapper.Response = res
+	mapper.Raw = raw
 
 	err = json.Unmarshal(raw, &mapper)
 	if err != nil {

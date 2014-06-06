@@ -53,7 +53,8 @@ func NewMaxCDN(alias, token, secret string) *MaxCDN {
 // Get does an OAuth signed http.Get
 func (max *MaxCDN) Get(endpoint string, form url.Values) (mapper *GenericResponse, err error) {
 	mapper = new(GenericResponse)
-	raw, err := max.Do("GET", endpoint, form)
+	raw, res, err := max.Do("GET", endpoint, form)
+	mapper.Response = res
 	if err != nil {
 		return
 	}
@@ -65,7 +66,8 @@ func (max *MaxCDN) Get(endpoint string, form url.Values) (mapper *GenericRespons
 // Post does an OAuth signed http.Post
 func (max *MaxCDN) Post(endpoint string, form url.Values) (mapper *GenericResponse, err error) {
 	mapper = new(GenericResponse)
-	raw, err := max.Do("POST", endpoint, form)
+	raw, res, err := max.Do("POST", endpoint, form)
+	mapper.Response = res
 	if err != nil {
 		return
 	}
@@ -77,7 +79,8 @@ func (max *MaxCDN) Post(endpoint string, form url.Values) (mapper *GenericRespon
 // Put does an OAuth signed http.Put
 func (max *MaxCDN) Put(endpoint string, form url.Values) (mapper *GenericResponse, err error) {
 	mapper = new(GenericResponse)
-	raw, err := max.Do("PUT", endpoint, form)
+	raw, res, err := max.Do("PUT", endpoint, form)
+	mapper.Response = res
 	if err != nil {
 		return
 	}
@@ -89,7 +92,8 @@ func (max *MaxCDN) Put(endpoint string, form url.Values) (mapper *GenericRespons
 // Delete does an OAuth signed http.Delete
 func (max *MaxCDN) Delete(endpoint string) (mapper *GenericResponse, err error) {
 	mapper = new(GenericResponse)
-	raw, err := max.Do("DELETE", endpoint, nil)
+	raw, res, err := max.Do("DELETE", endpoint, nil)
+	mapper.Response = res
 	if err != nil {
 		return
 	}
@@ -150,7 +154,8 @@ func (max *MaxCDN) PurgeFile(zone int, file string) (mapper *GenericResponse, er
 	form.Set("file", file)
 
 	mapper = new(GenericResponse)
-	raw, err := max.Do("DELETE", fmt.Sprintf("/zones/pull.json/%d/cache", zone), form)
+	raw, res, err := max.Do("DELETE", fmt.Sprintf("/zones/pull.json/%d/cache", zone), form)
+	mapper.Response = res
 	if err != nil {
 		return
 	}
@@ -212,7 +217,7 @@ func (max *MaxCDN) url(endpoint string) string {
 // exactly mapping the json response to your purpose. More specific
 // responses are planned for future versions, but there are too many make
 // it worth implementing all of them, so this support should remain.
-func (max *MaxCDN) Do(method, endpoint string, form url.Values) (raw []byte, err error) {
+func (max *MaxCDN) Do(method, endpoint string, form url.Values) (raw []byte, res *http.Response, err error) {
 	var req *http.Request
 
 	req, err = http.NewRequest(method, max.url(endpoint), nil)
@@ -221,7 +226,7 @@ func (max *MaxCDN) Do(method, endpoint string, form url.Values) (raw []byte, err
 	}
 
 	if method == "GET" && req.URL.RawQuery != "" {
-		return nil, errors.New("oauth: url must not contain a query string")
+		return nil, nil, errors.New("oauth: url must not contain a query string")
 	}
 
 	if form != nil {
@@ -241,12 +246,9 @@ func (max *MaxCDN) Do(method, endpoint string, form url.Values) (raw []byte, err
 	req.Header.Set("Content-Type", contentType)
 	req.Header.Set("User-Agent", userAgent)
 
-	response, err := max.HTTPClient.Do(req)
-	defer response.Body.Close()
+	res, err = max.HTTPClient.Do(req)
+	defer res.Body.Close()
 
-	return ioutil.ReadAll(response.Body)
-
-	//var mapper GenericResponse
-	//err = mapper.Parse(resp)
-	//return &mapper, err
+	raw, err = ioutil.ReadAll(res.Body)
+	return raw, res, err
 }

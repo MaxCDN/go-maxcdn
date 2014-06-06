@@ -159,7 +159,7 @@ func main() {
 	max := maxcdn.NewMaxCDN(config.Alias, config.Token, config.Secret)
 
 	mapper := PopularFiles{}
-	raw, err := max.Do("GET", "/reports/popularfiles.json", nil)
+	raw, _, err := max.Do("GET", "/reports/popularfiles.json", nil)
 	check(err)
 
 	err = mapper.Parse(raw)

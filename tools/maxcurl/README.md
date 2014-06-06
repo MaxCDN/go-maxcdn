@@ -12,7 +12,7 @@ This can also be installed for system wide use if your `GOBIN` is set via the fo
 $ go get github.com/jmervine/go-maxcdn
 $ go install github.com/jmervine/go-maxcdn/tools/maxcurl
 $ maxcurl -h
-Usage: maxcurl [arguments...]
+Usage: maxcurl [arguments...] PATH
 # ...
 ```
 

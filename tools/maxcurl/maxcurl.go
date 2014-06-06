@@ -20,7 +20,11 @@ var config Config
 func init() {
 
 	// Override cli's default help template
-	cli.AppHelpTemplate = `Usage: {{.Name}} [arguments...]
+	cli.AppHelpTemplate = `Usage: {{.Name}} [arguments...] PATH
+
+Example:
+
+    $ {{.Name}} -a ALIAS -t TOKEN -s SECRET /account.json
 
 Options:
 
@@ -63,7 +67,6 @@ Sample configuration:
 		cli.StringFlag{"alias, a", "", "[required] consumer alias"},
 		cli.StringFlag{"token, t", "", "[required] consumer token"},
 		cli.StringFlag{"secret, s", "", "[required] consumer secret"},
-		cli.StringFlag{"path, p", "", "[required] request path, e.g. /account.json"},
 		cli.StringFlag{"method, X", "GET", "request method"},
 		cli.StringFlag{"host, H", "", "override default API host"},
 		cli.BoolFlag{"pretty, pp", "pretty print json output"},
@@ -96,7 +99,7 @@ Sample configuration:
 		}
 
 		config.Method = c.String("method")
-		config.Path = c.String("path")
+		config.Path = c.Args().First()
 
 		if !config.Validate() {
 			cli.ShowAppHelp(c)
@@ -129,7 +132,7 @@ func main() {
 	form := u.Query()
 
 	// request raw data from maxcdn
-	raw, err := max.Do(config.Method, config.Path, form)
+	raw, _, err := max.Do(config.Method, config.Path, form)
 	check(err)
 
 	if config.Pretty {
