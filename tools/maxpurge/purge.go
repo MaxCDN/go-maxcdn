@@ -61,8 +61,8 @@ Sample configuration:
 		cli.StringFlag{"alias, a", "", "[required] consumer alias"},
 		cli.StringFlag{"token, t", "", "[required] consumer token"},
 		cli.StringFlag{"secret, s", "", "[required] consumer secret"},
-		cli.IntSliceFlag{"zones, z", new(cli.IntSlice), "[required] zone to be purged"},
-		cli.StringSliceFlag{"files, f", new(cli.StringSlice), "cached file to be purged"},
+		cli.IntSliceFlag{"zone, z", new(cli.IntSlice), "[required] zone to be purged"},
+		cli.StringSliceFlag{"file, f", new(cli.StringSlice), "cached file to be purged"},
 		cli.StringFlag{"host, H", "", "override default API host"},
 		cli.BoolFlag{"verbose", "display verbose http transport information"},
 	}
@@ -93,7 +93,7 @@ Sample configuration:
 			config.Secret = v
 		}
 
-		if v := c.IntSlice("zones"); len(v) != 0 {
+		if v := c.IntSlice("zone"); len(v) != 0 {
 			config.Zones = v
 		} else if v := os.Getenv("ZONE"); v != "" {
 			zones := strings.Split(v, ",")
@@ -105,7 +105,7 @@ Sample configuration:
 			}
 		}
 
-		config.Files = c.StringSlice("files")
+		config.Files = c.StringSlice("file")
 		config.Verbose = c.Bool("verbose")
 
 		if v := config.Validate(); v != "" {

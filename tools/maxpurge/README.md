@@ -34,11 +34,11 @@ Usage: maxpurge [arguments...]
 # ...
 
 $ ./maxpurge -alias ALIAS -token TOKEN -secret SECRET \
-    -zone 123456
+    -zone 123456 -zone 234567
 Purge successful after: 2.078010673s.
 
 $ ./maxpurge -alias ALIAS -token TOKEN -secret SECRET \
-    -zone 123456 -file "/master.css"
+    -zone 123456 -file "/master.css" -file "/master.js"
 Purge successful after: 1.078010673s.
 ```
 
