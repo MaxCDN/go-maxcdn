@@ -5,6 +5,7 @@
 package maxcdn
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -232,14 +233,18 @@ func (max *MaxCDN) Do(method, endpoint string, form url.Values) (raw []byte, res
 	req.Header.Set("User-Agent", userAgent)
 
 	if max.Verbose {
-		fmt.Printf("---\nRequest:\n%+v\n\n", req)
+		if j, e := json.MarshalIndent(req, "", "  "); e == nil {
+			fmt.Printf("---\nRequest:\n%+v\n\n", j)
+		}
 	}
 
 	res, err = max.HTTPClient.Do(req)
 	defer res.Body.Close()
 
 	if max.Verbose {
-		fmt.Printf("---\nResponse:\n%+v\n\n", res)
+		if j, e := json.MarshalIndent(res, "", "  "); e == nil {
+			fmt.Printf("---\nResponse:\n%+v\n\n", j)
+		}
 	}
 
 	raw, err = ioutil.ReadAll(res.Body)
