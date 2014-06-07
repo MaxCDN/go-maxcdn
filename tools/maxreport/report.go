@@ -11,7 +11,6 @@ import (
 
 	"github.com/codegangsta/cli"
 	"github.com/jmervine/go-maxcdn"
-	"github.com/jmervine/go-maxcdn/mappers"
 	"gopkg.in/yaml.v1"
 )
 
@@ -133,8 +132,14 @@ Notes:
 
 				config.Report = "stats"
 				config.ReportType = c.String("type")
-				config.From = c.GlobalString("from")
-				config.To = c.GlobalString("to")
+
+				if f := c.String("from"); f != "" {
+					config.Form.Set("from", f)
+				}
+
+				if f := c.String("to"); f != "" {
+					config.Form.Set("to", f)
+				}
 			},
 		},
 		{
@@ -151,8 +156,13 @@ Notes:
 
 				config.Report = "popular"
 				config.Top = c.Int("top")
-				config.From = c.GlobalString("from")
-				config.To = c.GlobalString("to")
+				if f := c.String("from"); f != "" {
+					config.Form.Set("from", f)
+				}
+
+				if f := c.String("to"); f != "" {
+					config.Form.Set("to", f)
+				}
 			},
 		},
 	}
@@ -182,21 +192,8 @@ func stats(max *maxcdn.MaxCDN) {
 
 func statsSummary(max *maxcdn.MaxCDN) {
 	fmt.Println("Running summary stats report.\n")
-	mapper := mappers.SummaryStats{}
 
-	form := make(url.Values)
-	if config.From != "" {
-		form.Set("date_from", config.From)
-	}
-
-	if config.To != "" {
-		form.Set("date_to", config.To)
-	}
-
-	raw, _, err := max.Do("GET", mappers.StatsEndpoint, form)
-	check(err)
-
-	err = mapper.Parse(raw)
+	mapper, err := max.GetStatsSummary(config.Form)
 	check(err)
 
 	stats := mapper.Data.Stats
@@ -208,22 +205,8 @@ func statsSummary(max *maxcdn.MaxCDN) {
 
 func statsBreakdown(max *maxcdn.MaxCDN) {
 	fmt.Printf("Running %s stats report.\n\n", config.ReportType)
-	mapper := mappers.MultiStats{}
 
-	form := make(url.Values)
-	if config.From != "" {
-		form.Set("date_from", config.From)
-	}
-
-	if config.To != "" {
-		form.Set("date_to", config.To)
-	}
-
-	endpoint := fmt.Sprintf("%s/%s", mappers.StatsEndpoint, config.ReportType)
-	raw, _, err := max.Do("GET", endpoint, form)
-	check(err)
-
-	err = mapper.Parse(raw)
+	mapper, err := max.GetStatsByType(config.ReportType, config.Form)
 	check(err)
 
 	fmt.Printf("%25s | %10s | %10s | %10s | %10s\n", "timestamp", "total", "cached", "non-cached", "size")
@@ -236,21 +219,8 @@ func statsBreakdown(max *maxcdn.MaxCDN) {
 
 func popularFiles(max *maxcdn.MaxCDN) {
 	fmt.Println("Running popular files report.\n")
-	mapper := mappers.PopularFiles{}
 
-	form := make(url.Values)
-	if config.From != "" {
-		form.Set("date_from", config.From)
-	}
-
-	if config.To != "" {
-		form.Set("date_to", config.To)
-	}
-
-	raw, _, err := max.Do("GET", mappers.PopularFilesEndpoint, form)
-	check(err)
-
-	err = mapper.Parse(raw)
+	mapper, err := max.GetPopularFiles(config.Form)
 	check(err)
 
 	fmt.Printf("%10s | %s\n", "hits", "file")
@@ -292,7 +262,7 @@ type Config struct {
 	Alias      string `yaml: alias,omitempty`
 	Token      string `yaml: token,omitempty`
 	Secret     string `yaml: secret,omitempty`
-	From, To   string
+	Form       url.Values
 	Top        int
 	Verbose    bool
 	Report     string
@@ -308,6 +278,8 @@ func LoadConfig(file string) (c Config, e error) {
 		e = yaml.Unmarshal(data, &c)
 	}
 
+	// init empty form, incase we need it
+	c.Form = make(url.Values)
 	return
 }
 

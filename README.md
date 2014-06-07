@@ -35,7 +35,7 @@ This package should be considered beta. The final release will be moved to
 	    panic(fmt.Errorf("[%s] %v", res.Status, err))
 	}
 	
-	mapper := mappers.GenericResponse{}
+	mapper := GenericResponse{}
 	mapper.Raw = raw // include raw json in GenericResponse
 	
 	err = json.Unmarshal(raw, &mapper)
@@ -48,6 +48,18 @@ This package should be considered beta. The final release will be moved to
 	}
 
 ```
+### Constants
+
+```go
+const (
+    PopularFilesEndpoint = "/reports/popularfiles.json"
+    StatsEndpoint        = "/reports/stats.json"
+)
+```
+
+> Here lies known endpoints.
+
+
 ### Variables
 
 ```go
@@ -58,6 +70,29 @@ var APIHost = "https://rws.netdna.com"
 
 
 ### Types
+
+#### GenericResponse
+```go
+type GenericResponse struct {
+    Code  int                    `json:"code"`
+    Data  map[string]interface{} `json:"data"`
+    Error struct {
+        Message string `json:"message"`
+        Type    string `json:"type"`
+    } `json:"error"`
+    Raw      []byte         // include raw json in GenericResponse
+    Response *http.Response // include response in GenericResponse
+}
+```
+
+
+#### Parse
+```go
+func (mapper *GenericResponse) Parse(raw []byte) (err error)
+```
+> Parse turns an http response in to a GenericResponse
+
+
 
 #### MaxCDN
 ```go
@@ -89,7 +124,7 @@ func NewMaxCDN(alias, token, secret string) *MaxCDN
 ```
 #### Delete
 ```go
-func (max *MaxCDN) Delete(endpoint string) (mapper *mappers.GenericResponse, err error)
+func (max *MaxCDN) Delete(endpoint string) (mapper *GenericResponse, err error)
 ```
 > Delete does an OAuth signed http.Delete
 
@@ -134,7 +169,7 @@ func (max *MaxCDN) Do(method, endpoint string, form url.Values) (raw []byte, res
 	    panic(fmt.Errorf("[%s] %v", res.Status, err))
 	}
 	
-	mapper := mappers.GenericResponse{}
+	mapper := GenericResponse{}
 	mapper.Response = res
 	mapper.Raw = raw
 	
@@ -151,7 +186,7 @@ func (max *MaxCDN) Do(method, endpoint string, form url.Values) (raw []byte, res
 
 #### Get
 ```go
-func (max *MaxCDN) Get(endpoint string, form url.Values) (mapper *mappers.GenericResponse, err error)
+func (max *MaxCDN) Get(endpoint string, form url.Values) (mapper *GenericResponse, err error)
 ```
 > Get does an OAuth signed http.Get
 
@@ -169,9 +204,62 @@ func (max *MaxCDN) Get(endpoint string, form url.Values) (mapper *mappers.Generi
 
 ```
 
+#### GetDailyStats
+```go
+func (max *MaxCDN) GetDailyStats(form url.Values) (mapper *MultiStats, err error)
+```
+> GetDailyStats does an OAuth signed http.Get for "/reports/stats.json/hourly"
+
+
+
+#### GetHourlyStats
+```go
+func (max *MaxCDN) GetHourlyStats(form url.Values) (mapper *MultiStats, err error)
+```
+> GetHourlyStats does an OAuth signed http.Get for
+> "/reports/stats.json/hourly"
+
+
+
+#### GetMonthlyStats
+```go
+func (max *MaxCDN) GetMonthlyStats(form url.Values) (mapper *MultiStats, err error)
+```
+> GetMonthlyStats does an OAuth signed http.Get for
+> "/reports/stats.json/hourly"
+
+
+
+#### GetPopularFiles
+```go
+func (max *MaxCDN) GetPopularFiles(form url.Values) (mapper *PopularFiles, err error)
+```
+> Get does an OAuth signed http.Get for "/reports/popularfiles.json"
+
+
+
+#### GetStatsByType
+```go
+func (max *MaxCDN) GetStatsByType(report string, form url.Values) (mapper *MultiStats, err error)
+```
+> GetHourlyStats does an OAuth signed http.Get for
+> "/reports/stats.json/{report_type}".
+
+> Valid report types are; 'hourly', 'daily' and 'monthly'
+
+
+
+#### GetStatsSummary
+```go
+func (max *MaxCDN) GetStatsSummary(form url.Values) (mapper *SummaryStats, err error)
+```
+> Get does an OAuth signed http.Get for "/reports/stats.json"
+
+
+
 #### Post
 ```go
-func (max *MaxCDN) Post(endpoint string, form url.Values) (mapper *mappers.GenericResponse, err error)
+func (max *MaxCDN) Post(endpoint string, form url.Values) (mapper *GenericResponse, err error)
 ```
 > Post does an OAuth signed http.Post
 
@@ -200,7 +288,7 @@ func (max *MaxCDN) Post(endpoint string, form url.Values) (mapper *mappers.Gener
 
 #### PurgeFile
 ```go
-func (max *MaxCDN) PurgeFile(zone int, file string) (mapper *mappers.GenericResponse, err error)
+func (max *MaxCDN) PurgeFile(zone int, file string) (mapper *GenericResponse, err error)
 ```
 > PurgeFile purges a specified file by zone from cache.
 
@@ -222,7 +310,7 @@ func (max *MaxCDN) PurgeFile(zone int, file string) (mapper *mappers.GenericResp
 
 #### PurgeFiles
 ```go
-func (max *MaxCDN) PurgeFiles(zone int, files []string) (resps []*mappers.GenericResponse, last error)
+func (max *MaxCDN) PurgeFiles(zone int, files []string) (resps []*GenericResponse, last error)
 ```
 > PurgeFiles purges multiple files from a zone.
 
@@ -245,7 +333,7 @@ func (max *MaxCDN) PurgeFiles(zone int, files []string) (resps []*mappers.Generi
 
 #### PurgeZone
 ```go
-func (max *MaxCDN) PurgeZone(zone int) (*mappers.GenericResponse, error)
+func (max *MaxCDN) PurgeZone(zone int) (*GenericResponse, error)
 ```
 > PurgeZone purges a specified zones cache.
 
@@ -267,7 +355,7 @@ func (max *MaxCDN) PurgeZone(zone int) (*mappers.GenericResponse, error)
 
 #### PurgeZones
 ```go
-func (max *MaxCDN) PurgeZones(zones []int) (resps []*mappers.GenericResponse, last error)
+func (max *MaxCDN) PurgeZones(zones []int) (resps []*GenericResponse, last error)
 ```
 > PurgeZones purges multiple zones caches.
 
@@ -290,7 +378,7 @@ func (max *MaxCDN) PurgeZones(zones []int) (resps []*mappers.GenericResponse, la
 
 #### Put
 ```go
-func (max *MaxCDN) Put(endpoint string, form url.Values) (mapper *mappers.GenericResponse, err error)
+func (max *MaxCDN) Put(endpoint string, form url.Values) (mapper *GenericResponse, err error)
 ```
 > Put does an OAuth signed http.Put
 
@@ -310,5 +398,124 @@ func (max *MaxCDN) Put(endpoint string, form url.Values) (mapper *mappers.Generi
 	fmt.Printf("%#v\n", payload.Data)
 
 ```
+
+#### MultiStats
+```go
+type MultiStats struct {
+    Code int `json:"code"`
+    Data struct {
+        CurrentPageSize int     `json:"current_page_size"`
+        Page            int     `json:"page"`
+        PageSize        string  `json:"page_size"`
+        Pages           int     `json:"pages"`
+        Stats           []Stats `json:"stats"`
+        Summary         Stats   `json:"summary"`
+        Total           string  `json:"total"`
+    } `json:"data"`
+    Error struct {
+        Message string `json:"message"`
+        Type    string `json:"type"`
+    } `json:"error"`
+    Raw      []byte
+    Response *http.Response
+}
+```
+
+
+#### Parse
+```go
+func (mapper *MultiStats) Parse(raw []byte) (err error)
+```
+> Parse turns an http response in to a Stats
+
+
+
+#### PopularFiles
+```go
+type PopularFiles struct {
+    Code int `json:"code"`
+    Data struct {
+        CurrentPageSize int    `json:"current_page_size"`
+        Page            int    `json:"page"`
+        PageSize        string `json:"page_size"`
+        Pages           int    `json:"pages"`
+        Popularfiles    []struct {
+            BucketID  string `json:"bucket_id"`
+            Hit       string `json:"hit"`
+            Size      string `json:"size"`
+            Timestamp string `json:"timestamp"`
+            Uri       string `json:"uri"`
+            Vhost     string `json:"vhost"`
+        } `json:"popularfiles"`
+        Summary struct {
+            Hit  string `json:"hit"`
+            Size string `json:"size"`
+        } `json:"summary"`
+        Total string `json:"total"`
+    } `json:"data"`
+
+    // Added for extra support, see maxcdn.GenericResponse
+    Error struct {
+        Message string `json:"message"`
+        Type    string `json:"type"`
+    } `json:"error"`
+    Raw      []byte
+    Response *http.Response
+}
+```
+
+
+#### Parse
+```go
+func (mapper *PopularFiles) Parse(raw []byte) (err error)
+```
+> Parse turns an http response in to a PopularFiles
+
+
+
+#### Stats
+```go
+type Stats struct {
+    CacheHit    string `json:"cache_hit"`
+    Hit         string `json:"hit"`
+    NoncacheHit string `json:"noncache_hit"`
+    Size        string `json:"size"`
+    Timestamp   string `json:"timestamp"`
+}
+```
+
+
+#### SummaryStats
+```go
+type SummaryStats struct {
+    Code int `json:"code"`
+    Data struct {
+        Stats Stats `json:"stats"`
+        //Stats struct {
+        //CacheHit    string `json:"cache_hit"`
+        //Hit         string `json:"hit"`
+        //NoncacheHit string `json:"noncache_hit"`
+        //Size        string `json:"size"`
+        //Timestamp   string `json:"timestamp"`
+        //} `json:"stats"`
+        Total string `json:"total"`
+    } `json:"data"`
+    Error struct {
+        Message string `json:"message"`
+        Type    string `json:"type"`
+    } `json:"error"`
+    Raw      []byte
+    Response *http.Response
+}
+```
+
+
+#### Parse
+```go
+func (mapper *SummaryStats) Parse(raw []byte) (err error)
+```
+> Parse turns an http response in to a StatsSummary
+
+
 
 

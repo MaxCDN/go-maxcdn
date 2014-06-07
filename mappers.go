@@ -1,4 +1,4 @@
-package mappers
+package maxcdn
 
 import (
 	"encoding/json"
@@ -85,7 +85,8 @@ type PopularFiles struct {
 		Message string `json:"message"`
 		Type    string `json:"type"`
 	} `json:"error"`
-	Raw []byte
+	Raw      []byte
+	Response *http.Response
 }
 
 // Parse turns an http response in to a PopularFiles
@@ -131,7 +132,8 @@ type SummaryStats struct {
 		Message string `json:"message"`
 		Type    string `json:"type"`
 	} `json:"error"`
-	Raw []byte
+	Raw      []byte
+	Response *http.Response
 }
 
 // Parse turns an http response in to a StatsSummary
@@ -169,7 +171,8 @@ type MultiStats struct {
 		Message string `json:"message"`
 		Type    string `json:"type"`
 	} `json:"error"`
-	Raw []byte
+	Raw      []byte
+	Response *http.Response
 }
 
 // Parse turns an http response in to a Stats

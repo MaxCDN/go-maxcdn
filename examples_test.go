@@ -9,8 +9,6 @@ import (
 	"net/url"
 	"os"
 	"strconv"
-
-	"github.com/jmervine/go-maxcdn/mappers"
 )
 
 /****
@@ -40,7 +38,7 @@ func Example() {
 		panic(fmt.Errorf("[%s] %v", res.Status, err))
 	}
 
-	mapper := mappers.GenericResponse{}
+	mapper := GenericResponse{}
 	mapper.Raw = raw // include raw json in GenericResponse
 
 	err = json.Unmarshal(raw, &mapper)
@@ -66,7 +64,7 @@ func ExampleMaxCDN_Do() {
 		panic(fmt.Errorf("[%s] %v", res.Status, err))
 	}
 
-	mapper := mappers.GenericResponse{}
+	mapper := GenericResponse{}
 	mapper.Response = res
 	mapper.Raw = raw
 
