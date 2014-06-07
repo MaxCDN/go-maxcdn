@@ -12,20 +12,20 @@ const (
 	StatsEndpoint        = "/reports/stats.json"
 )
 
-// GenericResponse is the generic data type for JSON responses from API calls.
-type GenericResponse struct {
+// Generic is the generic data type for JSON responses from API calls.
+type Generic struct {
 	Code  int                    `json:"code"`
 	Data  map[string]interface{} `json:"data"`
 	Error struct {
 		Message string `json:"message"`
 		Type    string `json:"type"`
 	} `json:"error"`
-	Raw      []byte         // include raw json in GenericResponse
-	Response *http.Response // include response in GenericResponse
+	Raw      []byte         // include raw json in Generic
+	Response *http.Response // include response in Generic
 }
 
-// Parse turns an http response in to a GenericResponse
-func (mapper *GenericResponse) Parse(raw []byte) (err error) {
+// Parse turns an http response in to a Generic
+func (mapper *Generic) Parse(raw []byte) (err error) {
 	err = json.Unmarshal(raw, &mapper)
 	if err != nil {
 		return err
