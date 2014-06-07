@@ -3,18 +3,18 @@
 
 package maxcdn
 
-//import (
+import (
 //"encoding/json"
-//"fmt"
+"fmt"
 //"net/url"
-//"os"
+"os"
 //"strconv"
-//)
+)
 
 /****
  * Documentation Examples
  *******************************************************************/
-/*
+
 func Example() {
 	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
 
@@ -24,33 +24,10 @@ func Example() {
 		panic(err)
 	}
 
-	fmt.Printf("%#v\n", payload.Data)
-
-	// Below is pretty much exactly what 'maxcdn.Get' is doing.
-	// The purpose though would be for you to generate your
-	// own struct more exactly mapping the json response to
-	// your purpose. More specific responses are planned for
-	// future versions, but there are too many make it worth
-	// implementing all of them, so this support should remain.
-	raw, res, err := max.Do("GET", "/account.json", nil)
-
-	if err != nil {
-		panic(fmt.Errorf("[%s] %v", res.Status, err))
-	}
-
-	mapper := GenericResponse{}
-	mapper.Raw = raw // include raw json in GenericResponse
-
-	err = json.Unmarshal(raw, &mapper)
-	if err != nil {
-		panic(err)
-	}
-
-	if mapper.Error.Message != "" || mapper.Error.Type != "" {
-		err = fmt.Errorf("%s: %s", mapper.Error.Type, mapper.Error.Message)
-	}
+	fmt.Printf("%#v\n", payload)
 }
 
+/*
 func ExampleNewMaxCDN() {
 	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
 	fmt.Printf("%#v\n", max)
