@@ -56,8 +56,6 @@ func (mapper *GenericResponse) Parse(raw []byte) (err error) {
  */
 
 // PopularFiles is the mapper for /reports/popularfiles.json
-// Generated using http://mervine.net/json2struct
-// - changed float64 values to int
 type PopularFiles struct {
 	Code int `json:"code"`
 	Data struct {
@@ -79,8 +77,6 @@ type PopularFiles struct {
 		} `json:"summary"`
 		Total string `json:"total"`
 	} `json:"data"`
-
-	// Added for extra support, see maxcdn.GenericResponse
 	Error struct {
 		Message string `json:"message"`
 		Type    string `json:"type"`
@@ -118,14 +114,7 @@ type Stats struct {
 type SummaryStats struct {
 	Code int `json:"code"`
 	Data struct {
-		Stats Stats `json:"stats"`
-		//Stats struct {
-		//CacheHit    string `json:"cache_hit"`
-		//Hit         string `json:"hit"`
-		//NoncacheHit string `json:"noncache_hit"`
-		//Size        string `json:"size"`
-		//Timestamp   string `json:"timestamp"`
-		//} `json:"stats"`
+		Stats Stats  `json:"stats"`
 		Total string `json:"total"`
 	} `json:"data"`
 	Error struct {
@@ -153,9 +142,6 @@ func (mapper *SummaryStats) Parse(raw []byte) (err error) {
 }
 
 // StatsSummary is the mapper for /reports/stats.json/{report_type}
-// Generated using http://mervine.net/json2struct
-// - changed float64 values to int
-// - modified Stats and Summary to use Stats definition above
 type MultiStats struct {
 	Code int `json:"code"`
 	Data struct {

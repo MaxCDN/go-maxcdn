@@ -453,8 +453,6 @@ type PopularFiles struct {
         } `json:"summary"`
         Total string `json:"total"`
     } `json:"data"`
-
-    // Added for extra support, see maxcdn.GenericResponse
     Error struct {
         Message string `json:"message"`
         Type    string `json:"type"`
@@ -490,14 +488,7 @@ type Stats struct {
 type SummaryStats struct {
     Code int `json:"code"`
     Data struct {
-        Stats Stats `json:"stats"`
-        //Stats struct {
-        //CacheHit    string `json:"cache_hit"`
-        //Hit         string `json:"hit"`
-        //NoncacheHit string `json:"noncache_hit"`
-        //Size        string `json:"size"`
-        //Timestamp   string `json:"timestamp"`
-        //} `json:"stats"`
+        Stats Stats  `json:"stats"`
         Total string `json:"total"`
     } `json:"data"`
     Error struct {
