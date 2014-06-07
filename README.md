@@ -35,7 +35,7 @@ This package should be considered beta. The final release will be moved to
 	    panic(fmt.Errorf("[%s] %v", res.Status, err))
 	}
 	
-	mapper := GenericResponse{}
+	mapper := mappers.GenericResponse{}
 	mapper.Raw = raw // include raw json in GenericResponse
 	
 	err = json.Unmarshal(raw, &mapper)
@@ -58,29 +58,6 @@ var APIHost = "https://rws.netdna.com"
 
 
 ### Types
-
-#### GenericResponse
-```go
-type GenericResponse struct {
-    Code  int                    `json:"code"`
-    Data  map[string]interface{} `json:"data"`
-    Error struct {
-        Message string `json:"message"`
-        Type    string `json:"type"`
-    } `json:"error"`
-    Raw      []byte         // include raw json in GenericResponse
-    Response *http.Response // include response in GenericResponse
-}
-```
-
-
-#### Parse
-```go
-func (mapper *GenericResponse) Parse(raw []byte) (err error)
-```
-> Parse turns an http response in to a GenericResponse
-
-
 
 #### MaxCDN
 ```go
@@ -112,7 +89,7 @@ func NewMaxCDN(alias, token, secret string) *MaxCDN
 ```
 #### Delete
 ```go
-func (max *MaxCDN) Delete(endpoint string) (mapper *GenericResponse, err error)
+func (max *MaxCDN) Delete(endpoint string) (mapper *mappers.GenericResponse, err error)
 ```
 > Delete does an OAuth signed http.Delete
 
@@ -157,7 +134,7 @@ func (max *MaxCDN) Do(method, endpoint string, form url.Values) (raw []byte, res
 	    panic(fmt.Errorf("[%s] %v", res.Status, err))
 	}
 	
-	mapper := GenericResponse{}
+	mapper := mappers.GenericResponse{}
 	mapper.Response = res
 	mapper.Raw = raw
 	
@@ -174,7 +151,7 @@ func (max *MaxCDN) Do(method, endpoint string, form url.Values) (raw []byte, res
 
 #### Get
 ```go
-func (max *MaxCDN) Get(endpoint string, form url.Values) (mapper *GenericResponse, err error)
+func (max *MaxCDN) Get(endpoint string, form url.Values) (mapper *mappers.GenericResponse, err error)
 ```
 > Get does an OAuth signed http.Get
 
@@ -194,7 +171,7 @@ func (max *MaxCDN) Get(endpoint string, form url.Values) (mapper *GenericRespons
 
 #### Post
 ```go
-func (max *MaxCDN) Post(endpoint string, form url.Values) (mapper *GenericResponse, err error)
+func (max *MaxCDN) Post(endpoint string, form url.Values) (mapper *mappers.GenericResponse, err error)
 ```
 > Post does an OAuth signed http.Post
 
@@ -223,7 +200,7 @@ func (max *MaxCDN) Post(endpoint string, form url.Values) (mapper *GenericRespon
 
 #### PurgeFile
 ```go
-func (max *MaxCDN) PurgeFile(zone int, file string) (mapper *GenericResponse, err error)
+func (max *MaxCDN) PurgeFile(zone int, file string) (mapper *mappers.GenericResponse, err error)
 ```
 > PurgeFile purges a specified file by zone from cache.
 
@@ -245,7 +222,7 @@ func (max *MaxCDN) PurgeFile(zone int, file string) (mapper *GenericResponse, er
 
 #### PurgeFiles
 ```go
-func (max *MaxCDN) PurgeFiles(zone int, files []string) (resps []*GenericResponse, last error)
+func (max *MaxCDN) PurgeFiles(zone int, files []string) (resps []*mappers.GenericResponse, last error)
 ```
 > PurgeFiles purges multiple files from a zone.
 
@@ -268,7 +245,7 @@ func (max *MaxCDN) PurgeFiles(zone int, files []string) (resps []*GenericRespons
 
 #### PurgeZone
 ```go
-func (max *MaxCDN) PurgeZone(zone int) (*GenericResponse, error)
+func (max *MaxCDN) PurgeZone(zone int) (*mappers.GenericResponse, error)
 ```
 > PurgeZone purges a specified zones cache.
 
@@ -290,7 +267,7 @@ func (max *MaxCDN) PurgeZone(zone int) (*GenericResponse, error)
 
 #### PurgeZones
 ```go
-func (max *MaxCDN) PurgeZones(zones []int) (resps []*GenericResponse, last error)
+func (max *MaxCDN) PurgeZones(zones []int) (resps []*mappers.GenericResponse, last error)
 ```
 > PurgeZones purges multiple zones caches.
 
@@ -313,7 +290,7 @@ func (max *MaxCDN) PurgeZones(zones []int) (resps []*GenericResponse, last error
 
 #### Put
 ```go
-func (max *MaxCDN) Put(endpoint string, form url.Values) (mapper *GenericResponse, err error)
+func (max *MaxCDN) Put(endpoint string, form url.Values) (mapper *mappers.GenericResponse, err error)
 ```
 > Put does an OAuth signed http.Put
 

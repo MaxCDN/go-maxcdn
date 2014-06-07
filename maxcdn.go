@@ -15,6 +15,7 @@ import (
 	"sync"
 
 	"github.com/garyburd/go-oauth/oauth"
+	"github.com/jmervine/go-maxcdn/mappers"
 )
 
 const (
@@ -57,8 +58,8 @@ func NewMaxCDN(alias, token, secret string) *MaxCDN {
 }
 
 // Get does an OAuth signed http.Get
-func (max *MaxCDN) Get(endpoint string, form url.Values) (mapper *GenericResponse, err error) {
-	mapper = new(GenericResponse)
+func (max *MaxCDN) Get(endpoint string, form url.Values) (mapper *mappers.GenericResponse, err error) {
+	mapper = new(mappers.GenericResponse)
 	raw, res, err := max.Do("GET", endpoint, form)
 	mapper.Response = res
 	if err != nil {
@@ -70,8 +71,8 @@ func (max *MaxCDN) Get(endpoint string, form url.Values) (mapper *GenericRespons
 }
 
 // Post does an OAuth signed http.Post
-func (max *MaxCDN) Post(endpoint string, form url.Values) (mapper *GenericResponse, err error) {
-	mapper = new(GenericResponse)
+func (max *MaxCDN) Post(endpoint string, form url.Values) (mapper *mappers.GenericResponse, err error) {
+	mapper = new(mappers.GenericResponse)
 	raw, res, err := max.Do("POST", endpoint, form)
 	mapper.Response = res
 	if err != nil {
@@ -83,8 +84,8 @@ func (max *MaxCDN) Post(endpoint string, form url.Values) (mapper *GenericRespon
 }
 
 // Put does an OAuth signed http.Put
-func (max *MaxCDN) Put(endpoint string, form url.Values) (mapper *GenericResponse, err error) {
-	mapper = new(GenericResponse)
+func (max *MaxCDN) Put(endpoint string, form url.Values) (mapper *mappers.GenericResponse, err error) {
+	mapper = new(mappers.GenericResponse)
 	raw, res, err := max.Do("PUT", endpoint, form)
 	mapper.Response = res
 	if err != nil {
@@ -96,8 +97,8 @@ func (max *MaxCDN) Put(endpoint string, form url.Values) (mapper *GenericRespons
 }
 
 // Delete does an OAuth signed http.Delete
-func (max *MaxCDN) Delete(endpoint string) (mapper *GenericResponse, err error) {
-	mapper = new(GenericResponse)
+func (max *MaxCDN) Delete(endpoint string) (mapper *mappers.GenericResponse, err error) {
+	mapper = new(mappers.GenericResponse)
 	raw, res, err := max.Do("DELETE", endpoint, nil)
 	mapper.Response = res
 	if err != nil {
@@ -109,13 +110,13 @@ func (max *MaxCDN) Delete(endpoint string) (mapper *GenericResponse, err error) 
 }
 
 // PurgeZone purges a specified zones cache.
-func (max *MaxCDN) PurgeZone(zone int) (*GenericResponse, error) {
+func (max *MaxCDN) PurgeZone(zone int) (*mappers.GenericResponse, error) {
 	return max.Delete(fmt.Sprintf("/zones/pull.json/%d/cache", zone))
 }
 
 // PurgeZones purges multiple zones caches.
-func (max *MaxCDN) PurgeZones(zones []int) (resps []*GenericResponse, last error) {
-	var resChannel = make(chan *GenericResponse)
+func (max *MaxCDN) PurgeZones(zones []int) (resps []*mappers.GenericResponse, last error) {
+	var resChannel = make(chan *mappers.GenericResponse)
 	var errChannel = make(chan error)
 
 	mutex := sync.Mutex{}
@@ -145,11 +146,11 @@ func (max *MaxCDN) PurgeZones(zones []int) (resps []*GenericResponse, last error
 }
 
 // PurgeFile purges a specified file by zone from cache.
-func (max *MaxCDN) PurgeFile(zone int, file string) (mapper *GenericResponse, err error) {
+func (max *MaxCDN) PurgeFile(zone int, file string) (mapper *mappers.GenericResponse, err error) {
 	form := url.Values{}
 	form.Set("file", file)
 
-	mapper = new(GenericResponse)
+	mapper = new(mappers.GenericResponse)
 	raw, res, err := max.Do("DELETE", fmt.Sprintf("/zones/pull.json/%d/cache", zone), form)
 	mapper.Response = res
 	if err != nil {
@@ -161,8 +162,8 @@ func (max *MaxCDN) PurgeFile(zone int, file string) (mapper *GenericResponse, er
 }
 
 // PurgeFiles purges multiple files from a zone.
-func (max *MaxCDN) PurgeFiles(zone int, files []string) (resps []*GenericResponse, last error) {
-	var resChannel = make(chan *GenericResponse)
+func (max *MaxCDN) PurgeFiles(zone int, files []string) (resps []*mappers.GenericResponse, last error) {
+	var resChannel = make(chan *mappers.GenericResponse)
 	var errChannel = make(chan error)
 
 	mutex := sync.Mutex{}

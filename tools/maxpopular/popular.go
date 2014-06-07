@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/url"
@@ -15,55 +14,14 @@ import (
 	"gopkg.in/yaml.v1"
 )
 
-var config Config
+var (
 
-// Generated using http://mervine.net/json2struct
-// - changed float64 values to int
-type PopularFiles struct {
-	Code int `json:"code"`
-	Data struct {
-		CurrentPageSize int    `json:"current_page_size"`
-		Page            int    `json:"page"`
-		PageSize        string `json:"page_size"`
-		Pages           int    `json:"pages"`
-		Popularfiles    []struct {
-			BucketID  string `json:"bucket_id"`
-			Hit       string `json:"hit"`
-			Size      string `json:"size"`
-			Timestamp string `json:"timestamp"`
-			Uri       string `json:"uri"`
-			Vhost     string `json:"vhost"`
-		} `json:"popularfiles"`
-		Summary struct {
-			Hit  string `json:"hit"`
-			Size string `json:"size"`
-		} `json:"summary"`
-		Total string `json:"total"`
-	} `json:"data"`
+	// Global for configuration.
+	config Config
 
-	// Added for extra support, see maxcdn.GenericResponse
-	Error struct {
-		Message string `json:"message"`
-		Type    string `json:"type"`
-	} `json:"error"`
-	Raw []byte
-}
-
-// Parse turns an http response in to a GenericResponse
-func (mapper *PopularFiles) Parse(raw []byte) (err error) {
-	mapper.Raw = raw
-
-	err = json.Unmarshal(raw, &mapper)
-	if err != nil {
-		return err
-	}
-
-	if mapper.Error.Message != "" || mapper.Error.Type != "" {
-		err = fmt.Errorf("%s: %s", mapper.Error.Type, mapper.Error.Message)
-	}
-
-	return err
-}
+	PopularFilesEndpoint = "/reports/popularfiles.json"
+	StatsEndpoint        = "/reports/stats.json"
+)
 
 func init() {
 
@@ -166,7 +124,40 @@ Sample configuration:
 func main() {
 	max := maxcdn.NewMaxCDN(config.Alias, config.Token, config.Secret)
 	max.Verbose = config.Verbose
+	popularFiles(max)
+}
 
+func stats(max *maxcdn.MaxCDN) {
+	mapper := Stats{}
+
+	form := make(url.Values)
+	if config.From != "" {
+		form.Set("date_from", config.From)
+	}
+
+	if config.To != "" {
+		form.Set("date_to", config.To)
+	}
+
+	raw, _, err := max.Do("GET", PopularFilesEndpoint, form)
+	check(err)
+
+	err = mapper.Parse(raw)
+	check(err)
+
+	fmt.Printf("%10s | %s\n", "hits", "file")
+	fmt.Println("   -----------------")
+
+	for i, file := range mapper.Data.Stats {
+		if config.Top != 0 && i == config.Top {
+			break
+		}
+		fmt.Printf("%10s | %s\n", file.Hit, file.Uri)
+	}
+	fmt.Println()
+}
+
+func popularFiles(max *maxcdn.MaxCDN) {
 	mapper := PopularFiles{}
 
 	form := make(url.Values)
@@ -178,7 +169,7 @@ func main() {
 		form.Set("date_to", config.To)
 	}
 
-	raw, _, err := max.Do("GET", "/reports/popularfiles.json", form)
+	raw, _, err := max.Do("GET", PopularFilesEndpoint, form)
 	check(err)
 
 	err = mapper.Parse(raw)
