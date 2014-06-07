@@ -6,6 +6,12 @@ import (
 	"net/http"
 )
 
+// Here lies known endpoints.
+const (
+	PopularFilesEndpoint = "/reports/popularfiles.json"
+	StatsEndpoint        = "/reports/stats.json"
+)
+
 // GenericResponse is the generic data type for JSON responses from API calls.
 type GenericResponse struct {
 	Code  int                    `json:"code"`
@@ -98,18 +104,27 @@ func (mapper *PopularFiles) Parse(raw []byte) (err error) {
 	return err
 }
 
-// StatsSummary is the mapper for /reports/stats.json
-// Generated using http://mervine.net/json2struct
-// - changed float64 values to int
-type StatsSummary struct {
+// Stats is to be used within MultiStats and SummaryStats to hold
+// the core stats data.
+type Stats struct {
+	CacheHit    string `json:"cache_hit"`
+	Hit         string `json:"hit"`
+	NoncacheHit string `json:"noncache_hit"`
+	Size        string `json:"size"`
+	Timestamp   string `json:"timestamp"`
+}
+
+type SummaryStats struct {
 	Code int `json:"code"`
 	Data struct {
-		Stats struct {
-			CacheHit    string `json:"cache_hit"`
-			Hit         string `json:"hit"`
-			NoncacheHit string `json:"noncache_hit"`
-			Size        string `json:"size"`
-		} `json:"stats"`
+		Stats Stats `json:"stats"`
+		//Stats struct {
+		//CacheHit    string `json:"cache_hit"`
+		//Hit         string `json:"hit"`
+		//NoncacheHit string `json:"noncache_hit"`
+		//Size        string `json:"size"`
+		//Timestamp   string `json:"timestamp"`
+		//} `json:"stats"`
 		Total string `json:"total"`
 	} `json:"data"`
 	Error struct {
@@ -120,7 +135,7 @@ type StatsSummary struct {
 }
 
 // Parse turns an http response in to a StatsSummary
-func (mapper *StatsSummary) Parse(raw []byte) (err error) {
+func (mapper *SummaryStats) Parse(raw []byte) (err error) {
 	mapper.Raw = raw
 
 	err = json.Unmarshal(raw, &mapper)
@@ -138,27 +153,17 @@ func (mapper *StatsSummary) Parse(raw []byte) (err error) {
 // StatsSummary is the mapper for /reports/stats.json/{report_type}
 // Generated using http://mervine.net/json2struct
 // - changed float64 values to int
-type Stats struct {
+// - modified Stats and Summary to use Stats definition above
+type MultiStats struct {
 	Code int `json:"code"`
 	Data struct {
-		CurrentPageSize int    `json:"current_page_size"`
-		Page            int    `json:"page"`
-		PageSize        string `json:"page_size"`
-		Pages           int    `json:"pages"`
-		Stats           []struct {
-			CacheHit    string `json:"cache_hit"`
-			Hit         string `json:"hit"`
-			NoncacheHit string `json:"noncache_hit"`
-			Size        string `json:"size"`
-			Timestamp   string `json:"timestamp"`
-		} `json:"stats"`
-		Summary struct {
-			CacheHit    string `json:"cache_hit"`
-			Hit         string `json:"hit"`
-			NoncacheHit string `json:"noncache_hit"`
-			Size        string `json:"size"`
-		} `json:"summary"`
-		Total string `json:"total"`
+		CurrentPageSize int     `json:"current_page_size"`
+		Page            int     `json:"page"`
+		PageSize        string  `json:"page_size"`
+		Pages           int     `json:"pages"`
+		Stats           []Stats `json:"stats"`
+		Summary         Stats   `json:"summary"`
+		Total           string  `json:"total"`
 	} `json:"data"`
 	Error struct {
 		Message string `json:"message"`
@@ -168,7 +173,7 @@ type Stats struct {
 }
 
 // Parse turns an http response in to a Stats
-func (mapper *Stats) Parse(raw []byte) (err error) {
+func (mapper *MultiStats) Parse(raw []byte) (err error) {
 	mapper.Raw = raw
 
 	err = json.Unmarshal(raw, &mapper)
