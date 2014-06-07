@@ -1,5 +1,7 @@
 package maxcdn
 
+/*
+
 import (
 	"fmt"
 	"net/url"
@@ -61,3 +63,4 @@ func (max *MaxCDN) GetDailyStats(form url.Values) (mapper *MultiStats, err error
 func (max *MaxCDN) GetMonthlyStats(form url.Values) (mapper *MultiStats, err error) {
 	return max.GetStatsByType("daily", form)
 }
+*/

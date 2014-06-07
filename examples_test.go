@@ -3,18 +3,18 @@
 
 package maxcdn
 
-import (
-	"encoding/json"
-	"fmt"
-	"net/url"
-	"os"
-	"strconv"
-)
+//import (
+//"encoding/json"
+//"fmt"
+//"net/url"
+//"os"
+//"strconv"
+//)
 
 /****
  * Documentation Examples
  *******************************************************************/
-
+/*
 func Example() {
 	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
 
@@ -193,7 +193,7 @@ func ExampleMaxCDN_PurgeFiles() {
 		fmt.Printf("Purges succeeded")
 	}
 }
-
+*/
 /****
  * Functional Examples
  *
@@ -206,7 +206,7 @@ func ExampleMaxCDN_PurgeFiles() {
  *
  * $ ALIAS=your_alias TOKEN=your_token SECRET=your_secret go test
  *******************************************************************/
-
+/*
 func Example_Functional_MaxCDN_Get() {
 	max := NewMaxCDN(alias, token, secret)
 
@@ -385,3 +385,4 @@ func Example_Functional_MaxCDN_PurgeFile() {
 
 	// Output: Purge succeeded
 }
+*/

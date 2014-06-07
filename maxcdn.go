@@ -56,73 +56,78 @@ func NewMaxCDN(alias, token, secret string) *MaxCDN {
 	}
 }
 
-// Get does an OAuth signed http.Get
-func (max *MaxCDN) Get(endpoint string, form url.Values) (mapper *GenericResponse, err error) {
-	mapper = new(GenericResponse)
-	raw, res, err := max.Do("GET", endpoint, form)
-	mapper.Response = res
+type Response struct {
+	Raw  *http.Response
+	Body []byte
+
+	// Including error in Response for those times when a []Response
+	// is being worked with.
+	Error error
+}
+
+// NewResponse generate a new response directly from Do's return
+// values.
+func NewResponse(res *http.Response, err error) Response {
+	defer res.Body.Close()
+	r := Response{Raw: res}
+
 	if err != nil {
-		return
+		r.Error = err
+		return r
 	}
 
-	err = mapper.Parse(raw)
-	return
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		r.Error = err
+		return r
+	}
+
+	r.Body = body
+	return r
+}
+
+// Get does an OAuth signed http.Get
+//
+// Get and other request methods return error even though it's also included in
+// the Response. This is to conform to the "net/http".Get response format to make
+// this more familar to consumers.
+func (max *MaxCDN) Get(endpoint string, form url.Values) (*Response, error) {
+	res := NewResponse(max.Do("GET", endpoint, form))
+	return &res, res.Error
 }
 
 // Post does an OAuth signed http.Post
-func (max *MaxCDN) Post(endpoint string, form url.Values) (mapper *GenericResponse, err error) {
-	mapper = new(GenericResponse)
-	raw, res, err := max.Do("POST", endpoint, form)
-	mapper.Response = res
-	if err != nil {
-		return
-	}
-
-	err = mapper.Parse(raw)
-	return
+func (max *MaxCDN) Post(endpoint string, form url.Values) (*Response, error) {
+	res := NewResponse(max.Do("POST", endpoint, form))
+	return &res, res.Error
 }
 
 // Put does an OAuth signed http.Put
-func (max *MaxCDN) Put(endpoint string, form url.Values) (mapper *GenericResponse, err error) {
-	mapper = new(GenericResponse)
-	raw, res, err := max.Do("PUT", endpoint, form)
-	mapper.Response = res
-	if err != nil {
-		return
-	}
-
-	err = mapper.Parse(raw)
-	return
+func (max *MaxCDN) Put(endpoint string, form url.Values) (*Response, error) {
+	res := NewResponse(max.Do("PUT", endpoint, form))
+	return &res, res.Error
 }
 
 // Delete does an OAuth signed http.Delete
-func (max *MaxCDN) Delete(endpoint string) (mapper *GenericResponse, err error) {
-	mapper = new(GenericResponse)
-	raw, res, err := max.Do("DELETE", endpoint, nil)
-	mapper.Response = res
-	if err != nil {
-		return
-	}
-
-	err = mapper.Parse(raw)
-	return
+func (max *MaxCDN) Delete(endpoint string, form url.Values) (*Response, error) {
+	res := NewResponse(max.Do("DELETE", endpoint, form))
+	return &res, res.Error
 }
 
 // PurgeZone purges a specified zones cache.
-func (max *MaxCDN) PurgeZone(zone int) (*GenericResponse, error) {
-	return max.Delete(fmt.Sprintf("/zones/pull.json/%d/cache", zone))
+func (max *MaxCDN) PurgeZone(zone int) (*Response, error) {
+	return max.Delete(fmt.Sprintf("/zones/pull.json/%d/cache", zone), nil)
 }
 
 // PurgeZones purges multiple zones caches.
-func (max *MaxCDN) PurgeZones(zones []int) (resps []*GenericResponse, last error) {
-	var resChannel = make(chan *GenericResponse)
+func (max *MaxCDN) PurgeZones(zones []int) (resps []*Response, last error) {
+	var resChannel = make(chan *Response)
 	var errChannel = make(chan error)
 
 	mutex := sync.Mutex{}
 	for _, zone := range zones {
 		go func(zone int) {
 			res, err := max.PurgeZone(zone)
-
 			resChannel <- res
 			errChannel <- err
 		}(zone)
@@ -145,24 +150,16 @@ func (max *MaxCDN) PurgeZones(zones []int) (resps []*GenericResponse, last error
 }
 
 // PurgeFile purges a specified file by zone from cache.
-func (max *MaxCDN) PurgeFile(zone int, file string) (mapper *GenericResponse, err error) {
+func (max *MaxCDN) PurgeFile(zone int, file string) (*Response, error) {
 	form := url.Values{}
 	form.Set("file", file)
 
-	mapper = new(GenericResponse)
-	raw, res, err := max.Do("DELETE", fmt.Sprintf("/zones/pull.json/%d/cache", zone), form)
-	mapper.Response = res
-	if err != nil {
-		return
-	}
-
-	err = mapper.Parse(raw)
-	return
+	return max.Delete(fmt.Sprintf("/zones/pull.json/%d/cache", zone), form)
 }
 
 // PurgeFiles purges multiple files from a zone.
-func (max *MaxCDN) PurgeFiles(zone int, files []string) (resps []*GenericResponse, last error) {
-	var resChannel = make(chan *GenericResponse)
+func (max *MaxCDN) PurgeFiles(zone int, files []string) (resps []*Response, last error) {
+	var resChannel = make(chan *Response)
 	var errChannel = make(chan error)
 
 	mutex := sync.Mutex{}
@@ -191,19 +188,12 @@ func (max *MaxCDN) PurgeFiles(zone int, files []string) (resps []*GenericRespons
 	return
 }
 
-func (max *MaxCDN) url(endpoint string) string {
-	endpoint = strings.TrimPrefix(endpoint, "/")
-	return fmt.Sprintf("%s/%s/%s", APIHost, max.Alias, endpoint)
-}
-
-// Do is a generic method to interact with MaxCDN's RESTful API. It's
+// Do is a low level method to interact with MaxCDN's RESTful API. It's
 // used by all other methods.
 //
-// It's purpose though would be for you to generate your own struct more
-// exactly mapping the json response to your purpose. More specific
-// responses are planned for future versions, but there are too many make
-// it worth implementing all of them, so this support should remain.
-func (max *MaxCDN) Do(method, endpoint string, form url.Values) (raw []byte, res *http.Response, err error) {
+// If using this method, you must manually close the res.Body or bad things
+// may happen.
+func (max *MaxCDN) Do(method, endpoint string, form url.Values) (res *http.Response, err error) {
 	var req *http.Request
 
 	req, err = http.NewRequest(method, max.url(endpoint), nil)
@@ -212,7 +202,7 @@ func (max *MaxCDN) Do(method, endpoint string, form url.Values) (raw []byte, res
 	}
 
 	if method == "GET" && req.URL.RawQuery != "" {
-		return nil, nil, errors.New("oauth: url must not contain a query string")
+		return nil, errors.New("oauth: url must not contain a query string")
 	}
 
 	if form != nil {
@@ -239,18 +229,15 @@ func (max *MaxCDN) Do(method, endpoint string, form url.Values) (raw []byte, res
 	}
 
 	res, err = max.HTTPClient.Do(req)
-	defer res.Body.Close()
-
 	if max.Verbose {
 		if j, e := json.MarshalIndent(res, "", "  "); e == nil {
 			fmt.Printf("Response: %s\n---\n\n", j)
 		}
 	}
+	return
+}
 
-	raw, err = ioutil.ReadAll(res.Body)
-
-	// Note: returning the response along with the raw body and err seems a bit clunky,
-	// but there are valid use-cases having the raw response is useful. For an example,
-	// see tools/maxcurl/maxcurl.go and it's header flag implementation.
-	return raw, res, err
+func (max *MaxCDN) url(endpoint string) string {
+	endpoint = strings.TrimPrefix(endpoint, "/")
+	return fmt.Sprintf("%s/%s/%s", APIHost, max.Alias, endpoint)
 }
