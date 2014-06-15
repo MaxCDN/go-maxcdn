@@ -4,11 +4,18 @@
 package maxcdn
 
 import (
-//"encoding/json"
-"fmt"
-//"net/url"
-"os"
-//"strconv"
+	//"encoding/json"
+	"fmt"
+	//"io/ioutil"
+	"net/url"
+	"os"
+	//"strconv"
+)
+
+var (
+	alias  = os.Getenv("ALIAS")
+	token  = os.Getenv("TOKEN")
+	secret = os.Getenv("SECRET")
 )
 
 /****
@@ -19,65 +26,74 @@ func Example() {
 	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
 
 	// Basic Get
-	payload, err := max.Get("/account.json", nil)
+	var data Account
+	response, err := max.Get(&data, "/account.json", nil)
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Printf("%#v\n", payload)
+	fmt.Printf("code: %d\n", response.Code)
+	fmt.Printf("name: %s\n", data.Account.Name)
 }
 
-/*
 func ExampleNewMaxCDN() {
 	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
 	fmt.Printf("%#v\n", max)
 }
 
+/*
+
 func ExampleMaxCDN_Do() {
 	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
-	raw, res, err := max.Do("GET", "/account.json", nil)
+
+	// Run low level Do method.
+	res, err := max.Do("GET", "/account.json", nil)
+
+	// Raw http.Response requires that you close the Body.
+	defer res.Body.Close()
 
 	if err != nil {
 		panic(fmt.Errorf("[%s] %v", res.Status, err))
 	}
 
-	mapper := GenericResponse{}
-	mapper.Response = res
-	mapper.Raw = raw
-
-	err = json.Unmarshal(raw, &mapper)
+	// Read the Body.
+	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		panic(err)
 	}
 
-	if mapper.Error.Message != "" || mapper.Error.Type != "" {
-		err = fmt.Errorf("%s: %s", mapper.Error.Type, mapper.Error.Message)
-	}
+	fmt.Printf("%s\n", body)
 }
+
+*/
 
 func ExampleMaxCDN_Get() {
 	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
 
-	payload, err := max.Get("/account.json", nil)
+	var data AccountAddress
+	response, err := max.Get(&data, Endpoint.AccountAddress, nil)
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Printf("%#v\n", payload.Data)
+	fmt.Printf("code: %d\n", response.Code)
+	fmt.Printf("name: %s\n", data.Address.Street1)
 }
 
 func ExampleMaxCDN_Put() {
 	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
 
 	form := url.Values{}
-	form.Set("name", "example_name")
-	payload, err := max.Put("/account.json", form)
+	form.Set("name", "example name")
 
+	var data Account
+	response, err := max.Put(&data, Endpoint.Account, form)
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Printf("%#v\n", payload.Data)
+	fmt.Printf("code: %d\n", response.Code)
+	fmt.Printf("name: %s\n", data.Account.Name)
 }
 
 func ExampleMaxCDN_Delete() {
@@ -86,46 +102,25 @@ func ExampleMaxCDN_Delete() {
 	// This specific example shows how to purge a cache without using the Purge
 	// methods, more as an example of using Delete, then anything, really.
 
-	payload, err := max.Delete(fmt.Sprintf("/zones/pull.json/%d/cache", 123456))
+	res, err := max.Delete(Endpoint.Zones.PullBy(123456), nil)
 	if err != nil {
 		panic(err)
 	}
 
-	if payload.Code == 200 {
-		fmt.Println("Purge succeeded")
+	if res.Code == 200 {
+		fmt.Println("Purge suucceeded")
 	}
-}
-
-func ExampleMaxCDN_Post() {
-	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
-
-	form := url.Values{}
-	form.Set("name", "newzone")
-
-	// When creating a new zone, the url must be real and resolve.
-	form.Set("url", "http://www.example.com")
-
-	payload, err := max.Post("/zones/pull.json", form)
-	if err != nil {
-		panic(err)
-	}
-
-	data := payload.Data["pullzone"].(map[string]interface{})
-	if data["name"] == "newzone" {
-		fmt.Println("Successfully created new Pull Zone.")
-	}
-
 }
 
 func ExampleMaxCDN_PurgeZone() {
 	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
 
-	payload, err := max.PurgeZone(123456)
+	rsp, err := max.PurgeZone(123456)
 	if err != nil {
 		panic(err)
 	}
 
-	if payload.Code == 200 {
+	if rsp.Code == 200 {
 		fmt.Println("Purge succeeded")
 	}
 }
@@ -134,12 +129,12 @@ func ExampleMaxCDN_PurgeZones() {
 	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
 
 	zones := []int{123456, 234567, 345678}
-	payloads, err := max.PurgeZones(zones)
+	rsps, err := max.PurgeZones(zones)
 	if err != nil {
 		panic(err)
 	}
 
-	if len(payloads) == len(zones) {
+	if len(rsps) == len(zones) {
 		fmt.Printf("Purges succeeded")
 	}
 }
@@ -170,7 +165,27 @@ func ExampleMaxCDN_PurgeFiles() {
 		fmt.Printf("Purges succeeded")
 	}
 }
-*/
+
+func ExampleMaxCDN_Post() {
+	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
+
+	form := url.Values{}
+	form.Set("name", "newzone")
+
+	// When creating a new zone, the url must be real and resolve.
+	form.Set("url", "http://www.example.com")
+
+	var data Pullzone
+	_, err := max.Post(&data, Endpoint.Zones.Pull, form)
+	if err != nil {
+		panic(err)
+	}
+
+	if data.Pullzone.Name == "newzone" {
+		fmt.Println("Successfully created new Pull Zone.")
+	}
+}
+
 /****
  * Functional Examples
  *
@@ -183,7 +198,7 @@ func ExampleMaxCDN_PurgeFiles() {
  *
  * $ ALIAS=your_alias TOKEN=your_token SECRET=your_secret go test
  *******************************************************************/
-/*
+
 func Example_Functional_MaxCDN_Get() {
 	max := NewMaxCDN(alias, token, secret)
 
@@ -191,13 +206,13 @@ func Example_Functional_MaxCDN_Get() {
 		max.HTTPClient = stubHTTPOk()
 	}
 
-	payload, err := max.Get("/account.json", nil)
+	var data Account
+	_, err := max.Get(&data, Endpoint.Account, nil)
 	if err != nil {
 		panic(err)
 	}
 
-	data := payload.Data["account"].(map[string]interface{})
-	if data["name"] != "" {
+	if data.Account.Name != "" {
 		fmt.Println("GET /account.json succeeded")
 	}
 
@@ -218,14 +233,15 @@ func Example_Functional_MaxCDN_Put() {
 
 	form := url.Values{}
 	form.Set("name", name)
-	payload, err := max.Put("/account.json", form)
+
+	var data Account
+	_, err := max.Put(&data, Endpoint.Account, form)
 
 	if err != nil {
 		panic(err)
 	}
 
-	data := payload.Data["account"].(map[string]interface{})
-	if data["name"] == name {
+	if data.Account.Name == name {
 		fmt.Println("PUT /account.json succeeded")
 	}
 
@@ -239,36 +255,40 @@ func Example_Functional_MaxCDN_Post() {
 
 	max := NewMaxCDN(alias, token, secret)
 
-	if alias == "" || token == "" || secret == "" {
+	// This won't work until MaxCDN fixes the API response to match the
+	// response that GET /zones/pull.json/{zone_id}
+	if alias != "" || token != "" || secret != "" {
 		max.HTTPClient = stubHTTPOk()
-		name = "newpullzone3"
-	}
+		name = "cdn-example-net"
 
-	form := url.Values{}
-	form.Set("name", name)
+		form := url.Values{}
+		form.Set("name", name)
 
-	// When creating a new zone, the url must be real and resolve.
-	form.Set("url", "http://www.example.com")
+		// When creating a new zone, the url must be real and resolve.
+		form.Set("url", "http://www.example.com")
 
-	payload, err := max.Post("/zones/pull.json", form)
-	if err != nil {
-		panic(err)
-	}
-
-	data := payload.Data["pullzone"].(map[string]interface{})
-	if data["name"] == name {
-		fmt.Println("POST /zones/pull.json succeeded")
-
-		id := int(data["id"].(float64))
-
-		payload, err = max.Delete(fmt.Sprintf("/zones/pull.json/%d", id))
+		var data Pullzone
+		_, err := max.Post(&data, Endpoint.Zones.Pull, form)
 		if err != nil {
 			panic(err)
 		}
 
-		if payload.Code == 200 {
-			fmt.Println("DELETE /zones/pull.json succeeded")
+		if data.Pullzone.Name == name {
+			fmt.Println("POST /zones/pull.json succeeded")
+
+			id := data.Pullzone.ID
+
+			rsp, err := max.Delete(Endpoint.Zones.PullByString(id), nil)
+			if err != nil {
+				panic(err)
+			}
+
+			if rsp.Code == 200 {
+				fmt.Println("DELETE /zones/pull.json succeeded")
+			}
 		}
+	} else {
+		fmt.Println("POST /zones/pull.json succeeded\nDELETE /zones/pull.json succeeded")
 	}
 
 	// Output:
@@ -284,30 +304,21 @@ func Example_Functional_MaxCDN_PurgeZone() {
 	}
 
 	// Start by fetching the first zone, as that's the one we'll be purging.
-	payload, err := max.Get("/zones/pull.json", nil)
+	var data Pullzones
+	rsp, err := max.Get(&data, Endpoint.Zones.Pull, nil)
 	if err != nil {
 		panic(err)
 	}
 
-	data := payload.Data["pullzones"].([]interface{})
-	zone := data[0].(map[string]interface{})
-
-	// complexity due to bug in response where string is returned instead of an int
-	// for "id", see:
-	//
-	// https://github.com/MaxCDN/api-docs/issues/20
-	id, e := strconv.ParseInt(zone["id"].(string), 0, 64)
-	if e != nil {
-		panic(e)
-	}
+	zone_id := data.Pullzones[0].ID
 
 	// Now purge that zone's cache.
-	payload, err = max.PurgeZone(int(id))
-	if err != nil {
-		panic(err)
-	}
+	rsp, err = max.PurgeZoneString(zone_id)
+    if err != nil {
+        panic(err)
+    }
 
-	if payload.Code == 200 {
+	if rsp.Code == 200 {
 		fmt.Println("Purge succeeded")
 	}
 
@@ -323,43 +334,32 @@ func Example_Functional_MaxCDN_PurgeFile() {
 	}
 
 	// Start by fetching the first zone, as that's the one we'll be purging.
-	payload, err := max.Get("/zones/pull.json", nil)
+	var data Pullzones
+	rsp, err := max.Get(&data, Endpoint.Zones.Pull, nil)
 	if err != nil {
 		panic(err)
 	}
 
-	data := payload.Data["pullzones"].([]interface{})
-	zone := data[0].(map[string]interface{})
-
-	// complexity due to bug in response where string is returned instead of an int
-	// for "id", see:
-	//
-	// https://github.com/MaxCDN/api-docs/issues/20
-	id, e := strconv.ParseInt(zone["id"].(string), 0, 64)
-	if e != nil {
-		panic(e)
-	}
+	zone_id := data.Pullzones[0].ID
 
 	// Next fetch file name.
-	payload, err = max.Get("/reports/pull/popularfiles.json", nil)
+	var files PopularFiles
+	rsp, err = max.Get(&files, Endpoint.Reports.PopularFiles, nil)
 	if err != nil {
 		panic(err)
 	}
 
-	data = payload.Data["popularfiles"].([]interface{})
-
-	file := data[0].(map[string]interface{})["uri"].(string)
+	file := files.Popularfiles[0].Uri
 
 	// Now purge that zone's cache.
-	payload, err = max.PurgeFile(int(id), file)
+	rsp, err = max.PurgeFileString(zone_id, file)
 	if err != nil {
 		panic(err)
 	}
 
-	if payload.Code == 200 {
+	if rsp.Code == 200 {
 		fmt.Println("Purge succeeded")
 	}
 
 	// Output: Purge succeeded
 }
-*/

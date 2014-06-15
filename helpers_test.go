@@ -43,7 +43,9 @@ func (crt *stubRoundTripper) RoundTrip(r *http.Request) (*http.Response, error) 
 		code = 500
 	} else if r.Method == "DELETE" {
 		filename = "delete.json"
-	} else if endpoint == "pull.json" && r.Method == "GET" {
+	} else if endpoint == "pull.json" && r.Method != "GET" {
+		filename = "pullzone.json"
+	} else if endpoint == "pull.json" {
 		filename = "pullzones.json"
 	} else {
 		filename = endpoint

@@ -1,11 +1,11 @@
 # tests without -tabs for go tip
 travis: get .PHONY
 	# Run Tests
-	go test -test.v=true
+	go test -test.v
 
 test: format .PHONY
 	# Run Tests
-	go test
+	go test -test.v
 
 get:
 	# Go Get Deps

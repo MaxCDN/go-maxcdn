@@ -28,13 +28,21 @@ func TestMaxCDN_Get(T *testing.T) {
 	var recorder http.Response
 	max.HTTPClient = stubHTTPOkRecorded(&recorder)
 
-	payload, err := max.Get("/account.json", nil)
-	Go(T).AssertNil(err)
-	Go(T).RefuteNil(payload)
-	Go(T).AssertNil(payload.Error)
-	Go(T).RefuteNil(payload.Raw)
-	Go(T).RefuteNil(payload.Body)
+	var data Account
+	rsp, err := max.Get(&data, Endpoint.Account, nil)
 
+	// check error
+	Go(T).AssertNil(err)
+
+	// check response
+	Go(T).RefuteNil(rsp)
+	Go(T).RefuteNil(rsp.Data)
+	Go(T).RefuteNil(rsp.Headers)
+
+	// check account
+	Go(T).AssertEqual(data.Account.Name, "MaxCDN sampleCode")
+
+	// check record of http request from stub
 	Go(T).AssertEqual(recorder.Request.Method, "GET")
 	Go(T).AssertEqual(recorder.Request.URL.Path, "/alias/account.json")
 	Go(T).AssertEqual(recorder.Request.URL.Query().Encode(), "")
@@ -52,14 +60,21 @@ func TestMaxCDN_Put(T *testing.T) {
 	max.HTTPClient = stubHTTPOkRecorded(&recorder)
 
 	form := url.Values{}
-	form.Add("name", "foo")
+	form.Add("name", "MaxCDN sampleCode")
 
-	payload, err := max.Put("/account.json", form)
+	var data Account
+	rsp, err := max.Put(&data, Endpoint.Account, form)
+
+	// check error
 	Go(T).AssertNil(err)
-	Go(T).RefuteNil(payload)
-	Go(T).AssertNil(payload.Error)
-	Go(T).RefuteNil(payload.Raw)
-	Go(T).RefuteNil(payload.Body)
+
+	// check response
+	Go(T).RefuteNil(rsp)
+	Go(T).RefuteNil(rsp.Data)
+	Go(T).RefuteNil(rsp.Headers)
+
+	// check account
+	Go(T).AssertEqual(data.Account.Name, "MaxCDN sampleCode")
 
 	Go(T).AssertEqual(recorder.Request.Method, "PUT")
 	Go(T).AssertEqual(recorder.Request.URL.Path, "/alias/account.json")
@@ -70,7 +85,7 @@ func TestMaxCDN_Put(T *testing.T) {
 	// check body
 	body, err := ioutil.ReadAll(recorder.Request.Body)
 	Go(T).AssertNil(err)
-	Go(T).AssertEqual(string(body), "name=foo")
+	Go(T).AssertEqual(string(body), "name=MaxCDN+sampleCode")
 }
 
 func TestMaxCDN_Post(T *testing.T) {
@@ -82,12 +97,16 @@ func TestMaxCDN_Post(T *testing.T) {
 	form := url.Values{}
 	form.Add("name", "foo")
 
-	payload, err := max.Post("/zones/pull.json", form)
+	var data Pullzone
+	rsp, err := max.Post(&data, Endpoint.Zones.Pull, form)
+
+	// check error
 	Go(T).AssertNil(err)
-	Go(T).RefuteNil(payload)
-	Go(T).AssertNil(payload.Error)
-	Go(T).RefuteNil(payload.Raw)
-	Go(T).RefuteNil(payload.Body)
+
+	// check response
+	Go(T).RefuteNil(rsp)
+	Go(T).RefuteNil(rsp.Data)
+	Go(T).RefuteNil(rsp.Headers)
 
 	Go(T).AssertEqual(recorder.Request.Method, "POST")
 	Go(T).AssertEqual(recorder.Request.URL.Path, "/alias/zones/pull.json")
@@ -107,12 +126,11 @@ func TestMaxCDN_Delete(T *testing.T) {
 	var recorder http.Response
 	max.HTTPClient = stubHTTPOkRecorded(&recorder)
 
-	payload, err := max.Delete("/zones/pull.json/123456", nil)
+	rsp, err := max.Delete(Endpoint.Zones.PullBy(123456), nil)
 	Go(T).AssertNil(err)
-	Go(T).RefuteNil(payload)
-	Go(T).AssertNil(payload.Error)
-	Go(T).RefuteNil(payload.Raw)
-	Go(T).RefuteNil(payload.Body)
+	Go(T).RefuteNil(rsp)
+	Go(T).RefuteNil(rsp.Code)
+	Go(T).RefuteNil(rsp.Headers)
 
 	Go(T).AssertEqual(recorder.Request.Method, "DELETE")
 	Go(T).AssertEqual(recorder.Request.URL.Path, "/alias/zones/pull.json/123456")
@@ -130,12 +148,11 @@ func TestMaxCDN_PurgeZone(T *testing.T) {
 	var recorder http.Response
 	max.HTTPClient = stubHTTPOkRecorded(&recorder)
 
-	payload, err := max.PurgeZone(123456)
+	rsp, err := max.PurgeZone(123456)
 	Go(T).AssertNil(err)
-	Go(T).RefuteNil(payload)
-	Go(T).AssertNil(payload.Error)
-	Go(T).RefuteNil(payload.Raw)
-	Go(T).RefuteNil(payload.Body)
+	Go(T).RefuteNil(rsp)
+	Go(T).RefuteNil(rsp.Code)
+	Go(T).RefuteNil(rsp.Headers)
 
 	Go(T).AssertEqual(recorder.Request.Method, "DELETE")
 	Go(T).AssertEqual(recorder.Request.URL.Path, "/alias/zones/pull.json/123456/cache")
@@ -153,9 +170,28 @@ func TestMaxCDN_PurgeZones(T *testing.T) {
 	var recorder http.Response
 	max.HTTPClient = stubHTTPOkRecorded(&recorder)
 
-	payload, err := max.PurgeZones([]int{12345, 23456, 34567})
+	rsps, err := max.PurgeZones([]int{12345, 23456, 34567})
 	Go(T).AssertNil(err)
-	Go(T).RefuteNil(payload)
+	Go(T).RefuteNil(rsps)
+
+	Go(T).AssertEqual(recorder.Request.Method, "DELETE")
+	Go(T).AssertEqual(recorder.Request.URL.Query().Encode(), "")
+	Go(T).AssertEqual(recorder.Request.Header.Get("Content-Type"), contentType)
+	Go(T).RefuteEqual(recorder.Request.Header.Get("Authorization"), "")
+
+	// check body
+	Go(T).AssertNil(recorder.Request.Body)
+}
+
+func TestMaxCDN_PurgeZonesString(T *testing.T) {
+	max := NewMaxCDN("alias", "token", "secret")
+
+	var recorder http.Response
+	max.HTTPClient = stubHTTPOkRecorded(&recorder)
+
+	rsps, err := max.PurgeZonesString([]string{"12345", "23456", "34567"})
+	Go(T).AssertNil(err)
+	Go(T).RefuteNil(rsps)
 
 	Go(T).AssertEqual(recorder.Request.Method, "DELETE")
 	Go(T).AssertEqual(recorder.Request.URL.Query().Encode(), "")
@@ -172,12 +208,35 @@ func TestMaxCDN_PurgeFile(T *testing.T) {
 	var recorder http.Response
 	max.HTTPClient = stubHTTPOkRecorded(&recorder)
 
-	payload, err := max.PurgeFile(123456, "/master.css")
+	rsp, err := max.PurgeFile(123456, "/master.css")
 	Go(T).AssertNil(err)
-	Go(T).RefuteNil(payload)
-	Go(T).AssertNil(payload.Error)
-	Go(T).RefuteNil(payload.Raw)
-	Go(T).RefuteNil(payload.Body)
+	Go(T).RefuteNil(rsp)
+	Go(T).RefuteNil(rsp.Code)
+	Go(T).RefuteNil(rsp.Headers)
+
+	Go(T).AssertEqual(recorder.Request.Method, "DELETE")
+	Go(T).AssertEqual(recorder.Request.URL.Path, "/alias/zones/pull.json/123456/cache")
+	Go(T).AssertEqual(recorder.Request.URL.Query().Encode(), "")
+	Go(T).AssertEqual(recorder.Request.Header.Get("Content-Type"), contentType)
+	Go(T).RefuteEqual(recorder.Request.Header.Get("Authorization"), "")
+
+	// check body
+	body, err := ioutil.ReadAll(recorder.Request.Body)
+	Go(T).AssertNil(err)
+	Go(T).AssertEqual(string(body), "file=%2Fmaster.css")
+}
+
+func TestMaxCDN_PurgeFileString(T *testing.T) {
+	max := NewMaxCDN("alias", "token", "secret")
+
+	var recorder http.Response
+	max.HTTPClient = stubHTTPOkRecorded(&recorder)
+
+	rsp, err := max.PurgeFileString("123456", "/master.css")
+	Go(T).AssertNil(err)
+	Go(T).RefuteNil(rsp)
+	Go(T).RefuteNil(rsp.Code)
+	Go(T).RefuteNil(rsp.Headers)
 
 	Go(T).AssertEqual(recorder.Request.Method, "DELETE")
 	Go(T).AssertEqual(recorder.Request.URL.Path, "/alias/zones/pull.json/123456/cache")
@@ -198,9 +257,9 @@ func TestMaxCDN_PurgeFiles(T *testing.T) {
 	max.HTTPClient = stubHTTPOkRecorded(&recorder)
 
 	files := []string{"/master.css", "/master.js", "/index.html"}
-	payload, err := max.PurgeFiles(123456, files)
+	rsp, err := max.PurgeFiles(123456, files)
 	Go(T).AssertNil(err)
-	Go(T).RefuteNil(payload)
+	Go(T).RefuteNil(rsp)
 
 	Go(T).AssertEqual(recorder.Request.Method, "DELETE")
 	Go(T).AssertEqual(recorder.Request.URL.Query().Encode(), "")

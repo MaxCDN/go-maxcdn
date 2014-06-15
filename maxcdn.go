@@ -1,7 +1,3 @@
-// Package maxcdn is the golang bindings for MaxCDN's REST API.
-//
-// This package should be considered beta. The final release will be moved to
-// `github.com/maxcdn/go-maxcdn`.
 package maxcdn
 
 import (
@@ -20,6 +16,10 @@ import (
 const (
 	userAgent   = "Go MaxCDN API Client"
 	contentType = "application/x-www-form-urlencoded"
+
+	// Here lies implemented endpoints.
+	PopularFilesEndpoint = "/reports/popularfiles.json"
+	StatsEndpoint        = "/reports/stats.json"
 )
 
 // APIHost is the hostname, including protocol, to MaxCDN's API.
@@ -56,78 +56,47 @@ func NewMaxCDN(alias, token, secret string) *MaxCDN {
 	}
 }
 
-type Response struct {
-	Raw  *http.Response
-	Body []byte
-
-	// Including error in Response for those times when a []Response
-	// is being worked with.
-	Error error
-}
-
-// NewResponse generate a new response directly from Do's return
-// values.
-func NewResponse(res *http.Response, err error) Response {
-	defer res.Body.Close()
-	r := Response{Raw: res}
-
-	if err != nil {
-		r.Error = err
-		return r
-	}
-
-	body, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		r.Error = err
-		return r
-	}
-
-	r.Body = body
-	return r
-}
-
 // Get does an OAuth signed http.Get
-//
-// Get and other request methods return error even though it's also included in
-// the Response. This is to conform to the "net/http".Get response format to make
-// this more familar to consumers.
-func (max *MaxCDN) Get(endpoint string, form url.Values) (*Response, error) {
-	res := NewResponse(max.Do("GET", endpoint, form))
-	return &res, res.Error
+func (max *MaxCDN) Get(endpointType interface{}, endpoint string, form url.Values) (*Response, error) {
+	return max.DoParse(endpointType, "GET", endpoint, form)
 }
 
 // Post does an OAuth signed http.Post
-func (max *MaxCDN) Post(endpoint string, form url.Values) (*Response, error) {
-	res := NewResponse(max.Do("POST", endpoint, form))
-	return &res, res.Error
+func (max *MaxCDN) Post(endpointType interface{}, endpoint string, form url.Values) (*Response, error) {
+	return max.DoParse(endpointType, "POST", endpoint, form)
 }
 
 // Put does an OAuth signed http.Put
-func (max *MaxCDN) Put(endpoint string, form url.Values) (*Response, error) {
-	res := NewResponse(max.Do("PUT", endpoint, form))
-	return &res, res.Error
+func (max *MaxCDN) Put(endpointType interface{}, endpoint string, form url.Values) (*Response, error) {
+	return max.DoParse(endpointType, "PUT", endpoint, form)
 }
 
 // Delete does an OAuth signed http.Delete
+//
+// Delete does not take an endpointType because delete only returns a status code.
 func (max *MaxCDN) Delete(endpoint string, form url.Values) (*Response, error) {
-	res := NewResponse(max.Do("DELETE", endpoint, form))
-	return &res, res.Error
+	return max.Do("DELETE", endpoint, form)
 }
 
 // PurgeZone purges a specified zones cache.
 func (max *MaxCDN) PurgeZone(zone int) (*Response, error) {
-	return max.Delete(fmt.Sprintf("/zones/pull.json/%d/cache", zone), nil)
+	return max.Delete(Endpoint.Zones.PullCacheBy(zone), nil)
 }
 
-// PurgeZones purges multiple zones caches.
-func (max *MaxCDN) PurgeZones(zones []int) (resps []*Response, last error) {
+// PurgeZoneString purges a specified zones cache.
+func (max *MaxCDN) PurgeZoneString(zone string) (*Response, error) {
+	return max.Delete(Endpoint.Zones.PullCacheByString(zone), nil)
+}
+
+// PurgeZonesString purges multiple zones caches.
+func (max *MaxCDN) PurgeZonesString(zones []string) (resps []*Response, last error) {
 	var resChannel = make(chan *Response)
 	var errChannel = make(chan error)
 
 	mutex := sync.Mutex{}
 	for _, zone := range zones {
-		go func(zone int) {
-			res, err := max.PurgeZone(zone)
+		go func(zone string) {
+			res, err := max.PurgeZoneString(zone)
 			resChannel <- res
 			errChannel <- err
 		}(zone)
@@ -149,12 +118,28 @@ func (max *MaxCDN) PurgeZones(zones []int) (resps []*Response, last error) {
 	return
 }
 
+// PurgeZones purges multiple zones caches.
+func (max *MaxCDN) PurgeZones(zones []int) (resps []*Response, last error) {
+	zoneStrings := make([]string, len(zones))
+
+	for i, zone := range zones {
+		zoneStrings[i] = fmt.Sprintf("%d", zone)
+	}
+
+	return max.PurgeZonesString(zoneStrings)
+}
+
 // PurgeFile purges a specified file by zone from cache.
 func (max *MaxCDN) PurgeFile(zone int, file string) (*Response, error) {
+	return max.PurgeFileString(fmt.Sprintf("%d", zone), file)
+}
+
+// PurgeFile purges a specified file by zone from cache.
+func (max *MaxCDN) PurgeFileString(zone string, file string) (*Response, error) {
 	form := url.Values{}
 	form.Set("file", file)
 
-	return max.Delete(fmt.Sprintf("/zones/pull.json/%d/cache", zone), form)
+	return max.Delete(Endpoint.Zones.PullCacheByString(zone), form)
 }
 
 // PurgeFiles purges multiple files from a zone.
@@ -188,12 +173,55 @@ func (max *MaxCDN) PurgeFiles(zone int, files []string) (resps []*Response, last
 	return
 }
 
-// Do is a low level method to interact with MaxCDN's RESTful API. It's
+func (max *MaxCDN) DoParse(endpointType interface{}, method, endpoint string, form url.Values) (rsp *Response, err error) {
+	rsp, err = max.Do(method, endpoint, form)
+	if err != nil {
+		return
+	}
+	err = json.Unmarshal(rsp.Data, &endpointType)
+	return
+}
+
+// Do is a low level method to interact with MaxCDN's RESTful API via Request
+// and return a parsed Response. It's used by all other methods.
+//
+// This method closes the raw http.Response body.
+func (max *MaxCDN) Do(method, endpoint string, form url.Values) (rsp *Response, err error) {
+	rsp = new(Response)
+	res, err := max.Request(method, endpoint, form)
+	defer res.Body.Close()
+
+	if err != nil {
+		return
+	}
+
+	headers := res.Header
+	rsp.Headers = &headers
+
+	var raw []byte
+	raw, err = ioutil.ReadAll(res.Body)
+	if err != nil {
+		return
+	}
+
+	err = json.Unmarshal(raw, &rsp)
+	if err != nil {
+		return
+	}
+
+	if rsp.Code > 299 {
+		return rsp, fmt.Errorf("%s: %s", rsp.Error.Type, rsp.Error.Message)
+	}
+
+	return
+}
+
+// Request is a low level method to interact with MaxCDN's RESTful API. It's
 // used by all other methods.
 //
 // If using this method, you must manually close the res.Body or bad things
 // may happen.
-func (max *MaxCDN) Do(method, endpoint string, form url.Values) (res *http.Response, err error) {
+func (max *MaxCDN) Request(method, endpoint string, form url.Values) (res *http.Response, err error) {
 	var req *http.Request
 
 	req, err = http.NewRequest(method, max.url(endpoint), nil)
