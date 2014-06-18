@@ -131,12 +131,12 @@ func main() {
 	max := maxcdn.NewMaxCDN(config.Alias, config.Token, config.Secret)
 	max.Verbose = config.Verbose
 
-	var response []*maxcdn.GenericResponse
+	var response []*maxcdn.Response
 	var err error
 	var successful bool
 
 	if len(config.Files) != 0 {
-		var resps []*maxcdn.GenericResponse
+		var resps []*maxcdn.Response
 		for _, zone := range config.Zones {
 			resps, err = max.PurgeFiles(zone, config.Files)
 			response = append(response, resps...)
