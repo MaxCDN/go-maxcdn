@@ -1,21 +1,20 @@
+package maxcdn
+
 // This file contains Example and Functional Example methods, both for documentation
 // and for functionally testing code.
 
-package maxcdn
-
 import (
-	//"encoding/json"
+	"encoding/json"
 	"fmt"
-	//"io/ioutil"
 	"net/url"
 	"os"
-	//"strconv"
 )
 
 var (
 	alias  = os.Getenv("ALIAS")
 	token  = os.Getenv("TOKEN")
 	secret = os.Getenv("SECRET")
+	max    = NewMaxCDN(alias, secret, token)
 )
 
 /****
@@ -23,8 +22,6 @@ var (
  *******************************************************************/
 
 func Example() {
-	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
-
 	// Basic Get
 	var data Account
 	response, err := max.Get(&data, "/account.json", nil)
@@ -41,35 +38,19 @@ func ExampleNewMaxCDN() {
 	fmt.Printf("%#v\n", max)
 }
 
-/*
-
 func ExampleMaxCDN_Do() {
-	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
-
 	// Run low level Do method.
-	res, err := max.Do("GET", "/account.json", nil)
+	if rsp, err := max.Do("GET", "/account.json", nil); err == nil {
+		fmt.Printf("Response Code: %d\n", rsp.Code)
 
-	// Raw http.Response requires that you close the Body.
-	defer res.Body.Close()
-
-	if err != nil {
-		panic(fmt.Errorf("[%s] %v", res.Status, err))
+		var data Account
+		if err = json.Unmarshal(rsp.Data, &data); err == nil {
+			fmt.Printf("%+v\n", data.Account)
+		}
 	}
-
-	// Read the Body.
-	body, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Printf("%s\n", body)
 }
 
-*/
-
 func ExampleMaxCDN_Get() {
-	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
-
 	var data AccountAddress
 	response, err := max.Get(&data, Endpoint.AccountAddress, nil)
 	if err != nil {
@@ -81,8 +62,6 @@ func ExampleMaxCDN_Get() {
 }
 
 func ExampleMaxCDN_Put() {
-	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
-
 	form := url.Values{}
 	form.Set("name", "example name")
 
@@ -97,8 +76,6 @@ func ExampleMaxCDN_Put() {
 }
 
 func ExampleMaxCDN_Delete() {
-	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
-
 	// This specific example shows how to purge a cache without using the Purge
 	// methods, more as an example of using Delete, then anything, really.
 
@@ -113,8 +90,6 @@ func ExampleMaxCDN_Delete() {
 }
 
 func ExampleMaxCDN_PurgeZone() {
-	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
-
 	rsp, err := max.PurgeZone(123456)
 	if err != nil {
 		panic(err)
@@ -126,8 +101,6 @@ func ExampleMaxCDN_PurgeZone() {
 }
 
 func ExampleMaxCDN_PurgeZones() {
-	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
-
 	zones := []int{123456, 234567, 345678}
 	rsps, err := max.PurgeZones(zones)
 	if err != nil {
@@ -140,8 +113,6 @@ func ExampleMaxCDN_PurgeZones() {
 }
 
 func ExampleMaxCDN_PurgeFile() {
-	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
-
 	payload, err := max.PurgeFile(123456, "/master.css")
 	if err != nil {
 		panic(err)
@@ -153,8 +124,6 @@ func ExampleMaxCDN_PurgeFile() {
 }
 
 func ExampleMaxCDN_PurgeFiles() {
-	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
-
 	files := []string{"/master.css", "/master.js"}
 	payloads, err := max.PurgeFiles(123456, files)
 	if err != nil {
@@ -167,8 +136,6 @@ func ExampleMaxCDN_PurgeFiles() {
 }
 
 func ExampleMaxCDN_Post() {
-	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
-
 	form := url.Values{}
 	form.Set("name", "newzone")
 
@@ -200,8 +167,6 @@ func ExampleMaxCDN_Post() {
  *******************************************************************/
 
 func Example_Functional_MaxCDN_Get() {
-	max := NewMaxCDN(alias, token, secret)
-
 	if alias == "" || token == "" || secret == "" {
 		max.HTTPClient = stubHTTPOk()
 	}
@@ -223,8 +188,6 @@ func Example_Functional_MaxCDN_Put() {
 	// I'm using a timestamp as unique name for testing, you shouldn't
 	// do this.
 	name := stringFromTimestamp()
-
-	max := NewMaxCDN(alias, token, secret)
 
 	if alias == "" || token == "" || secret == "" {
 		max.HTTPClient = stubHTTPOk()
@@ -252,8 +215,6 @@ func Example_Functional_MaxCDN_Post() {
 	// I'm using a timestamp as unique name for testing, you shouldn't
 	// do this.
 	name := stringFromTimestamp()
-
-	max := NewMaxCDN(alias, token, secret)
 
 	// This won't work until MaxCDN fixes the API response to match the
 	// response that GET /zones/pull.json/{zone_id}
@@ -297,8 +258,6 @@ func Example_Functional_MaxCDN_Post() {
 }
 
 func Example_Functional_MaxCDN_PurgeZone() {
-	max := NewMaxCDN(alias, token, secret)
-
 	if alias == "" || token == "" || secret == "" {
 		max.HTTPClient = stubHTTPOk()
 	}
@@ -310,7 +269,7 @@ func Example_Functional_MaxCDN_PurgeZone() {
 		panic(err)
 	}
 
-	zone_id := data.Pullzones[0].ID
+	zone_id := data.Pullzones[len(data.Pullzones)-1].ID
 
 	// Now purge that zone's cache.
 	rsp, err = max.PurgeZoneString(zone_id)
@@ -327,8 +286,6 @@ func Example_Functional_MaxCDN_PurgeZone() {
 
 func Example_Functional_MaxCDN_PurgeFile() {
 
-	max := NewMaxCDN(alias, token, secret)
-
 	if alias == "" || token == "" || secret == "" {
 		max.HTTPClient = stubHTTPOk()
 	}
@@ -340,7 +297,7 @@ func Example_Functional_MaxCDN_PurgeFile() {
 		panic(err)
 	}
 
-	zone_id := data.Pullzones[0].ID
+	zone_id := data.Pullzones[len(data.Pullzones)-1].ID
 
 	// Next fetch file name.
 	var files PopularFiles
@@ -349,7 +306,7 @@ func Example_Functional_MaxCDN_PurgeFile() {
 		panic(err)
 	}
 
-	file := files.Popularfiles[0].Uri
+	file := files.PopularFiles[0].Uri
 
 	// Now purge that zone's cache.
 	rsp, err = max.PurgeFileString(zone_id, file)

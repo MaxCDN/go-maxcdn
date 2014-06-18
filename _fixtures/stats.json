@@ -1,0 +1,12 @@
+{
+  "code": 200,
+  "data": {
+    "stats": {
+      "cache_hit": "11571",
+      "hit": "18632",
+      "noncache_hit": "7061",
+      "size": "20402029"
+    },
+    "total": "1"
+  }
+}

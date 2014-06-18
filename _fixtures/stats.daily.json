@@ -1,0 +1,242 @@
+{
+  "code": 200,
+  "data": {
+    "current_page_size": 32,
+    "page": 1,
+    "page_size": "50",
+    "pages": 1,
+    "stats": [
+      {
+        "cache_hit": "122",
+        "hit": "267",
+        "noncache_hit": "145",
+        "size": "235724",
+        "timestamp": "2014-05-18"
+      },
+      {
+        "cache_hit": "194",
+        "hit": "461",
+        "noncache_hit": "267",
+        "size": "414066",
+        "timestamp": "2014-05-19"
+      },
+      {
+        "cache_hit": "214",
+        "hit": "503",
+        "noncache_hit": "289",
+        "size": "341005",
+        "timestamp": "2014-05-20"
+      },
+      {
+        "cache_hit": "212",
+        "hit": "507",
+        "noncache_hit": "295",
+        "size": "318990",
+        "timestamp": "2014-05-21"
+      },
+      {
+        "cache_hit": "196",
+        "hit": "452",
+        "noncache_hit": "256",
+        "size": "280606",
+        "timestamp": "2014-05-22"
+      },
+      {
+        "cache_hit": "163",
+        "hit": "445",
+        "noncache_hit": "282",
+        "size": "265021",
+        "timestamp": "2014-05-23"
+      },
+      {
+        "cache_hit": "100",
+        "hit": "217",
+        "noncache_hit": "117",
+        "size": "131969",
+        "timestamp": "2014-05-24"
+      },
+      {
+        "cache_hit": "109",
+        "hit": "231",
+        "noncache_hit": "122",
+        "size": "145935",
+        "timestamp": "2014-05-25"
+      },
+      {
+        "cache_hit": "161",
+        "hit": "375",
+        "noncache_hit": "214",
+        "size": "310163",
+        "timestamp": "2014-05-26"
+      },
+      {
+        "cache_hit": "197",
+        "hit": "502",
+        "noncache_hit": "305",
+        "size": "405758",
+        "timestamp": "2014-05-27"
+      },
+      {
+        "cache_hit": "218",
+        "hit": "500",
+        "noncache_hit": "282",
+        "size": "576782",
+        "timestamp": "2014-05-28"
+      },
+      {
+        "cache_hit": "173",
+        "hit": "386",
+        "noncache_hit": "213",
+        "size": "281388",
+        "timestamp": "2014-05-29"
+      },
+      {
+        "cache_hit": "245",
+        "hit": "498",
+        "noncache_hit": "253",
+        "size": "3780042",
+        "timestamp": "2014-05-30"
+      },
+      {
+        "cache_hit": "144",
+        "hit": "305",
+        "noncache_hit": "161",
+        "size": "1036455",
+        "timestamp": "2014-05-31"
+      },
+      {
+        "cache_hit": "134",
+        "hit": "298",
+        "noncache_hit": "164",
+        "size": "1335524",
+        "timestamp": "2014-06-01"
+      },
+      {
+        "cache_hit": "254",
+        "hit": "554",
+        "noncache_hit": "300",
+        "size": "443254",
+        "timestamp": "2014-06-02"
+      },
+      {
+        "cache_hit": "202",
+        "hit": "544",
+        "noncache_hit": "342",
+        "size": "1601412",
+        "timestamp": "2014-06-03"
+      },
+      {
+        "cache_hit": "190",
+        "hit": "575",
+        "noncache_hit": "385",
+        "size": "265946",
+        "timestamp": "2014-06-04"
+      },
+      {
+        "cache_hit": "147",
+        "hit": "510",
+        "noncache_hit": "363",
+        "size": "288959",
+        "timestamp": "2014-06-05"
+      },
+      {
+        "cache_hit": "164",
+        "hit": "427",
+        "noncache_hit": "263",
+        "size": "534909",
+        "timestamp": "2014-06-06"
+      },
+      {
+        "cache_hit": "117",
+        "hit": "246",
+        "noncache_hit": "129",
+        "size": "196913",
+        "timestamp": "2014-06-07"
+      },
+      {
+        "cache_hit": "98",
+        "hit": "227",
+        "noncache_hit": "129",
+        "size": "245058",
+        "timestamp": "2014-06-08"
+      },
+      {
+        "cache_hit": "197",
+        "hit": "468",
+        "noncache_hit": "271",
+        "size": "415002",
+        "timestamp": "2014-06-09"
+      },
+      {
+        "cache_hit": "471",
+        "hit": "1182",
+        "noncache_hit": "711",
+        "size": "713383",
+        "timestamp": "2014-06-10"
+      },
+      {
+        "cache_hit": "1506",
+        "hit": "1732",
+        "noncache_hit": "226",
+        "size": "1083667",
+        "timestamp": "2014-06-11"
+      },
+      {
+        "cache_hit": "1121",
+        "hit": "1222",
+        "noncache_hit": "101",
+        "size": "905825",
+        "timestamp": "2014-06-12"
+      },
+      {
+        "cache_hit": "966",
+        "hit": "1047",
+        "noncache_hit": "81",
+        "size": "721106",
+        "timestamp": "2014-06-13"
+      },
+      {
+        "cache_hit": "668",
+        "hit": "737",
+        "noncache_hit": "69",
+        "size": "614932",
+        "timestamp": "2014-06-14"
+      },
+      {
+        "cache_hit": "652",
+        "hit": "740",
+        "noncache_hit": "88",
+        "size": "738472",
+        "timestamp": "2014-06-15"
+      },
+      {
+        "cache_hit": "1071",
+        "hit": "1174",
+        "noncache_hit": "103",
+        "size": "737179",
+        "timestamp": "2014-06-16"
+      },
+      {
+        "cache_hit": "1104",
+        "hit": "1224",
+        "noncache_hit": "120",
+        "size": "995585",
+        "timestamp": "2014-06-17"
+      },
+      {
+        "cache_hit": "61",
+        "hit": "76",
+        "noncache_hit": "15",
+        "size": "40999",
+        "timestamp": "2014-06-18"
+      }
+    ],
+    "summary": {
+      "cache_hit": "11571",
+      "hit": "18632",
+      "noncache_hit": "7061",
+      "size": "20402029"
+    },
+    "total": "32"
+  }
+}

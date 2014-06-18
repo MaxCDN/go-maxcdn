@@ -1,0 +1,53 @@
+{
+  "code": 200,
+  "data": {
+    "current_page_size": 3,
+    "page": 1,
+    "page_size": "50",
+    "pages": 1,
+    "total": 3,
+    "users": [
+      {
+        "brand_id": "2",
+        "date_created": "2013-10-31 21:19:27",
+        "date_last_login": "2014-06-17 06:13:12",
+        "date_updated": "2014-06-17 06:13:12",
+        "default_company_id": "23761",
+        "email": "joshua@mervine.net",
+        "firstname": "Josh",
+        "id": "38716",
+        "ip_last_login": "23.242.53.114",
+        "isadmin": "0",
+        "isdisabled": "0",
+        "lastname": "Mervine",
+        "login_whitelist": "0",
+        "phone": "",
+        "roles": [
+          "User",
+          "Account Owner"
+        ],
+        "timezone": "America/Los_Angeles"
+      },
+      {
+        "brand_id": "1",
+        "date_created": "2014-06-04 20:55:29",
+        "date_last_login": null,
+        "date_updated": "2014-06-04 20:59:12",
+        "default_company_id": "23761",
+        "email": "merivnej@gmail.com",
+        "firstname": "joshua",
+        "id": "46753",
+        "ip_last_login": null,
+        "isadmin": "0",
+        "isdisabled": "0",
+        "lastname": "mervine",
+        "login_whitelist": "0",
+        "phone": null,
+        "roles": [
+          "User"
+        ],
+        "timezone": "Europe/London"
+      }
+    ]
+  }
+}
