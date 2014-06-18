@@ -180,7 +180,7 @@ This method closes the raw http.Response body.
 
 ```go
     // Example:
-	// Run low level Do method.
+	// Run low-level Do method.
 	if rsp, err := max.Do("GET", "/account.json", nil); err == nil {
 	    fmt.Printf("Response Code: %d\n", rsp.Code)
 	
@@ -399,6 +399,25 @@ If using this method, you must manually close the res.Body or bad things may
 happen.
 
 
+```go
+    // Example:
+	check := func(e error) {
+	    if e != nil {
+	        panic(e)
+	    }
+	}
+	
+	// Run low-level Request method.
+	res, err := max.Request("GET", Endpoint.Account, nil)
+	defer res.Body.Close()
+	check(err)
+	
+	body, err := ioutil.ReadAll(res.Body)
+	check(err)
+	
+	fmt.Println(string(body))
+
+```
 
 #### PopularFiles
 ```go

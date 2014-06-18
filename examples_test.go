@@ -6,6 +6,7 @@ package maxcdn
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/url"
 	"os"
 )
@@ -51,7 +52,7 @@ func ExampleMaxCDN_DoParse() {
 }
 
 func ExampleMaxCDN_Do() {
-	// Run low level Do method.
+	// Run low-level Do method.
 	if rsp, err := max.Do("GET", "/account.json", nil); err == nil {
 		fmt.Printf("Response Code: %d\n", rsp.Code)
 
@@ -60,6 +61,24 @@ func ExampleMaxCDN_Do() {
 			fmt.Printf("%+v\n", data.Account)
 		}
 	}
+}
+
+func ExampleMaxCDN_Request() {
+	check := func(e error) {
+		if e != nil {
+			panic(e)
+		}
+	}
+
+	// Run low-level Request method.
+	res, err := max.Request("GET", Endpoint.Account, nil)
+	defer res.Body.Close()
+	check(err)
+
+	body, err := ioutil.ReadAll(res.Body)
+	check(err)
+
+	fmt.Println(string(body))
 }
 
 func ExampleMaxCDN_Get() {
