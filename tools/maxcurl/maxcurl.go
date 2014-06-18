@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/url"
+	"net/http"
 	"os"
 	"strings"
 	"text/tabwriter"
@@ -138,8 +139,10 @@ func main() {
 	form := u.Query()
 
 	// request raw data from maxcdn
-	raw, res, err := max.Do(config.Method, config.Path, form)
+	res, err := max.Do(config.Method, config.Path, form)
 	check(err)
+
+    raw := res.Data
 
 	if config.Pretty {
 		// format pretty
@@ -147,13 +150,13 @@ func main() {
 		err = json.Unmarshal(raw, &j)
 		check(err)
 
-		raw, err = json.MarshalIndent(j, "", "  ")
+        raw, err = json.MarshalIndent(j, "", "  ")
 		check(err)
 	}
 
 	// print
 	if config.Headers {
-		fmt.Println(fmtHeaders(res.Header))
+		fmt.Println(fmtHeaders(res.Headers))
 	}
 	fmt.Printf("%v\n", string(raw))
 }
@@ -176,9 +179,9 @@ func helpPrinter(templ string, data interface{}) {
 	os.Exit(0)
 }
 
-func fmtHeaders(headers map[string][]string) (out string) {
-	for k, v := range headers {
-		out += fmt.Sprintf("%s => %s\n", k, strings.Join(v, ", "))
+func fmtHeaders(headers *http.Header) (out string) {
+	for k, v := range *headers {
+        out += fmt.Sprintf("%s: %s\n", k, strings.Join(v, ", "))
 	}
 	return
 }
