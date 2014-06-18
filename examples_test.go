@@ -314,9 +314,9 @@ func Example_Functional_MaxCDN_PurgeZone() {
 
 	// Now purge that zone's cache.
 	rsp, err = max.PurgeZoneString(zone_id)
-    if err != nil {
-        panic(err)
-    }
+	if err != nil {
+		panic(err)
+	}
 
 	if rsp.Code == 200 {
 		fmt.Println("Purge succeeded")

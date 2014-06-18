@@ -248,11 +248,11 @@ type Pullzone struct {
 
 // Pullzones is for GET /zones/pull.json
 type Pullzones struct {
-	CurrentPageSize int        `json:"current_page_size"`
-	Page            int        `json:"page"`
-	PageSize        string     `json:"page_size"`
-	Pages           int        `json:"pages"`
-	Pullzones []struct {
+	CurrentPageSize int    `json:"current_page_size"`
+	Page            int    `json:"page"`
+	PageSize        string `json:"page_size"`
+	Pages           int    `json:"pages"`
+	Pullzones       []struct {
 		BackendCompress       string `json:"backend_compress,omitempty"`
 		CacheValid            string `json:"cache_valid,omitempty"`
 		CanonicalLinkHeaders  string `json:"canonical_link_headers,omitempty"`
@@ -295,5 +295,5 @@ type Pullzones struct {
 		WebpEnabled           string `json:"webp_enabled,omitempty"`
 		XForwardFor           string `json:"x_forward_for,omitempty"`
 	} `json:"pullzones"`
-	Total           int        `json:"total"`
+	Total int `json:"total"`
 }
