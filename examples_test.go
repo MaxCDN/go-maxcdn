@@ -38,6 +38,18 @@ func ExampleNewMaxCDN() {
 	fmt.Printf("%#v\n", max)
 }
 
+func ExampleMaxCDN_DoParse() {
+	// Run mid-level DoParse method.
+	var data AccountAddress
+	response, err := max.DoParse(&data, "GET", Endpoint.AccountAddress, nil)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("code: %d\n", response.Code)
+	fmt.Printf("name: %s\n", data.Address.Street1)
+}
+
 func ExampleMaxCDN_Do() {
 	// Run low level Do method.
 	if rsp, err := max.Do("GET", "/account.json", nil); err == nil {

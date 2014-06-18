@@ -198,6 +198,19 @@ func (max *MaxCDN) DoParse(endpointType interface{}, method, endpoint string, fo
 ```
 
 
+```go
+    // Example:
+	// Run mid-level DoParse method.
+	var data AccountAddress
+	response, err := max.DoParse(&data, "GET", Endpoint.AccountAddress, nil)
+	if err != nil {
+	    panic(err)
+	}
+	
+	fmt.Printf("code: %d\n", response.Code)
+	fmt.Printf("name: %s\n", data.Address.Street1)
+
+```
 
 #### Get
 ```go
