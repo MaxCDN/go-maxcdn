@@ -228,3 +228,52 @@ type Pullzones struct {
 	} `json:"pullzones,omitempty"`
 	Total int `json:"total,omitempty"`
 }
+
+// Users is for GET /users.json
+type Users struct {
+	CurrentPageSize int    `json:"current_page_size,omitempty"`
+	Page            int    `json:"page,omitempty"`
+	PageSize        string `json:"page_size,omitempty"`
+	Pages           int    `json:"pages,omitempty"`
+	Total           int    `json:"total,omitempty"`
+	Users           []struct {
+		BrandID          string   `json:"brand_id,omitempty"`
+		DateCreated      string   `json:"date_created,omitempty"`
+		DateLastLogin    string   `json:"date_last_login,omitempty"`
+		DateUpdated      string   `json:"date_updated,omitempty"`
+		DefaultCompanyID string   `json:"default_company_id,omitempty"`
+		Email            string   `json:"email,omitempty"`
+		Firstname        string   `json:"firstname,omitempty"`
+		ID               string   `json:"id,omitempty"`
+		IpLastLogin      string   `json:"ip_last_login,omitempty"`
+		IsAdmin          string   `json:"isadmin,omitempty"`
+		Isdisabled       string   `json:"isdisabled,omitempty"`
+		Lastname         string   `json:"lastname,omitempty"`
+		LoginWhitelist   string   `json:"login_whitelist,omitempty"`
+		Phone            string   `json:"phone,omitempty"`
+		Roles            []string `json:"roles,omitempty"`
+		Timezone         string   `json:"timezone,omitempty"`
+	} `json:"users,omitempty"`
+}
+
+// User is for GET /users.json/{user_id}
+type User struct {
+	User struct {
+		BrandID          string   `json:"brand_id,omitempty"`
+		DateCreated      string   `json:"date_created,omitempty"`
+		DateLastLogin    string   `json:"date_last_login,omitempty"`
+		DateUpdated      string   `json:"date_updated,omitempty"`
+		DefaultCompanyID string   `json:"default_company_id,omitempty"`
+		Email            string   `json:"email,omitempty"`
+		Firstname        string   `json:"firstname,omitempty"`
+		ID               string   `json:"id,omitempty"`
+		IpLastLogin      string   `json:"ip_last_login,omitempty"`
+		IsAdmin          string   `json:"isadmin,omitempty"`
+		Isdisabled       string   `json:"isdisabled,omitempty"`
+		Lastname         string   `json:"lastname,omitempty"`
+		LoginWhitelist   string   `json:"login_whitelist,omitempty"`
+		Phone            string   `json:"phone,omitempty"`
+		Roles            []string `json:"roles,omitempty"`
+		Timezone         string   `json:"timezone,omitempty"`
+	} `json:"user,omitempty"`
+}

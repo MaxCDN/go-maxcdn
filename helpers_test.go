@@ -31,7 +31,6 @@ type stubRoundTripper struct {
 }
 
 func (crt *stubRoundTripper) RoundTrip(r *http.Request) (*http.Response, error) {
-	//fmt.Println("stub")
 	urlParts := strings.Split(r.URL.Path, "/")
 	endpoint := urlParts[len(urlParts)-1]
 	code := 200
@@ -47,20 +46,33 @@ func (crt *stubRoundTripper) RoundTrip(r *http.Request) (*http.Response, error) 
 		filename = "pullzone.json"
 	} else if endpoint == "pull.json" {
 		filename = "pullzones.json"
+	} else if endpoint == "address" {
+		filename = "address.json"
+	} else if endpoint == "daily" {
+		filename = "stats.daily.json"
+	} else if endpoint == "ZONE_ID" {
+		filename = "pullzone.json"
+	} else if endpoint == "USER_ID" {
+		filename = "user.json"
 	} else {
 		filename = endpoint
 	}
 
-	read, err := ioutil.ReadFile("_fixtures/" + filename)
-	if err != nil {
-		panic(err)
-	}
+	read := fetchJson(filename)
 
 	crt.ResponseRecord.Body = ioutil.NopCloser(bytes.NewBuffer(read))
 	crt.ResponseRecord.StatusCode = code
 	crt.ResponseRecord.Request = r
 
 	return crt.ResponseRecord, nil
+}
+
+func fetchJson(p string) []byte {
+	read, err := ioutil.ReadFile("_fixtures/" + p)
+	if err != nil {
+		panic(err)
+	}
+	return read
 }
 
 func stubHTTPOkRecorded(recorder *http.Response) *http.Client {

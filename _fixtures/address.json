@@ -1,0 +1,16 @@
+{
+  "code": 200,
+  "data": {
+    "address": {
+      "city": "Los Angeles",
+      "country": "US",
+      "date_created": "0000-00-00 00:00:00",
+      "date_updated": "2014-06-05 16:46:18",
+      "id": "23337",
+      "state": "CA",
+      "street1": "1401986788489_2",
+      "street2": "1401986788489_3",
+      "zip": "91604"
+    }
+  }
+}

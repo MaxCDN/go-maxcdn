@@ -9,12 +9,6 @@ import (
 	. "github.com/jmervine/GoT"
 )
 
-//var (
-//alias  = os.Getenv("ALIAS")
-//token  = os.Getenv("TOKEN")
-//secret = os.Getenv("SECRET")
-//)
-
 func Test(T *testing.T) {
 	max := NewMaxCDN("alias", "token", "secret")
 	Go(T).AssertEqual(max.Alias, "alias")

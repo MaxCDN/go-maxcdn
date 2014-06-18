@@ -28,7 +28,6 @@ type Response struct {
 	}
 }
 
-
 func init() {
 
 	// Override cli's default help template
@@ -152,10 +151,10 @@ func main() {
 
 	// request raw data from maxcdn
 	res, err := max.Request(config.Method, config.Path, form)
-    defer res.Body.Close()
+	defer res.Body.Close()
 	check(err)
 
-    body, err := ioutil.ReadAll(res.Body)
+	body, err := ioutil.ReadAll(res.Body)
 	check(err)
 
 	if config.Pretty {

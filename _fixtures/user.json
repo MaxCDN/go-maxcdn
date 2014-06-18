@@ -1,0 +1,25 @@
+{
+  "code": 200,
+  "data": {
+    "user": {
+      "brand_id": "1",
+      "date_created": "2014-06-04 20:55:29",
+      "date_last_login": null,
+      "date_updated": "2014-06-04 20:59:12",
+      "default_company_id": "23761",
+      "email": "email@example.com",
+      "firstname": "joshua",
+      "id": "46753",
+      "ip_last_login": null,
+      "isadmin": "0",
+      "isdisabled": "0",
+      "lastname": "mervine",
+      "login_whitelist": "0",
+      "phone": null,
+      "roles": [
+        "User"
+      ],
+      "timezone": "Europe/London"
+    }
+  }
+}

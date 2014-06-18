@@ -224,18 +224,18 @@
         "timestamp": "2014-06-17"
       },
       {
-        "cache_hit": "61",
-        "hit": "76",
-        "noncache_hit": "15",
-        "size": "40999",
+        "cache_hit": "123",
+        "hit": "174",
+        "noncache_hit": "51",
+        "size": "177763",
         "timestamp": "2014-06-18"
       }
     ],
     "summary": {
-      "cache_hit": "11571",
-      "hit": "18632",
-      "noncache_hit": "7061",
-      "size": "20402029"
+      "cache_hit": "11633",
+      "hit": "18730",
+      "noncache_hit": "7097",
+      "size": "20538793"
     },
     "total": "32"
   }
