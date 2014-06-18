@@ -193,10 +193,11 @@ func stats(max *maxcdn.MaxCDN) {
 func statsSummary(max *maxcdn.MaxCDN) {
 	fmt.Println("Running summary stats report.\n")
 
-	mapper, err := max.GetStatsSummary(config.Form)
+	var data maxcdn.StatsSummary
+	_, err := max.Get(&data, maxcdn.Endpoint.Reports.Stats, config.Form)
 	check(err)
 
-	stats := mapper.Data.Stats
+	stats := data.Stats
 	fmt.Printf("%15s | %15s | %15s | %15s\n", "total hits", "cache hits", "non-cache hits", "size")
 	fmt.Println("--------------------------------------------------------------------------------")
 	fmt.Printf("%15s | %15s | %15s | %15s\n", stats.Hit, stats.CacheHit, stats.NoncacheHit, stats.Size)
@@ -206,12 +207,13 @@ func statsSummary(max *maxcdn.MaxCDN) {
 func statsBreakdown(max *maxcdn.MaxCDN) {
 	fmt.Printf("Running %s stats report.\n\n", config.ReportType)
 
-	mapper, err := max.GetStatsByType(config.ReportType, config.Form)
+	var data maxcdn.Stats
+	_, err := max.Get(&data, maxcdn.Endpoint.Reports.StatsBy(config.ReportType), config.Form)
 	check(err)
 
 	fmt.Printf("%25s | %10s | %10s | %10s | %10s\n", "timestamp", "total", "cached", "non-cached", "size")
 	fmt.Println(" -------------------------------------------------------------------------------")
-	for _, stats := range mapper.Data.Stats {
+	for _, stats := range data.Stats {
 		fmt.Printf("%25s | %10s | %10s | %10s | %10s\n", stats.Timestamp, stats.Hit, stats.CacheHit, stats.NoncacheHit, stats.Size)
 	}
 	fmt.Println()
@@ -220,13 +222,14 @@ func statsBreakdown(max *maxcdn.MaxCDN) {
 func popularFiles(max *maxcdn.MaxCDN) {
 	fmt.Println("Running popular files report.\n")
 
-	mapper, err := max.GetPopularFiles(config.Form)
+	var data maxcdn.PopularFiles
+	_, err := max.Get(&data, maxcdn.Endpoint.Reports.PopularFiles, config.Form)
 	check(err)
 
 	fmt.Printf("%10s | %s\n", "hits", "file")
 	fmt.Println("   -----------------")
 
-	for i, file := range mapper.Data.Popularfiles {
+	for i, file := range data.PopularFiles {
 		if config.Top != 0 && i == config.Top {
 			break
 		}

@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"net/url"
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
 	"text/tabwriter"
@@ -142,7 +142,7 @@ func main() {
 	res, err := max.Do(config.Method, config.Path, form)
 	check(err)
 
-    raw := res.Data
+	raw := res.Data
 
 	if config.Pretty {
 		// format pretty
@@ -150,7 +150,7 @@ func main() {
 		err = json.Unmarshal(raw, &j)
 		check(err)
 
-        raw, err = json.MarshalIndent(j, "", "  ")
+		raw, err = json.MarshalIndent(j, "", "  ")
 		check(err)
 	}
 
@@ -181,7 +181,7 @@ func helpPrinter(templ string, data interface{}) {
 
 func fmtHeaders(headers *http.Header) (out string) {
 	for k, v := range *headers {
-        out += fmt.Sprintf("%s: %s\n", k, strings.Join(v, ", "))
+		out += fmt.Sprintf("%s: %s\n", k, strings.Join(v, ", "))
 	}
 	return
 }
