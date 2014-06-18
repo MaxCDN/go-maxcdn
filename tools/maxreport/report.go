@@ -61,7 +61,7 @@ Notes:
 	app := cli.NewApp()
 	app.Name = "maxreport"
 	app.Usage = "Run MaxCDN API Reports"
-	app.Version = "0.0.1"
+	app.Version = "0.0.2"
 	cli.HelpPrinter = helpPrinter
 
 	// Setup global flags
