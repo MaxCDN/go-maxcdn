@@ -78,27 +78,11 @@ func (z *zones) PullCacheByString(t string) string {
 //return fmt.Sprintf("%s/%s", z.Push, t)
 //}
 
-// Endpoint
-//
-// This reflects all endpoints that are implemented as types and can be used
+// Endpoint reflects all endpoints that are implemented as types and can be used
 // as data struct to be passed to request methods (e.g. Get, Put, etc.) for
 // JSON parsing. If the endpoint you are attempting to access isn't included
 // in this list, you'll need to use the Generic type, which uses an interface
 // and type assert the data values you wish to access.
-//
-// Endpoint examples:
-//
-//  // for pull zone with id of '123456'
-//  e := Endpoint.Zones.PullBy('123456')
-//  => /zones/pull.json/123456
-//
-//  // for popular files report
-//  e := Endpoint.Reports.PopularFiles
-//  => /reports/popularfiles.json
-//
-//  // for hourly stats report
-//  e := Endpoint.Reports.StatsBy('hourly')
-//  => /reports/stats.json/hourly
 var Endpoint = endpoints{
 	Account:        "/account.json",
 	AccountAddress: "/account.json/address",

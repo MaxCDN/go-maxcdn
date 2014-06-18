@@ -16,10 +16,6 @@ import (
 const (
 	userAgent   = "Go MaxCDN API Client"
 	contentType = "application/x-www-form-urlencoded"
-
-	// Here lies implemented endpoints.
-	PopularFilesEndpoint = "/reports/popularfiles.json"
-	StatsEndpoint        = "/reports/stats.json"
 )
 
 // APIHost is the hostname, including protocol, to MaxCDN's API.

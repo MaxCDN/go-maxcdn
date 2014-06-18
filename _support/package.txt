@@ -25,7 +25,7 @@ import "github.com/jmervine/go-maxcdn"
 {{node $ .Decl}}
 ```
 
-{{comment_text .Doc "> " ""}}
+{{comment_text .Doc "" ""}}
 {{end}}{{end}}{{/*
 
 ---------------------------------------
@@ -37,7 +37,7 @@ import "github.com/jmervine/go-maxcdn"
 {{node $ .Decl}}
 ```
 
-{{comment_text .Doc "> " ""}}
+{{comment_text .Doc "" ""}}
 {{end}}{{end}}{{/*
 
 ---------------------------------------
@@ -52,10 +52,10 @@ import "github.com/jmervine/go-maxcdn"
 {{range .Consts}}```go
 {{node $ .Decl}}
 ```
-{{comment_text .Doc "> " ""}}
+{{comment_text .Doc "" ""}}
 {{end}}
 {{range .Vars}}{{node $ .Decl}}
-{{comment_text .Doc "> " ""}}```go
+{{comment_text .Doc "" ""}}```go
 {{example_text $ .Name "    // "}}
 ```
 {{end}}
@@ -63,7 +63,7 @@ import "github.com/jmervine/go-maxcdn"
 ```go
 {{node $ .Decl}}
 ```
-{{comment_text .Doc "> " ""}}
+{{comment_text .Doc "" ""}}
 ```go
 {{example_text $ .Name "    // "}}
 ```
@@ -71,7 +71,7 @@ import "github.com/jmervine/go-maxcdn"
 ```go
 {{node $ .Decl}}
 ```
-{{comment_text .Doc "> " ""}}
+{{comment_text .Doc "" ""}}
 {{$name := printf "%s_%s" $tname .Name}}
 {{if example_text $ $name ""}}```go
 {{example_text $ $name "    // "}}
@@ -86,7 +86,7 @@ import "github.com/jmervine/go-maxcdn"
 ```go
 {{node $ .Decl}}
 ```
-{{comment_text .Doc "> " ""}}```go
+{{comment_text .Doc "" ""}}```go
 {{example_text $ .Name "    // "}}
 ```
 {{end}}{{end}}{{/*
@@ -97,7 +97,7 @@ import "github.com/jmervine/go-maxcdn"
 {{range $marker, $content := .}}
 {{noteTitle $marker}}s
 
-{{range $content}}{{comment_text . "> " ""}}
+{{range $content}}{{comment_text . "" ""}}
 {{end}}{{end}}{{end}}{{end}}{{/*
 
 ---------------------------------------

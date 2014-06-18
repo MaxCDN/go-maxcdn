@@ -11,87 +11,108 @@ Package maxcdn is the golang bindings for MaxCDN's REST API.
 
 This package should be considered beta. The final release will be moved to
 `github.com/maxcdn/go-maxcdn`.
+
+Developer Notes:
+
+- Currently Pullzones does not support POST requests to
+Endpoint.Zones.PullBy({zone_id}) as it returns mix types. Use Generic with type
+assertions instead.
 ```go
     // Example:
-	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
-	
 	// Basic Get
-	payload, err := max.Get("/account.json", nil)
+	var data Account
+	response, err := max.Get(&data, "/account.json", nil)
 	if err != nil {
 	    panic(err)
 	}
 	
-	fmt.Printf("%#v\n", payload.Data)
-	
-	// Below is pretty much exactly what 'maxcdn.Get' is doing.
-	// The purpose though would be for you to generate your
-	// own struct more exactly mapping the json response to
-	// your purpose. More specific responses are planned for
-	// future versions, but there are too many make it worth
-	// implementing all of them, so this support should remain.
-	raw, res, err := max.Do("GET", "/account.json", nil)
-	
-	if err != nil {
-	    panic(fmt.Errorf("[%s] %v", res.Status, err))
-	}
-	
-	mapper := GenericResponse{}
-	mapper.Raw = raw // include raw json in GenericResponse
-	
-	err = json.Unmarshal(raw, &mapper)
-	if err != nil {
-	    panic(err)
-	}
-	
-	if mapper.Error.Message != "" || mapper.Error.Type != "" {
-	    err = fmt.Errorf("%s: %s", mapper.Error.Type, mapper.Error.Message)
-	}
+	fmt.Printf("code: %d\n", response.Code)
+	fmt.Printf("name: %s\n", data.Account.Name)
 
 ```
-### Constants
-
-```go
-const (
-    PopularFilesEndpoint = "/reports/popularfiles.json"
-    StatsEndpoint        = "/reports/stats.json"
-)
-```
-
-> Here lies known endpoints.
-
-
 ### Variables
 
 ```go
 var APIHost = "https://rws.netdna.com"
 ```
 
-> APIHost is the hostname, including protocol, to MaxCDN's API.
+APIHost is the hostname, including protocol, to MaxCDN's API.
+
+```go
+var Endpoint = endpoints{
+    Account:        "/account.json",
+    AccountAddress: "/account.json/address",
+    Reports: &reports{
+        PopularFiles: "/reports/popularfiles.json",
+        Stats:        "/reports/stats.json",
+    },
+    Zones: &zones{
+        Pull: "/zones/pull.json",
+    },
+}
+```
+
+Endpoint reflects all endpoints that are implemented as types and can be used as
+data struct to be passed to request methods (e.g. Get, Put, etc.) for JSON
+parsing. If the endpoint you are attempting to access isn't included in this
+list, you'll need to use the Generic type, which uses an interface and type
+assert the data values you wish to access.
 
 
 ### Types
 
-#### GenericResponse
+#### Account
 ```go
-type GenericResponse struct {
-    Code  int                    `json:"code"`
-    Data  map[string]interface{} `json:"data"`
-    Error struct {
-        Message string `json:"message"`
-        Type    string `json:"type"`
-    } `json:"error"`
-    Raw      []byte         // include raw json in GenericResponse
-    Response *http.Response // include response in GenericResponse
+type Account struct {
+    Account struct {
+        Alias                  string `json:"alias,omitempty"`
+        DateCreated            string `json:"date_created,omitempty"`
+        DateUpdated            string `json:"date_updated,omitempty"`
+        DefaultPullZoneIpID    string `json:"default_pull_zone_ip_id,omitempty"`
+        DefaultPushZoneIpID    string `json:"default_push_zone_ip_id,omitempty"`
+        DefaultStorageIpID     string `json:"default_storage_ip_id,omitempty"`
+        DefaultVodDirectIpID   string `json:"default_vod_direct_ip_id,omitempty"`
+        DefaultVodPseudoIpID   string `json:"default_vod_pseudo_ip_id,omitempty"`
+        DefaultVodRtmpIpID     string `json:"default_vod_rtmp_ip_id,omitempty"`
+        DefaultVodStorageIpID  string `json:"default_vod_storage_ip_id,omitempty"`
+        EdgerulesCredits       string `json:"edgerules_credits,omitempty"`
+        FlexCredits            string `json:"flex_credits,omitempty"`
+        ID                     string `json:"id,omitempty"`
+        Name                   string `json:"name,omitempty"`
+        SecureTokenPullCredits string `json:"secure_token_pull_credits,omitempty"`
+        SslCredits             string `json:"ssl_credits,omitempty"`
+        Status                 string `json:"status,omitempty"`
+        StorageQuota           string `json:"storage_quota,omitempty"`
+        ZoneCredits            string `json:"zone_credits,omitempty"`
+    } `json:"account,omitempty"`
 }
 ```
 
 
-#### Parse
+#### AccountAddress
 ```go
-func (mapper *GenericResponse) Parse(raw []byte) (err error)
+type AccountAddress struct {
+    Address struct {
+        City        string `json:"city,omitempty"`
+        Country     string `json:"country,omitempty"`
+        DateCreated string `json:"date_created,omitempty"`
+        DateUpdated string `json:"date_updated,omitempty"`
+        ID          string `json:"id,omitempty"`
+        State       string `json:"state,omitempty"`
+        Street1     string `json:"street1,omitempty"`
+        Street2     string `json:"street2,omitempty"`
+        Zip         string `json:"zip,omitempty"`
+    } `json:"address,omitempty"`
+}
 ```
-> Parse turns an http response in to a GenericResponse
 
+
+#### Generic
+```go
+type Generic struct {
+    Data map[string]interface{} `json:"data,omitempty"`
+}
+```
 
 
 #### MaxCDN
@@ -114,7 +135,7 @@ type MaxCDN struct {
 ```go
 func NewMaxCDN(alias, token, secret string) *MaxCDN
 ```
-> NewMaxCDN sets up a new MaxCDN instance.
+NewMaxCDN sets up a new MaxCDN instance.
 
 ```go
     // Example:
@@ -124,163 +145,102 @@ func NewMaxCDN(alias, token, secret string) *MaxCDN
 ```
 #### Delete
 ```go
-func (max *MaxCDN) Delete(endpoint string) (mapper *GenericResponse, err error)
+func (max *MaxCDN) Delete(endpoint string, form url.Values) (*Response, error)
 ```
-> Delete does an OAuth signed http.Delete
+Delete does an OAuth signed http.Delete
+
+Delete does not take an endpointType because delete only returns a status code.
 
 
 ```go
     // Example:
-	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
-	
 	// This specific example shows how to purge a cache without using the Purge
 	// methods, more as an example of using Delete, then anything, really.
 	
-	payload, err := max.Delete(fmt.Sprintf("/zones/pull.json/%d/cache", 123456))
+	res, err := max.Delete(Endpoint.Zones.PullBy(123456), nil)
 	if err != nil {
 	    panic(err)
 	}
 	
-	if payload.Code == 200 {
-	    fmt.Println("Purge succeeded")
+	if res.Code == 200 {
+	    fmt.Println("Purge suucceeded")
 	}
 
 ```
 
 #### Do
 ```go
-func (max *MaxCDN) Do(method, endpoint string, form url.Values) (raw []byte, res *http.Response, err error)
+func (max *MaxCDN) Do(method, endpoint string, form url.Values) (rsp *Response, err error)
 ```
-> Do is a generic method to interact with MaxCDN's RESTful API. It's used by
-> all other methods.
+Do is a low level method to interact with MaxCDN's RESTful API via Request and
+return a parsed Response. It's used by all other methods.
 
-> It's purpose though would be for you to generate your own struct more
-> exactly mapping the json response to your purpose. More specific responses
-> are planned for future versions, but there are too many make it worth
-> implementing all of them, so this support should remain.
+This method closes the raw http.Response body.
 
 
 ```go
     // Example:
-	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
-	raw, res, err := max.Do("GET", "/account.json", nil)
+	// Run low level Do method.
+	if rsp, err := max.Do("GET", "/account.json", nil); err == nil {
+	    fmt.Printf("Response Code: %d\n", rsp.Code)
 	
-	if err != nil {
-	    panic(fmt.Errorf("[%s] %v", res.Status, err))
-	}
-	
-	mapper := GenericResponse{}
-	mapper.Response = res
-	mapper.Raw = raw
-	
-	err = json.Unmarshal(raw, &mapper)
-	if err != nil {
-	    panic(err)
-	}
-	
-	if mapper.Error.Message != "" || mapper.Error.Type != "" {
-	    err = fmt.Errorf("%s: %s", mapper.Error.Type, mapper.Error.Message)
+	    var data Account
+	    if err = json.Unmarshal(rsp.Data, &data); err == nil {
+	        fmt.Printf("%+v\n", data.Account)
+	    }
 	}
 
 ```
+
+#### DoParse
+```go
+func (max *MaxCDN) DoParse(endpointType interface{}, method, endpoint string, form url.Values) (rsp *Response, err error)
+```
+
+
 
 #### Get
 ```go
-func (max *MaxCDN) Get(endpoint string, form url.Values) (mapper *GenericResponse, err error)
+func (max *MaxCDN) Get(endpointType interface{}, endpoint string, form url.Values) (*Response, error)
 ```
-> Get does an OAuth signed http.Get
+Get does an OAuth signed http.Get
 
 
 ```go
     // Example:
-	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
-	
-	payload, err := max.Get("/account.json", nil)
+	var data AccountAddress
+	response, err := max.Get(&data, Endpoint.AccountAddress, nil)
 	if err != nil {
 	    panic(err)
 	}
 	
-	fmt.Printf("%#v\n", payload.Data)
+	fmt.Printf("code: %d\n", response.Code)
+	fmt.Printf("name: %s\n", data.Address.Street1)
 
 ```
-
-#### GetDailyStats
-```go
-func (max *MaxCDN) GetDailyStats(form url.Values) (mapper *MultiStats, err error)
-```
-> GetDailyStats does an OAuth signed http.Get for "/reports/stats.json/hourly"
-
-
-
-#### GetHourlyStats
-```go
-func (max *MaxCDN) GetHourlyStats(form url.Values) (mapper *MultiStats, err error)
-```
-> GetHourlyStats does an OAuth signed http.Get for
-> "/reports/stats.json/hourly"
-
-
-
-#### GetMonthlyStats
-```go
-func (max *MaxCDN) GetMonthlyStats(form url.Values) (mapper *MultiStats, err error)
-```
-> GetMonthlyStats does an OAuth signed http.Get for
-> "/reports/stats.json/hourly"
-
-
-
-#### GetPopularFiles
-```go
-func (max *MaxCDN) GetPopularFiles(form url.Values) (mapper *PopularFiles, err error)
-```
-> Get does an OAuth signed http.Get for "/reports/popularfiles.json"
-
-
-
-#### GetStatsByType
-```go
-func (max *MaxCDN) GetStatsByType(report string, form url.Values) (mapper *MultiStats, err error)
-```
-> GetHourlyStats does an OAuth signed http.Get for
-> "/reports/stats.json/{report_type}".
-
-> Valid report types are; 'hourly', 'daily' and 'monthly'
-
-
-
-#### GetStatsSummary
-```go
-func (max *MaxCDN) GetStatsSummary(form url.Values) (mapper *SummaryStats, err error)
-```
-> Get does an OAuth signed http.Get for "/reports/stats.json"
-
-
 
 #### Post
 ```go
-func (max *MaxCDN) Post(endpoint string, form url.Values) (mapper *GenericResponse, err error)
+func (max *MaxCDN) Post(endpointType interface{}, endpoint string, form url.Values) (*Response, error)
 ```
-> Post does an OAuth signed http.Post
+Post does an OAuth signed http.Post
 
 
 ```go
     // Example:
-	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
-	
 	form := url.Values{}
 	form.Set("name", "newzone")
 	
 	// When creating a new zone, the url must be real and resolve.
 	form.Set("url", "http://www.example.com")
 	
-	payload, err := max.Post("/zones/pull.json", form)
+	var data Pullzone
+	_, err := max.Post(&data, Endpoint.Zones.Pull, form)
 	if err != nil {
 	    panic(err)
 	}
 	
-	data := payload.Data["pullzone"].(map[string]interface{})
-	if data["name"] == "newzone" {
+	if data.Pullzone.Name == "newzone" {
 	    fmt.Println("Successfully created new Pull Zone.")
 	}
 
@@ -288,15 +248,13 @@ func (max *MaxCDN) Post(endpoint string, form url.Values) (mapper *GenericRespon
 
 #### PurgeFile
 ```go
-func (max *MaxCDN) PurgeFile(zone int, file string) (mapper *GenericResponse, err error)
+func (max *MaxCDN) PurgeFile(zone int, file string) (*Response, error)
 ```
-> PurgeFile purges a specified file by zone from cache.
+PurgeFile purges a specified file by zone from cache.
 
 
 ```go
     // Example:
-	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
-	
 	payload, err := max.PurgeFile(123456, "/master.css")
 	if err != nil {
 	    panic(err)
@@ -308,17 +266,23 @@ func (max *MaxCDN) PurgeFile(zone int, file string) (mapper *GenericResponse, er
 
 ```
 
+#### PurgeFileString
+```go
+func (max *MaxCDN) PurgeFileString(zone string, file string) (*Response, error)
+```
+PurgeFile purges a specified file by zone from cache.
+
+
+
 #### PurgeFiles
 ```go
-func (max *MaxCDN) PurgeFiles(zone int, files []string) (resps []*GenericResponse, last error)
+func (max *MaxCDN) PurgeFiles(zone int, files []string) (resps []*Response, last error)
 ```
-> PurgeFiles purges multiple files from a zone.
+PurgeFiles purges multiple files from a zone.
 
 
 ```go
     // Example:
-	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
-	
 	files := []string{"/master.css", "/master.js"}
 	payloads, err := max.PurgeFiles(123456, files)
 	if err != nil {
@@ -333,180 +297,282 @@ func (max *MaxCDN) PurgeFiles(zone int, files []string) (resps []*GenericRespons
 
 #### PurgeZone
 ```go
-func (max *MaxCDN) PurgeZone(zone int) (*GenericResponse, error)
+func (max *MaxCDN) PurgeZone(zone int) (*Response, error)
 ```
-> PurgeZone purges a specified zones cache.
+PurgeZone purges a specified zones cache.
 
 
 ```go
     // Example:
-	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
-	
-	payload, err := max.PurgeZone(123456)
+	rsp, err := max.PurgeZone(123456)
 	if err != nil {
 	    panic(err)
 	}
 	
-	if payload.Code == 200 {
+	if rsp.Code == 200 {
 	    fmt.Println("Purge succeeded")
 	}
 
 ```
 
+#### PurgeZoneString
+```go
+func (max *MaxCDN) PurgeZoneString(zone string) (*Response, error)
+```
+PurgeZoneString purges a specified zones cache.
+
+
+
 #### PurgeZones
 ```go
-func (max *MaxCDN) PurgeZones(zones []int) (resps []*GenericResponse, last error)
+func (max *MaxCDN) PurgeZones(zones []int) (resps []*Response, last error)
 ```
-> PurgeZones purges multiple zones caches.
+PurgeZones purges multiple zones caches.
 
 
 ```go
     // Example:
-	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
-	
 	zones := []int{123456, 234567, 345678}
-	payloads, err := max.PurgeZones(zones)
+	rsps, err := max.PurgeZones(zones)
 	if err != nil {
 	    panic(err)
 	}
 	
-	if len(payloads) == len(zones) {
+	if len(rsps) == len(zones) {
 	    fmt.Printf("Purges succeeded")
 	}
 
 ```
 
+#### PurgeZonesString
+```go
+func (max *MaxCDN) PurgeZonesString(zones []string) (resps []*Response, last error)
+```
+PurgeZonesString purges multiple zones caches.
+
+
+
 #### Put
 ```go
-func (max *MaxCDN) Put(endpoint string, form url.Values) (mapper *GenericResponse, err error)
+func (max *MaxCDN) Put(endpointType interface{}, endpoint string, form url.Values) (*Response, error)
 ```
-> Put does an OAuth signed http.Put
+Put does an OAuth signed http.Put
 
 
 ```go
     // Example:
-	max := NewMaxCDN(os.Getenv("ALIAS"), os.Getenv("TOKEN"), os.Getenv("SECRET"))
-	
 	form := url.Values{}
-	form.Set("name", "example_name")
-	payload, err := max.Put("/account.json", form)
+	form.Set("name", "example name")
 	
+	var data Account
+	response, err := max.Put(&data, Endpoint.Account, form)
 	if err != nil {
 	    panic(err)
 	}
 	
-	fmt.Printf("%#v\n", payload.Data)
+	fmt.Printf("code: %d\n", response.Code)
+	fmt.Printf("name: %s\n", data.Account.Name)
 
 ```
 
-#### MultiStats
+#### Request
 ```go
-type MultiStats struct {
-    Code int `json:"code"`
-    Data struct {
-        CurrentPageSize int     `json:"current_page_size"`
-        Page            int     `json:"page"`
-        PageSize        string  `json:"page_size"`
-        Pages           int     `json:"pages"`
-        Stats           []Stats `json:"stats"`
-        Summary         Stats   `json:"summary"`
-        Total           string  `json:"total"`
-    } `json:"data"`
-    Error struct {
-        Message string `json:"message"`
-        Type    string `json:"type"`
-    } `json:"error"`
-    Raw      []byte
-    Response *http.Response
-}
+func (max *MaxCDN) Request(method, endpoint string, form url.Values) (res *http.Response, err error)
 ```
+Request is a low level method to interact with MaxCDN's RESTful API. It's used
+by all other methods.
 
-
-#### Parse
-```go
-func (mapper *MultiStats) Parse(raw []byte) (err error)
-```
-> Parse turns an http response in to a Stats
+If using this method, you must manually close the res.Body or bad things may
+happen.
 
 
 
 #### PopularFiles
 ```go
 type PopularFiles struct {
-    Code int `json:"code"`
-    Data struct {
-        CurrentPageSize int    `json:"current_page_size"`
-        Page            int    `json:"page"`
-        PageSize        string `json:"page_size"`
-        Pages           int    `json:"pages"`
-        Popularfiles    []struct {
-            BucketID  string `json:"bucket_id"`
-            Hit       string `json:"hit"`
-            Size      string `json:"size"`
-            Timestamp string `json:"timestamp"`
-            Uri       string `json:"uri"`
-            Vhost     string `json:"vhost"`
-        } `json:"popularfiles"`
-        Summary struct {
-            Hit  string `json:"hit"`
-            Size string `json:"size"`
-        } `json:"summary"`
-        Total string `json:"total"`
-    } `json:"data"`
-    Error struct {
-        Message string `json:"message"`
-        Type    string `json:"type"`
-    } `json:"error"`
-    Raw      []byte
-    Response *http.Response
+    CurrentPageSize int    `json:"current_page_size,omitempty"`
+    Page            int    `json:"page,omitempty"`
+    PageSize        string `json:"page_size,omitempty"`
+    Pages           int    `json:"pages,omitempty"`
+    PopularFiles    []struct {
+        BucketID  string `json:"bucket_id,omitempty"`
+        Hit       string `json:"hit,omitempty"`
+        Size      string `json:"size,omitempty"`
+        Timestamp string `json:"timestamp,omitempty"`
+        Uri       string `json:"uri,omitempty"`
+        Vhost     string `json:"vhost,omitempty"`
+    } `json:"popularfiles,omitempty"`
+    Summary struct {
+        Hit  string `json:"hit,omitempty"`
+        Size string `json:"size,omitempty"`
+    } `json:"summary,omitempty"`
+    Total string `json:"total,omitempty"`
 }
 ```
 
 
-#### Parse
+#### Pullzone
 ```go
-func (mapper *PopularFiles) Parse(raw []byte) (err error)
+type Pullzone struct {
+    Pullzone struct {
+        BackendCompress       string `json:"backend_compress,omitempty"`
+        CacheValid            string `json:"cache_valid,omitempty"`
+        CanonicalLinkHeaders  string `json:"canonical_link_headers,omitempty"`
+        CdnURL                string `json:"cdn_url,omitempty"`
+        Compress              string `json:"compress,omitempty"`
+        ContentDisposition    string `json:"content_disposition,omitempty"`
+        CreationDate          string `json:"creation_date,omitempty"`
+        DisallowRobots        string `json:"disallow_robots,omitempty"`
+        DisallowRobotsTxt     string `json:"disallow_robots_txt,omitempty"`
+        DnsCheck              string `json:"dns_check,omitempty"`
+        Expires               string `json:"expires,omitempty"`
+        HideSetcookieHeader   string `json:"hide_setcookie_header,omitempty"`
+        ID                    string `json:"id,omitempty"`
+        IgnoreCacheControl    string `json:"ignore_cache_control,omitempty"`
+        IgnoreExpiresHeader   string `json:"ignore_expires_header,omitempty"`
+        IgnoreSetcookieHeader string `json:"ignore_setcookie_header,omitempty"`
+        Inactive              string `json:"inactive,omitempty"`
+        Ip                    string `json:"ip,omitempty"`
+        Label                 string `json:"label,omitempty"`
+        Locked                string `json:"locked,omitempty"`
+        Name                  string `json:"name,omitempty"`
+        Port                  string `json:"port,omitempty"`
+        ProxyCacheLock        string `json:"proxy_cache_lock,omitempty"`
+        ProxyCacheLockTimeout string `json:"proxy_cache_lock_timeout,omitempty"`
+        ProxyInactive         string `json:"proxy_inactive,omitempty"`
+        PseudoStreaming       string `json:"pseudo_streaming,omitempty"`
+        Queries               string `json:"queries,omitempty"`
+        SetHostHeader         string `json:"set_host_header,omitempty"`
+        Spdy                  string `json:"spdy,omitempty"`
+        SpdyHeadersComp       string `json:"spdy_headers_comp,omitempty"`
+        Sslshared             string `json:"sslshared,omitempty"`
+        Suspend               string `json:"suspend,omitempty"`
+        ThrottleFcc           string `json:"throttle_fcc,omitempty"`
+        TmpURL                string `json:"tmp_url,omitempty"`
+        Type                  string `json:"type,omitempty"`
+        UpstreamEnabled       string `json:"upstream_enabled,omitempty"`
+        URL                   string `json:"url,omitempty"`
+        UseStale              string `json:"use_stale,omitempty"`
+        ValidReferers         string `json:"valid_referers,omitempty"`
+        WebpEnabled           string `json:"webp_enabled,omitempty"`
+        XForwardFor           string `json:"x_forward_for,omitempty"`
+    } `json:"pullzone,omitempty"`
+}
 ```
-> Parse turns an http response in to a PopularFiles
 
+
+#### Pullzones
+```go
+type Pullzones struct {
+    CurrentPageSize int    `json:"current_page_size,omitempty"`
+    Page            int    `json:"page,omitempty"`
+    PageSize        string `json:"page_size,omitempty"`
+    Pages           int    `json:"pages,omitempty"`
+    Pullzones       []struct {
+        BackendCompress       string `json:"backend_compress,omitempty"`
+        CacheValid            string `json:"cache_valid,omitempty"`
+        CanonicalLinkHeaders  string `json:"canonical_link_headers,omitempty"`
+        CdnURL                string `json:"cdn_url,omitempty"`
+        Compress              string `json:"compress,omitempty"`
+        ContentDisposition    string `json:"content_disposition,omitempty"`
+        CreationDate          string `json:"creation_date,omitempty"`
+        DisallowRobots        string `json:"disallow_robots,omitempty"`
+        DisallowRobotsTxt     string `json:"disallow_robots_txt,omitempty"`
+        DnsCheck              string `json:"dns_check,omitempty"`
+        Expires               string `json:"expires,omitempty"`
+        HideSetcookieHeader   string `json:"hide_setcookie_header,omitempty"`
+        ID                    string `json:"id,omitempty"`
+        IgnoreCacheControl    string `json:"ignore_cache_control,omitempty"`
+        IgnoreExpiresHeader   string `json:"ignore_expires_header,omitempty"`
+        IgnoreSetcookieHeader string `json:"ignore_setcookie_header,omitempty"`
+        Inactive              string `json:"inactive,omitempty"`
+        Ip                    string `json:"ip,omitempty"`
+        Label                 string `json:"label,omitempty"`
+        Locked                string `json:"locked,omitempty"`
+        Name                  string `json:"name,omitempty"`
+        Port                  string `json:"port,omitempty"`
+        ProxyCacheLock        string `json:"proxy_cache_lock,omitempty"`
+        ProxyCacheLockTimeout string `json:"proxy_cache_lock_timeout,omitempty"`
+        ProxyInactive         string `json:"proxy_inactive,omitempty"`
+        PseudoStreaming       string `json:"pseudo_streaming,omitempty"`
+        Queries               string `json:"queries,omitempty"`
+        SetHostHeader         string `json:"set_host_header,omitempty"`
+        Spdy                  string `json:"spdy,omitempty"`
+        SpdyHeadersComp       string `json:"spdy_headers_comp,omitempty"`
+        Sslshared             string `json:"sslshared,omitempty"`
+        Suspend               string `json:"suspend,omitempty"`
+        ThrottleFcc           string `json:"throttle_fcc,omitempty"`
+        TmpURL                string `json:"tmp_url,omitempty"`
+        Type                  string `json:"type,omitempty"`
+        UpstreamEnabled       string `json:"upstream_enabled,omitempty"`
+        URL                   string `json:"url,omitempty"`
+        UseStale              string `json:"use_stale,omitempty"`
+        ValidReferers         string `json:"valid_referers,omitempty"`
+        WebpEnabled           string `json:"webp_enabled,omitempty"`
+        XForwardFor           string `json:"x_forward_for,omitempty"`
+    } `json:"pullzones,omitempty"`
+    Total int `json:"total,omitempty"`
+}
+```
+
+
+#### Response
+```go
+type Response struct {
+    Code  int             `json:"code,omitempty"`
+    Data  json.RawMessage `json:"data,omitempty"`
+    Error struct {
+        Message string `json:"message,omitempty"`
+        Type    string `json:"type,omitempty"`
+    } `json:"error,omitempty"`
+
+    // Non-JSON data.
+    Headers *http.Header
+}
+```
 
 
 #### Stats
 ```go
 type Stats struct {
-    CacheHit    string `json:"cache_hit"`
-    Hit         string `json:"hit"`
-    NoncacheHit string `json:"noncache_hit"`
-    Size        string `json:"size"`
-    Timestamp   string `json:"timestamp"`
+    CurrentPageSize int    `json:"current_page_size,omitempty"`
+    Page            int    `json:"page,omitempty"`
+    PageSize        string `json:"page_size,omitempty"`
+    Pages           int    `json:"pages,omitempty"`
+    Stats           []struct {
+        CacheHit    string `json:"cache_hit,omitempty"`
+        Hit         string `json:"hit,omitempty"`
+        NoncacheHit string `json:"noncache_hit,omitempty"`
+        Size        string `json:"size,omitempty"`
+        Timestamp   string `json:"timestamp,omitempty"`
+    } `json:"stats,omitempty"`
+    Summary struct {
+        Stats struct {
+            CacheHit    string `json:"cache_hit,omitempty"`
+            Hit         string `json:"hit,omitempty"`
+            NoncacheHit string `json:"noncache_hit,omitempty"`
+            Size        string `json:"size,omitempty"`
+            Timestamp   string `json:"timestamp,omitempty"`
+        } `json:"stats,omitempty"`
+        Total string `json:"total,omitempty"`
+    } `json:"summary,omitempty"`
+    Total string `json:"total,omitempty"`
 }
 ```
 
 
-#### SummaryStats
+#### StatsSummary
 ```go
-type SummaryStats struct {
-    Code int `json:"code"`
-    Data struct {
-        Stats Stats  `json:"stats"`
-        Total string `json:"total"`
-    } `json:"data"`
-    Error struct {
-        Message string `json:"message"`
-        Type    string `json:"type"`
-    } `json:"error"`
-    Raw      []byte
-    Response *http.Response
+type StatsSummary struct {
+    Stats struct {
+        CacheHit    string `json:"cache_hit,omitempty"`
+        Hit         string `json:"hit,omitempty"`
+        NoncacheHit string `json:"noncache_hit,omitempty"`
+        Size        string `json:"size,omitempty"`
+    } `json:"stats,omitempty"`
+    Total string `json:"total,omitempty"`
 }
 ```
-
-
-#### Parse
-```go
-func (mapper *SummaryStats) Parse(raw []byte) (err error)
-```
-> Parse turns an http response in to a StatsSummary
-
 
 
 
