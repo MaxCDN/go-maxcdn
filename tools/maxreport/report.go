@@ -9,7 +9,7 @@ import (
 	"text/tabwriter"
 	"text/template"
 
-	"github.com/codegangsta/cli"
+	"github.com/jmervine/cli"
 	"github.com/jmervine/go-maxcdn"
 	"gopkg.in/yaml.v1"
 )
@@ -63,6 +63,7 @@ Notes:
 	app.Usage = "Run MaxCDN API Reports"
 	app.Version = "0.0.2"
 	cli.HelpPrinter = helpPrinter
+    cli.VersionPrinter = versionPrinter
 
 	// Setup global flags
 	app.Flags = []cli.Flag{
@@ -253,6 +254,13 @@ func helpPrinter(templ string, data interface{}) {
 	check(err)
 
 	w.Flush()
+	os.Exit(0)
+}
+
+// Replace cli's default version printer with cli's default version printer
+// plus an exit at the end.
+func versionPrinter(c *cli.Context) {
+	fmt.Printf("%v version %v\n", c.App.Name, c.App.Version)
 	os.Exit(0)
 }
 

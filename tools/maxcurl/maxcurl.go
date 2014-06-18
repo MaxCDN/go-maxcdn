@@ -11,7 +11,7 @@ import (
 	"text/tabwriter"
 	"text/template"
 
-	"github.com/codegangsta/cli"
+	"github.com/jmervine/cli"
 	"github.com/jmervine/go-maxcdn"
 	"gopkg.in/yaml.v1"
 )
@@ -62,6 +62,7 @@ Sample configuration:
 	app.Version = "0.0.2"
 
 	cli.HelpPrinter = helpPrinter
+    cli.VersionPrinter = versionPrinter
 
 	app.Flags = []cli.Flag{
 		cli.StringFlag{"config, c", "~/.maxcdn.yml", "yaml file containing all required args"},
@@ -176,6 +177,13 @@ func helpPrinter(templ string, data interface{}) {
 	check(err)
 
 	w.Flush()
+	os.Exit(0)
+}
+
+// Replace cli's default version printer with cli's default version printer
+// plus an exit at the end.
+func versionPrinter(c *cli.Context) {
+	fmt.Printf("%v version %v\n", c.App.Name, c.App.Version)
 	os.Exit(0)
 }
 
