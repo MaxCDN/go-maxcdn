@@ -52,7 +52,7 @@ Sample configuration:
 	app := cli.NewApp()
 
 	app.Name = "maxpurge"
-	app.Version = "0.0.2"
+	app.Version = "0.0.3"
 
 	cli.HelpPrinter = helpPrinter
     cli.VersionPrinter = versionPrinter
