@@ -18,6 +18,17 @@ import (
 
 var config Config
 
+// Full response
+type Response struct {
+	Code  int
+	Data  interface{}
+	Error struct {
+		Message string
+		Type    string
+	}
+}
+
+
 func init() {
 
 	// Override cli's default help template
@@ -59,7 +70,7 @@ Sample configuration:
 
 	app := cli.NewApp()
 	app.Name = "maxcurl"
-	app.Version = "0.0.3"
+	app.Version = "0.0.4"
 
 	cli.HelpPrinter = helpPrinter
 	cli.VersionPrinter = versionPrinter
@@ -140,26 +151,29 @@ func main() {
 	form := u.Query()
 
 	// request raw data from maxcdn
-	res, err := max.Do(config.Method, config.Path, form)
+	res, err := max.Request(config.Method, config.Path, form)
+    defer res.Body.Close()
 	check(err)
 
-	raw := res.Data
+    body, err := ioutil.ReadAll(res.Body)
+	check(err)
 
 	if config.Pretty {
 		// format pretty
 		var j interface{}
-		err = json.Unmarshal(raw, &j)
+		err = json.Unmarshal(body, &j)
 		check(err)
 
-		raw, err = json.MarshalIndent(j, "", "  ")
+		body, err = json.MarshalIndent(j, "", "  ")
 		check(err)
 	}
 
 	// print
 	if config.Headers {
-		fmt.Println(fmtHeaders(res.Headers))
+		fmt.Println(fmtHeaders(res.Header))
 	}
-	fmt.Printf("%v\n", string(raw))
+
+	fmt.Printf("%s\n", body)
 }
 
 func check(err error) {
@@ -187,8 +201,8 @@ func versionPrinter(c *cli.Context) {
 	os.Exit(0)
 }
 
-func fmtHeaders(headers *http.Header) (out string) {
-	for k, v := range *headers {
+func fmtHeaders(headers http.Header) (out string) {
+	for k, v := range headers {
 		out += fmt.Sprintf("%s: %s\n", k, strings.Join(v, ", "))
 	}
 	return
