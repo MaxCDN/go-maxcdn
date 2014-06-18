@@ -63,7 +63,7 @@ Notes:
 	app.Usage = "Run MaxCDN API Reports"
 	app.Version = "0.0.3"
 	cli.HelpPrinter = helpPrinter
-    cli.VersionPrinter = versionPrinter
+	cli.VersionPrinter = versionPrinter
 
 	// Setup global flags
 	app.Flags = []cli.Flag{

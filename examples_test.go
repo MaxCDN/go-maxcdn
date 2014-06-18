@@ -24,14 +24,35 @@ var (
 
 func Example() {
 	// Basic Get
-	var data Account
-	response, err := max.Get(&data, "/account.json", nil)
+	var got Account
+	res, err := max.Get(&got, Endpoint.Account, nil)
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Printf("code: %d\n", response.Code)
-	fmt.Printf("name: %s\n", data.Account.Name)
+	fmt.Printf("code: %d\n", res.Code)
+	fmt.Printf("name: %s\n", got.Account.Name)
+
+	// Basic Put
+	form := url.Values{}
+	form.Set("name", "new name")
+
+	var put Account
+	if _, err = max.Put(&put, Endpoint.Account, form); err == nil && put.Account.Name == "new name" {
+		fmt.Println("name successfully updated")
+	}
+
+	// Basic Delete
+	if _, err = max.Delete(Endpoint.Zones.PullBy(123456), nil); err == nil {
+		fmt.Println("zone successfully deleted")
+	}
+
+	// Generic data type
+	var data Generic
+	if _, err := max.Get(&data, Endpoint.Account, nil); err == nil {
+		alias := data.Data["alias"].(string)
+		fmt.Printf("alias: %s\n", alias)
+	}
 }
 
 func ExampleNewMaxCDN() {

@@ -62,7 +62,7 @@ Sample configuration:
 	app.Version = "0.0.3"
 
 	cli.HelpPrinter = helpPrinter
-    cli.VersionPrinter = versionPrinter
+	cli.VersionPrinter = versionPrinter
 
 	app.Flags = []cli.Flag{
 		cli.StringFlag{"config, c", "~/.maxcdn.yml", "yaml file containing all required args"},
