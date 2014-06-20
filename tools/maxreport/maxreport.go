@@ -61,7 +61,7 @@ Notes:
 	app := cli.NewApp()
 	app.Name = "maxreport"
 	app.Usage = "Run MaxCDN API Reports"
-	app.Version = "0.0.3"
+	app.Version = "0.0.5"
 	cli.HelpPrinter = helpPrinter
 	cli.VersionPrinter = versionPrinter
 
