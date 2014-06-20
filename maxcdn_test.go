@@ -91,7 +91,7 @@ func TestMaxCDN_Post(T *testing.T) {
 	form := url.Values{}
 	form.Add("name", "foo")
 
-	var data Pullzone
+	var data Generic
 	rsp, err := max.Post(&data, Endpoint.Zones.Pull, form)
 
 	// check error

@@ -5,7 +5,7 @@ travis: get .PHONY
 
 test: format .PHONY
 	# Run Tests
-	go test -test.v
+	go test
 
 get:
 	# Go Get Deps

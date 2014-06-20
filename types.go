@@ -19,9 +19,7 @@ type Response struct {
 }
 
 // Generic is the generic data type for JSON responses from API calls.
-type Generic struct {
-	Data map[string]interface{} `json:"data,omitempty"`
-}
+type Generic map[string]interface{}
 
 // Account is for /account.json
 type Account struct {
@@ -121,7 +119,6 @@ type Stats struct {
 			Size        string `json:"size,omitempty"`
 			Timestamp   string `json:"timestamp,omitempty"`
 		} `json:"stats,omitempty"`
-		Total string `json:"total,omitempty"`
 	} `json:"summary,omitempty"`
 	Total string `json:"total,omitempty"`
 }

@@ -42,17 +42,21 @@ func (crt *stubRoundTripper) RoundTrip(r *http.Request) (*http.Response, error) 
 		code = 500
 	} else if r.Method == "DELETE" {
 		filename = "delete.json"
-	} else if endpoint == "pull.json" && r.Method != "GET" {
+	} else if endpoint == "pull.json" && r.Method == "PUT" {
 		filename = "pullzone.json"
+	} else if endpoint == "pull.json" && r.Method == "POST" {
+		filename = "post.pull.json"
 	} else if endpoint == "pull.json" {
 		filename = "pullzones.json"
 	} else if endpoint == "address" {
 		filename = "address.json"
 	} else if endpoint == "daily" {
 		filename = "stats.daily.json"
-	} else if endpoint == "ZONE_ID" {
+	} else if strings.Contains(r.URL.Path, "pull.json") {
 		filename = "pullzone.json"
-	} else if endpoint == "USER_ID" {
+	} else if endpoint == "users.json" {
+		filename = "users.json"
+	} else if strings.Contains(r.URL.Path, "users.json") {
 		filename = "user.json"
 	} else {
 		filename = endpoint
