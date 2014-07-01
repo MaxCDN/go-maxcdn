@@ -10,11 +10,32 @@ PLATFORMS=darwin/386 \
 			windows/386 \
 			windows/amd64
 
+BUILD_TOOLS=$(shell find ./ -maxdepth 1 -type d | grep max | sed 's/\./build/')
+INSTALL_TOOLS=$(shell find ./ -maxdepth 1 -type d | grep max | sed 's/\./install/')
+
 # build tools
 ###
-build: .PHONY
+build: $(BUILD_TOOLS) .PHONY
+
+install: $(INSTALL_TOOLS) .PHONY
+
+build/all/%: .PHONY
+	# exec tools/build-all.sh
+	bash build-all.bash $(shell basename "$@")
+
+build/all: .PHONY
 	# exec tools/build-all.sh
 	bash build-all.bash
+
+build/%: .PHONY
+	# Building: $(shell basename "$@")
+	cd $(shell basename "$@"); go build $(shell basename "$@").go
+
+install/%: .PHONY
+	# Installing: $(shell basename "$@")
+	@test "$(GOBIN)" || (echo "error: GOBIN must be set"; exit 1)
+	@test -x $(shell basename "$@")/$(shell basename "$@") || (echo "error: run make build[/{{tool}}]"; exit 1)
+	mv $(shell basename "$@")/$(shell basename "$@") $(GOBIN)
 
 clean: .PHONY
 	# remove previous tools builds

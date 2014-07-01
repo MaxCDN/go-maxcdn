@@ -7,7 +7,10 @@ if ! test "$archs"; then
   exit 1
 fi
 
-tools="maxcurl maxpurge maxreport"
+tools="maxcurl maxpurge maxreport maxtail"
+
+# allow for single tool build
+test "$1" && tools="$1"
 
 for tool in $tools
 do

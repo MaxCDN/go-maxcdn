@@ -15,30 +15,19 @@ Installing:
 This can also be installed for system wide use if your `GOBIN` is set via the following:
 
 ```bash
+# via 'go get' && 'go install'
+##
+
 $ go get github.com/jmervine/go-maxcdn
 $ go install github.com/jmervine/go-maxcdn/tools/maxpurge
 $ maxpurge -h
-Usage: maxpurge [arguments...]
-# ...
-```
-
-Building:
----------
-
-```
-$ cd tools/maxpurge
-$ go build -o maxpurge
-
-$ ./maxpurge -h
-Usage: maxpurge [arguments...]
+Usage: maxpurge [arguments...] PATH
 # ...
 
-$ ./maxpurge -alias ALIAS -token TOKEN -secret SECRET \
-    -zone 123456 -zone 234567
-Purge successful after: 2.078010673s.
+# manually
+##
 
-$ ./maxpurge -alias ALIAS -token TOKEN -secret SECRET \
-    -zone 123456 -file "/master.css" -file "/master.js"
-Purge successful after: 1.078010673s.
+git clone https://github.com/jmervine/go-maxcdn
+cd go-maxcdn/tools
+make build/maxpurge install/maxpurge
 ```
-

@@ -37,10 +37,10 @@ Options:
 
 Formatting Notes:
 
-  "raw"   is basic print of struct.
-  "jsonp" is multiline human readable json output.
-  "json"  is single-line parseable json output.
-  "nginx" emulates nginx's default log format...
+  "raw"    is basic print of struct.
+  "jsonpp" is multiline human readable json output.
+  "json"   is single-line parseable json output.
+  "nginx"  emulates nginx's default log format...
 
     Nginx Format
     ------------
@@ -85,7 +85,7 @@ Sample configuration:
 		cli.StringFlag{"alias, a", "", "[required] consumer alias"},
 		cli.StringFlag{"token, t", "", "[required] consumer token"},
 		cli.StringFlag{"secret, s", "", "[required] consumer secret"},
-		cli.StringFlag{"format, f", "raw", "nginx, raw, json, jsonp"},
+		cli.StringFlag{"format, f", "raw", "nginx, raw, json, jsonpp"},
 		cli.StringFlag{"zone, z", "", "zone to be tailed (default: all)"},
 		cli.IntFlag{"interval, i", 60, "poll interval in seconds (min: 5)"},
 		cli.BoolFlag{"quiet, q", "hide 'empty' messages"},
@@ -181,7 +181,7 @@ func main() {
 
 		for _, line := range logs.Records {
 			switch config.Format {
-			case "jsonp":
+			case "jsonpp":
 				s, e := json.MarshalIndent(line, "", "\t")
 				if e != nil {
 					log.Printf("%+v\n", e)
