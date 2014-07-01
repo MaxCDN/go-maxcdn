@@ -128,6 +128,15 @@ func ExampleMaxCDN_Get() {
 	fmt.Printf("name: %s\n", data["street1"].(string))
 }
 
+func ExampleMaxCDN_GetLogs() {
+	max := maxcdn.NewMaxCDN(alias, secret, token)
+	if logs, err := max.GetLogs(nil); err == nil {
+		for _, line := range logs.Records {
+			fmt.Println("%+v\n", line)
+		}
+	}
+}
+
 func ExampleMaxCDN_Put() {
 	max := maxcdn.NewMaxCDN(alias, secret, token)
 
