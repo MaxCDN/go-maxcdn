@@ -209,20 +209,20 @@ func statsBreakdown(max *maxcdn.MaxCDN) {
 	fmt.Printf("Running %s stats report.\n\n", config.ReportType)
 
 	var data maxcdn.Generic
-    endpoint := fmt.Sprintf("/reports/stats.json/%s", config.ReportType)
+	endpoint := fmt.Sprintf("/reports/stats.json/%s", config.ReportType)
 	_, err := max.Get(&data, endpoint, config.Form)
 	check(err)
 
 	fmt.Printf("%25s | %10s | %10s | %10s | %10s\n", "timestamp", "total", "cached", "non-cached", "size")
 	fmt.Println(" -------------------------------------------------------------------------------")
 	for _, s := range data["stats"].([]interface{}) {
-        stats := s.(map[string]interface{})
+		stats := s.(map[string]interface{})
 		fmt.Printf("%25v | %10v | %10v | %10v | %10v\n",
-                    stats["timestamp"],
-                    stats["hit"],
-                    stats["cache_hit"],
-                    stats["noncache_hit"],
-                    stats["size"])
+			stats["timestamp"],
+			stats["hit"],
+			stats["cache_hit"],
+			stats["noncache_hit"],
+			stats["size"])
 	}
 	fmt.Println()
 }
@@ -238,7 +238,7 @@ func popularFiles(max *maxcdn.MaxCDN) {
 	fmt.Println("   -----------------")
 
 	for i, f := range data["popularfiles"].([]interface{}) {
-        file := f.(map[string]interface{})
+		file := f.(map[string]interface{})
 		if config.Top != 0 && i == config.Top {
 			break
 		}

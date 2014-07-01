@@ -49,6 +49,36 @@ func TestMaxCDN_Get(T *testing.T) {
 	Go(T).AssertNil(recorder.Request.Body)
 }
 
+func TestMaxCDN_GetLogs(T *testing.T) {
+	max := maxcdn.NewMaxCDN("alias", "token", "secret")
+
+	var recorder http.Response
+	max.HTTPClient = stubHTTPOkRecorded(&recorder)
+
+	rsp, err := max.GetLogs(nil)
+
+	// check error
+	Go(T).AssertNil(err)
+
+	// check response
+	Go(T).RefuteNil(rsp)
+	Go(T).RefuteNil(rsp.Page)
+
+	// check account
+	Go(T).AssertEqual(rsp.Page, 1)
+	Go(T).AssertEqual(rsp.NextPageKey, "1404229642374")
+
+	// check record of http request from stub
+	Go(T).AssertEqual(recorder.Request.Method, "GET")
+	Go(T).AssertEqual(recorder.Request.URL.Path, "/alias/v3/reporting/logs.json")
+	Go(T).AssertEqual(recorder.Request.URL.Query().Encode(), "")
+	Go(T).AssertEqual(recorder.Request.Header.Get("Content-Type"), contentType)
+	Go(T).RefuteEqual(recorder.Request.Header.Get("Authorization"), "")
+
+	// check body
+	Go(T).AssertNil(recorder.Request.Body)
+}
+
 func TestMaxCDN_Put(T *testing.T) {
 	max := maxcdn.NewMaxCDN("alias", "token", "secret")
 

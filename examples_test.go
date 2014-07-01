@@ -49,6 +49,13 @@ func Example() {
 	if _, err = max.Delete("/zones/pull.json/123456", nil); err == nil {
 		fmt.Println("zone successfully deleted")
 	}
+
+	// Logs
+	if logs, err := max.GetLogs(nil); err == nil {
+		for _, line := range logs.Records {
+			fmt.Println("%+v\n", line)
+		}
+	}
 }
 
 /****

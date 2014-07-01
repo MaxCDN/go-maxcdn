@@ -16,6 +16,7 @@ import (
 const (
 	userAgent   = "Go MaxCDN API Client"
 	contentType = "application/x-www-form-urlencoded"
+	logsPath    = "/v3/reporting/logs.json"
 )
 
 // APIHost is the hostname, including protocol, to MaxCDN's API.
@@ -55,6 +56,26 @@ func NewMaxCDN(alias, token, secret string) *MaxCDN {
 // Get does an OAuth signed http.Get
 func (max *MaxCDN) Get(endpointType interface{}, endpoint string, form url.Values) (*Response, error) {
 	return max.DoParse(endpointType, "GET", endpoint, form)
+}
+
+// GetLogs is a seperate getter for MaxCDN's logs.json endpoint, as it currently doesn't follow
+// the json format of other endpoints.
+func (max *MaxCDN) GetLogs(form url.Values) (Logs, error) {
+	var logs Logs
+	rsp, err := max.Request("GET", logsPath, form)
+	defer rsp.Body.Close()
+	if err != nil {
+		return logs, err
+	}
+
+	var raw []byte
+	raw, err = ioutil.ReadAll(rsp.Body)
+	if err != nil {
+		return logs, err
+	}
+
+	err = json.Unmarshal(raw, &logs)
+	return logs, err
 }
 
 // Post does an OAuth signed http.Post
