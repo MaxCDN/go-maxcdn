@@ -76,12 +76,12 @@ func (max *MaxCDN) Delete(endpoint string, form url.Values) (*Response, error) {
 
 // PurgeZone purges a specified zones cache.
 func (max *MaxCDN) PurgeZone(zone int) (*Response, error) {
-	return max.Delete(Endpoint.Zones.PullCacheBy(zone), nil)
+	return max.Delete(fmt.Sprintf("/zones/pull.json/%d/cache", zone), nil)
 }
 
 // PurgeZoneString purges a specified zones cache.
 func (max *MaxCDN) PurgeZoneString(zone string) (*Response, error) {
-	return max.Delete(Endpoint.Zones.PullCacheByString(zone), nil)
+	return max.Delete(fmt.Sprintf("/zones/pull.json/%s/cache", zone), nil)
 }
 
 // PurgeZonesString purges multiple zones caches.
@@ -135,7 +135,7 @@ func (max *MaxCDN) PurgeFileString(zone string, file string) (*Response, error) 
 	form := url.Values{}
 	form.Set("file", file)
 
-	return max.Delete(Endpoint.Zones.PullCacheByString(zone), form)
+	return max.Delete(fmt.Sprintf("/zones/pull.json/%s/cache", zone), form)
 }
 
 // PurgeFiles purges multiple files from a zone.

@@ -16,10 +16,6 @@ docs: format .PHONY
 	@godoc -ex . | sed -e 's/func /\nfunc /g' | less
 	@#                                         ^ add a little spacing for readability
 
-readme: test
-	# Generate README
-	godoc -ex -v -templates "$(PWD)/_support" . > README.md
-
 format: .PHONY
 	# Go Fmt Source
 	@gofmt -s -w -l $(shell find . -type f -name "*.go")

@@ -69,7 +69,7 @@ Sample configuration:
 
 	app := cli.NewApp()
 	app.Name = "maxcurl"
-	app.Version = "0.0.5"
+	app.Version = "1.0.0"
 
 	cli.HelpPrinter = helpPrinter
 	cli.VersionPrinter = versionPrinter

@@ -1,6 +1,6 @@
 // This file contains helper methods for testing.
 
-package maxcdn
+package maxcdn_test
 
 import (
 	"bytes"

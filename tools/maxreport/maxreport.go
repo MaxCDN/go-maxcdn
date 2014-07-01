@@ -61,7 +61,7 @@ Notes:
 	app := cli.NewApp()
 	app.Name = "maxreport"
 	app.Usage = "Run MaxCDN API Reports"
-	app.Version = "0.0.5"
+	app.Version = "1.0.0"
 	cli.HelpPrinter = helpPrinter
 	cli.VersionPrinter = versionPrinter
 
@@ -194,28 +194,35 @@ func stats(max *maxcdn.MaxCDN) {
 func statsSummary(max *maxcdn.MaxCDN) {
 	fmt.Println("Running summary stats report.\n")
 
-	var data maxcdn.StatsSummary
-	_, err := max.Get(&data, maxcdn.Endpoint.Reports.Stats, config.Form)
+	var data maxcdn.Generic
+	_, err := max.Get(&data, "/reports/stats.json", config.Form)
 	check(err)
 
-	stats := data.Stats
+	stats := data["stats"].(map[string]interface{})
 	fmt.Printf("%15s | %15s | %15s | %15s\n", "total hits", "cache hits", "non-cache hits", "size")
 	fmt.Println("--------------------------------------------------------------------------------")
-	fmt.Printf("%15s | %15s | %15s | %15s\n", stats.Hit, stats.CacheHit, stats.NoncacheHit, stats.Size)
+	fmt.Printf("%15v | %15v | %15v | %15v\n", stats["hit"], stats["cache_hit"], stats["noncache_hit"], stats["size"])
 	fmt.Println()
 }
 
 func statsBreakdown(max *maxcdn.MaxCDN) {
 	fmt.Printf("Running %s stats report.\n\n", config.ReportType)
 
-	var data maxcdn.Stats
-	_, err := max.Get(&data, maxcdn.Endpoint.Reports.StatsBy(config.ReportType), config.Form)
+	var data maxcdn.Generic
+    endpoint := fmt.Sprintf("/reports/stats.json/%s", config.ReportType)
+	_, err := max.Get(&data, endpoint, config.Form)
 	check(err)
 
 	fmt.Printf("%25s | %10s | %10s | %10s | %10s\n", "timestamp", "total", "cached", "non-cached", "size")
 	fmt.Println(" -------------------------------------------------------------------------------")
-	for _, stats := range data.Stats {
-		fmt.Printf("%25s | %10s | %10s | %10s | %10s\n", stats.Timestamp, stats.Hit, stats.CacheHit, stats.NoncacheHit, stats.Size)
+	for _, s := range data["stats"].([]interface{}) {
+        stats := s.(map[string]interface{})
+		fmt.Printf("%25v | %10v | %10v | %10v | %10v\n",
+                    stats["timestamp"],
+                    stats["hit"],
+                    stats["cache_hit"],
+                    stats["noncache_hit"],
+                    stats["size"])
 	}
 	fmt.Println()
 }
@@ -223,18 +230,19 @@ func statsBreakdown(max *maxcdn.MaxCDN) {
 func popularFiles(max *maxcdn.MaxCDN) {
 	fmt.Println("Running popular files report.\n")
 
-	var data maxcdn.PopularFiles
-	_, err := max.Get(&data, maxcdn.Endpoint.Reports.PopularFiles, config.Form)
+	var data maxcdn.Generic
+	_, err := max.Get(&data, "/reports/popularfiles.json", config.Form)
 	check(err)
 
 	fmt.Printf("%10s | %s\n", "hits", "file")
 	fmt.Println("   -----------------")
 
-	for i, file := range data.PopularFiles {
+	for i, f := range data["popularfiles"].([]interface{}) {
+        file := f.(map[string]interface{})
 		if config.Top != 0 && i == config.Top {
 			break
 		}
-		fmt.Printf("%10s | %s\n", file.Hit, file.Uri)
+		fmt.Printf("%10v | %v\n", file["hit"], file["uri"])
 	}
 	fmt.Println()
 }
