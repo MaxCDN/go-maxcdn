@@ -8,7 +8,7 @@ import (
 
 	. "github.com/jmervine/GoT"
 
-	"github.com/jmervine/go-maxcdn"
+	"github.com/MaxCDN/go-maxcdn"
 )
 
 var contentType = "application/x-www-form-urlencoded"

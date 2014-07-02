@@ -1,4 +1,4 @@
 maxcdn tools
 ============
 
-Moved to [github.com/jmervine/maxcdn-tools](https://github.com/jmervine/maxcdn-tools).
+Moved to [github.com/MaxCDN/maxcdn-tools](https://github.com/MaxCDN/maxcdn-tools).

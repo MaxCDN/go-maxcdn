@@ -10,7 +10,7 @@ import (
 	"net/url"
 	"os"
 
-	"github.com/jmervine/go-maxcdn"
+	"github.com/MaxCDN/go-maxcdn"
 )
 
 var (
