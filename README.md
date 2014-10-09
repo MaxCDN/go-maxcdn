@@ -25,7 +25,7 @@ with `string` types.
 
 ```go
 	// Basic Get
-	max := maxcdn.NewMaxCDN(alias, secret, token)
+	max := maxcdn.NewMaxCDN(alias, token, secret)
 	var got maxcdn.Generic
 	res, err := max.Get(&got, "/account.json", nil)
 	if err != nil {
@@ -57,4 +57,3 @@ with `string` types.
         }
     }
 ```
-

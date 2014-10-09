@@ -25,7 +25,7 @@ var (
 
 func Example() {
 	// Basic Get
-	max := maxcdn.NewMaxCDN(alias, secret, token)
+	max := maxcdn.NewMaxCDN(alias, token, secret)
 	var got maxcdn.Generic
 	res, err := max.Get(&got, "/account.json", nil)
 	if err != nil {
@@ -63,13 +63,13 @@ func Example() {
  *******************************************************************/
 
 func ExampleNewMaxCDN() {
-	max := maxcdn.NewMaxCDN(alias, secret, token)
+	max := maxcdn.NewMaxCDN(alias, token, secret)
 	fmt.Printf("%#v\n", max)
 }
 
 func ExampleMaxCDN_DoParse() {
 	// Run mid-level DoParse method.
-	max := maxcdn.NewMaxCDN(alias, secret, token)
+	max := maxcdn.NewMaxCDN(alias, token, secret)
 
 	var data maxcdn.Generic
 	response, err := max.DoParse(&data, "GET", "/account.json/address", nil)
@@ -83,7 +83,7 @@ func ExampleMaxCDN_DoParse() {
 
 func ExampleMaxCDN_Do() {
 	// Run low-level Do method.
-	max := maxcdn.NewMaxCDN(alias, secret, token)
+	max := maxcdn.NewMaxCDN(alias, token, secret)
 
 	if rsp, err := max.Do("GET", "/account.json", nil); err == nil {
 		fmt.Printf("Response Code: %d\n", rsp.Code)
@@ -97,7 +97,7 @@ func ExampleMaxCDN_Do() {
 
 func ExampleMaxCDN_Request() {
 	// Run low-level Request method.
-	max := maxcdn.NewMaxCDN(alias, secret, token)
+	max := maxcdn.NewMaxCDN(alias, token, secret)
 
 	check := func(e error) {
 		if e != nil {
@@ -116,7 +116,7 @@ func ExampleMaxCDN_Request() {
 }
 
 func ExampleMaxCDN_Get() {
-	max := maxcdn.NewMaxCDN(alias, secret, token)
+	max := maxcdn.NewMaxCDN(alias, token, secret)
 
 	var data maxcdn.Generic
 	response, err := max.Get(&data, "/account.json/address", nil)
@@ -129,7 +129,7 @@ func ExampleMaxCDN_Get() {
 }
 
 func ExampleMaxCDN_GetLogs() {
-	max := maxcdn.NewMaxCDN(alias, secret, token)
+	max := maxcdn.NewMaxCDN(alias, token, secret)
 	if logs, err := max.GetLogs(nil); err == nil {
 		for _, line := range logs.Records {
 			fmt.Println("%+v\n", line)
@@ -138,7 +138,7 @@ func ExampleMaxCDN_GetLogs() {
 }
 
 func ExampleMaxCDN_Put() {
-	max := maxcdn.NewMaxCDN(alias, secret, token)
+	max := maxcdn.NewMaxCDN(alias, token, secret)
 
 	form := url.Values{}
 	form.Set("name", "example name")
@@ -156,7 +156,7 @@ func ExampleMaxCDN_Put() {
 func ExampleMaxCDN_Delete() {
 	// This specific example shows how to purge a cache without using the Purge
 	// methods, more as an example of using Delete, then anything, really.
-	max := maxcdn.NewMaxCDN(alias, secret, token)
+	max := maxcdn.NewMaxCDN(alias, token, secret)
 
 	res, err := max.Delete("/zones/pull.json/123456/cache", nil)
 	if err != nil {
@@ -169,7 +169,7 @@ func ExampleMaxCDN_Delete() {
 }
 
 func ExampleMaxCDN_PurgeZone() {
-	max := maxcdn.NewMaxCDN(alias, secret, token)
+	max := maxcdn.NewMaxCDN(alias, token, secret)
 
 	rsp, err := max.PurgeZone(123456)
 	if err != nil {
@@ -182,7 +182,7 @@ func ExampleMaxCDN_PurgeZone() {
 }
 
 func ExampleMaxCDN_PurgeZones() {
-	max := maxcdn.NewMaxCDN(alias, secret, token)
+	max := maxcdn.NewMaxCDN(alias, token, secret)
 
 	zones := []int{123456, 234567, 345678}
 	rsps, err := max.PurgeZones(zones)
@@ -196,7 +196,7 @@ func ExampleMaxCDN_PurgeZones() {
 }
 
 func ExampleMaxCDN_PurgeFile() {
-	max := maxcdn.NewMaxCDN(alias, secret, token)
+	max := maxcdn.NewMaxCDN(alias, token, secret)
 
 	payload, err := max.PurgeFile(123456, "/master.css")
 	if err != nil {
@@ -209,7 +209,7 @@ func ExampleMaxCDN_PurgeFile() {
 }
 
 func ExampleMaxCDN_PurgeFiles() {
-	max := maxcdn.NewMaxCDN(alias, secret, token)
+	max := maxcdn.NewMaxCDN(alias, token, secret)
 
 	files := []string{"/master.css", "/master.js"}
 	payloads, err := max.PurgeFiles(123456, files)
@@ -223,7 +223,7 @@ func ExampleMaxCDN_PurgeFiles() {
 }
 
 func ExampleMaxCDN_Post() {
-	max := maxcdn.NewMaxCDN(alias, secret, token)
+	max := maxcdn.NewMaxCDN(alias, token, secret)
 
 	form := url.Values{}
 	form.Set("name", "newzone")
@@ -247,7 +247,7 @@ func ExampleMaxCDN_Post() {
  *******************************************************************/
 
 func ExampleResponse() {
-	max := maxcdn.NewMaxCDN(alias, secret, token)
+	max := maxcdn.NewMaxCDN(alias, token, secret)
 
 	var data maxcdn.Generic
 	response, _ := max.Get(&data, "/account.json", nil)
@@ -255,7 +255,7 @@ func ExampleResponse() {
 }
 
 func ExampleGeneric() {
-	max := maxcdn.NewMaxCDN(alias, secret, token)
+	max := maxcdn.NewMaxCDN(alias, token, secret)
 
 	var data maxcdn.Generic
 	if _, err := max.Get(&data, "/account.json", nil); err == nil {
@@ -267,7 +267,7 @@ func ExampleGeneric() {
 }
 
 func ExampleAccount() {
-	max := maxcdn.NewMaxCDN(alias, secret, token)
+	max := maxcdn.NewMaxCDN(alias, token, secret)
 
 	var data maxcdn.Generic
 	if _, err := max.Get(&data, "/account.json", nil); err == nil {
@@ -276,7 +276,7 @@ func ExampleAccount() {
 }
 
 func ExampleAccountAddress() {
-	max := maxcdn.NewMaxCDN(alias, secret, token)
+	max := maxcdn.NewMaxCDN(alias, token, secret)
 
 	var data maxcdn.Generic
 	if _, err := max.Get(&data, "/account.json/address", nil); err == nil {
@@ -285,7 +285,7 @@ func ExampleAccountAddress() {
 }
 
 func ExamplePopularFiles() {
-	max := maxcdn.NewMaxCDN(alias, secret, token)
+	max := maxcdn.NewMaxCDN(alias, token, secret)
 
 	var data maxcdn.Generic
 	if _, err := max.Get(&data, "/reports/popularfiles.json", nil); err == nil {
@@ -301,7 +301,7 @@ func ExamplePopularFiles() {
 }
 
 func ExampleStatsSummary() {
-	max := maxcdn.NewMaxCDN(alias, secret, token)
+	max := maxcdn.NewMaxCDN(alias, token, secret)
 
 	var data maxcdn.Generic
 	if _, err := max.Get(&data, "/reports/stats.json", nil); err == nil {
@@ -310,7 +310,7 @@ func ExampleStatsSummary() {
 }
 
 func ExampleStats() {
-	max := maxcdn.NewMaxCDN(alias, secret, token)
+	max := maxcdn.NewMaxCDN(alias, token, secret)
 
 	var data maxcdn.Generic
 	if _, err := max.Get(&data, "/reports/stats.json/hourly", nil); err == nil {
