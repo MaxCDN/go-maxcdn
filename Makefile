@@ -9,6 +9,7 @@ test: format .PHONY
 
 get:
 	# Go Get Deps
+	go get github.com/garyburd/go-oauth/oauth
 	go get github.com/jmervine/GoT
 
 docs: format .PHONY
@@ -18,6 +19,6 @@ docs: format .PHONY
 
 format: .PHONY
 	# Go Fmt Source
-	@gofmt -s -w -l $(shell find . -type f -name "*.go")
+	@gofmt -w -l $(shell find . -type f -name "*.go")
 
 .PHONY:
