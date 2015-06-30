@@ -20,7 +20,7 @@ const (
 )
 
 // APIHost is the hostname, including protocol, to MaxCDN's API.
-var APIHost = "https://rws.netdna.com"
+var APIHost = "https://rws.maxcdn.com"
 
 // MaxCDN is the core struct for interacting with MaxCDN.
 //
