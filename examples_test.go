@@ -19,10 +19,6 @@ var (
 	secret = os.Getenv("SECRET")
 )
 
-/****
- * Examples
- *******************************************************************/
-
 func Example() {
 	// Basic Get
 	max := maxcdn.NewMaxCDN(alias, token, secret)
@@ -53,21 +49,17 @@ func Example() {
 	// Logs
 	if logs, err := max.GetLogs(nil); err == nil {
 		for _, line := range logs.Records {
-			fmt.Println("%+v\n", line)
+			fmt.Printf("%+v\n", line)
 		}
 	}
 }
 
-/****
- * MaxCDN Examples
- *******************************************************************/
-
-func ExampleNewMaxCDN() {
+func Example_newMaxCDN() {
 	max := maxcdn.NewMaxCDN(alias, token, secret)
 	fmt.Printf("%#v\n", max)
 }
 
-func ExampleMaxCDN_DoParse() {
+func ExampleMaxCDN_doParse() {
 	// Run mid-level DoParse method.
 	max := maxcdn.NewMaxCDN(alias, token, secret)
 
@@ -81,7 +73,7 @@ func ExampleMaxCDN_DoParse() {
 	fmt.Printf("name: %s\n", data["street1"].(string))
 }
 
-func ExampleMaxCDN_Do() {
+func ExampleMaxCDN_do() {
 	// Run low-level Do method.
 	max := maxcdn.NewMaxCDN(alias, token, secret)
 
@@ -95,7 +87,7 @@ func ExampleMaxCDN_Do() {
 	}
 }
 
-func ExampleMaxCDN_Request() {
+func ExampleMaxCDN_request() {
 	// Run low-level Request method.
 	max := maxcdn.NewMaxCDN(alias, token, secret)
 
@@ -115,7 +107,7 @@ func ExampleMaxCDN_Request() {
 	fmt.Println(string(body))
 }
 
-func ExampleMaxCDN_Get() {
+func ExampleMaxCDN_get() {
 	max := maxcdn.NewMaxCDN(alias, token, secret)
 
 	var data maxcdn.Generic
@@ -128,16 +120,16 @@ func ExampleMaxCDN_Get() {
 	fmt.Printf("name: %s\n", data["street1"].(string))
 }
 
-func ExampleMaxCDN_GetLogs() {
+func ExampleMaxCDN_getLogs() {
 	max := maxcdn.NewMaxCDN(alias, token, secret)
 	if logs, err := max.GetLogs(nil); err == nil {
 		for _, line := range logs.Records {
-			fmt.Println("%+v\n", line)
+			fmt.Printf("%+v\n", line)
 		}
 	}
 }
 
-func ExampleMaxCDN_Put() {
+func ExampleMaxCDN_put() {
 	max := maxcdn.NewMaxCDN(alias, token, secret)
 
 	form := url.Values{}
@@ -153,7 +145,7 @@ func ExampleMaxCDN_Put() {
 	fmt.Printf("name: %s\n", data["name"].(string))
 }
 
-func ExampleMaxCDN_Delete() {
+func ExampleMaxCDN_delete() {
 	// This specific example shows how to purge a cache without using the Purge
 	// methods, more as an example of using Delete, then anything, really.
 	max := maxcdn.NewMaxCDN(alias, token, secret)
@@ -168,7 +160,7 @@ func ExampleMaxCDN_Delete() {
 	}
 }
 
-func ExampleMaxCDN_PurgeZone() {
+func ExampleMaxCDN_purgeZone() {
 	max := maxcdn.NewMaxCDN(alias, token, secret)
 
 	rsp, err := max.PurgeZone(123456)
@@ -181,7 +173,7 @@ func ExampleMaxCDN_PurgeZone() {
 	}
 }
 
-func ExampleMaxCDN_PurgeZones() {
+func ExampleMaxCDN_purgeZones() {
 	max := maxcdn.NewMaxCDN(alias, token, secret)
 
 	zones := []int{123456, 234567, 345678}
@@ -195,7 +187,7 @@ func ExampleMaxCDN_PurgeZones() {
 	}
 }
 
-func ExampleMaxCDN_PurgeFile() {
+func ExampleMaxCDN_purgeFile() {
 	max := maxcdn.NewMaxCDN(alias, token, secret)
 
 	payload, err := max.PurgeFile(123456, "/master.css")
@@ -208,7 +200,7 @@ func ExampleMaxCDN_PurgeFile() {
 	}
 }
 
-func ExampleMaxCDN_PurgeFiles() {
+func ExampleMaxCDN_purgeFiles() {
 	max := maxcdn.NewMaxCDN(alias, token, secret)
 
 	files := []string{"/master.css", "/master.js"}
@@ -222,7 +214,7 @@ func ExampleMaxCDN_PurgeFiles() {
 	}
 }
 
-func ExampleMaxCDN_Post() {
+func ExampleMaxCDN_post() {
 	max := maxcdn.NewMaxCDN(alias, token, secret)
 
 	form := url.Values{}
@@ -242,11 +234,7 @@ func ExampleMaxCDN_Post() {
 	}
 }
 
-/****
- * Type Examples
- *******************************************************************/
-
-func ExampleResponse() {
+func Example_response() {
 	max := maxcdn.NewMaxCDN(alias, token, secret)
 
 	var data maxcdn.Generic
@@ -254,7 +242,7 @@ func ExampleResponse() {
 	fmt.Printf("%+v\n", response)
 }
 
-func ExampleGeneric() {
+func Example_generic() {
 	max := maxcdn.NewMaxCDN(alias, token, secret)
 
 	var data maxcdn.Generic
@@ -266,7 +254,7 @@ func ExampleGeneric() {
 	}
 }
 
-func ExampleAccount() {
+func Example_account() {
 	max := maxcdn.NewMaxCDN(alias, token, secret)
 
 	var data maxcdn.Generic
@@ -275,7 +263,7 @@ func ExampleAccount() {
 	}
 }
 
-func ExampleAccountAddress() {
+func Example_accountAddress() {
 	max := maxcdn.NewMaxCDN(alias, token, secret)
 
 	var data maxcdn.Generic
@@ -284,7 +272,7 @@ func ExampleAccountAddress() {
 	}
 }
 
-func ExamplePopularFiles() {
+func Example_popularFiles() {
 	max := maxcdn.NewMaxCDN(alias, token, secret)
 
 	var data maxcdn.Generic
@@ -292,7 +280,7 @@ func ExamplePopularFiles() {
 		for i, file := range data {
 			uri := file.(map[string]interface{})["uri"].(string)
 			hit := file.(map[string]interface{})["hit"].(string)
-			fmt.Printf("%2d: %30s=%s, \n", i, uri, hit)
+			fmt.Printf("%2s: %30s=%s, \n", i, uri, hit)
 		}
 	}
 	fmt.Println("----")
@@ -300,7 +288,7 @@ func ExamplePopularFiles() {
 	fmt.Printf("    %30s=%s, \n", "summary", summaryHit)
 }
 
-func ExampleStatsSummary() {
+func Example_statsSummary() {
 	max := maxcdn.NewMaxCDN(alias, token, secret)
 
 	var data maxcdn.Generic
@@ -309,7 +297,7 @@ func ExampleStatsSummary() {
 	}
 }
 
-func ExampleStats() {
+func Example_stats() {
 	max := maxcdn.NewMaxCDN(alias, token, secret)
 
 	var data maxcdn.Generic
@@ -318,17 +306,16 @@ func ExampleStats() {
 	}
 }
 
-/****
- * These "Functional" examples are meant to be functional integration tests.
- * To run these as integration tests export your ALIAS, TOKEN and SECRET
- * to your envioronment before running 'go test', otherwise the http
- * request will be stubbed using the json files in './_fixtures/*.json'.
- *
- * Run like:
- *
- * $ ALIAS=your_alias TOKEN=your_token SECRET=your_secret make test
- *******************************************************************/
-func Example_Functional() {
+// These "Functional" examples are meant to be functional integration tests.
+// To run these as integration tests export your ALIAS, TOKEN and SECRET
+// to your envioronment before running 'go test', otherwise the http
+// request will be stubbed using the json files in './_fixtures/*.json'.
+
+// Run like:
+
+// $ ALIAS=your_alias TOKEN=your_token SECRET=your_secret make test
+
+func Example_functional() {
 	var form url.Values
 
 	name := stringFromTimestamp()
