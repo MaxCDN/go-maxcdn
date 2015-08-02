@@ -31,38 +31,38 @@ type stubRoundTripper struct {
 }
 
 func (crt *stubRoundTripper) RoundTrip(r *http.Request) (*http.Response, error) {
-	urlParts := strings.Split(r.URL.Path, "/")
-	endpoint := urlParts[len(urlParts)-1]
-	code := 200
+	var (
+		urlParts = strings.Split(r.URL.Path, "/")
+		endpoint = urlParts[len(urlParts)-1]
+		code     = http.StatusOK
+		filename string
+	)
 
-	var filename string
-
-	if crt.Error {
+	switch {
+	case crt.Error:
 		filename = "error.json"
 		code = 500
-	} else if r.Method == "DELETE" {
+	case r.Method == "DELETE":
 		filename = "delete.json"
-	} else if endpoint == "pull.json" && r.Method == "PUT" {
+	case endpoint == "pull.json" && r.Method == "PUT":
 		filename = "pullzone.json"
-	} else if endpoint == "pull.json" && r.Method == "POST" {
+	case endpoint == "pull.json" && r.Method == "POST":
 		filename = "post.pull.json"
-	} else if endpoint == "pull.json" {
+	case endpoint == "pull.json":
 		filename = "pullzones.json"
-	} else if endpoint == "address" {
+	case endpoint == "address":
 		filename = "address.json"
-	} else if endpoint == "daily" {
+	case endpoint == "daily":
 		filename = "stats.daily.json"
-	} else if strings.Contains(r.URL.Path, "pull.json") {
+	case strings.Contains(r.URL.Path, "pull.json"):
 		filename = "pullzone.json"
-	} else if endpoint == "users.json" {
+	case endpoint == "users.json", strings.Contains(r.URL.Path, "users.json"):
 		filename = "users.json"
-	} else if strings.Contains(r.URL.Path, "users.json") {
-		filename = "user.json"
-	} else {
+	default:
 		filename = endpoint
 	}
 
-	read := fetchJson(filename)
+	read := fetchJSON(filename)
 
 	crt.ResponseRecord.Body = ioutil.NopCloser(bytes.NewBuffer(read))
 	crt.ResponseRecord.StatusCode = code
@@ -71,7 +71,7 @@ func (crt *stubRoundTripper) RoundTrip(r *http.Request) (*http.Response, error) 
 	return crt.ResponseRecord, nil
 }
 
-func fetchJson(p string) []byte {
+func fetchJSON(p string) []byte {
 	read, err := ioutil.ReadFile("_fixtures/" + p)
 	if err != nil {
 		panic(err)

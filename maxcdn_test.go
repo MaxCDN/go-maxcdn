@@ -33,7 +33,6 @@ func TestMaxCDN_Get(T *testing.T) {
 	// check response
 	Go(T).RefuteNil(rsp)
 	Go(T).RefuteNil(rsp.Data)
-	Go(T).RefuteNil(rsp.Headers)
 
 	// check account
 	Go(T).AssertEqual(data["account"].(map[string]interface{})["name"].(string), "MaxCDN sampleCode")
@@ -97,7 +96,6 @@ func TestMaxCDN_Put(T *testing.T) {
 	// check response
 	Go(T).RefuteNil(rsp)
 	Go(T).RefuteNil(rsp.Data)
-	Go(T).RefuteNil(rsp.Headers)
 
 	// check account
 	Go(T).AssertEqual(data["account"].(map[string]interface{})["name"].(string), "MaxCDN sampleCode")
@@ -132,7 +130,6 @@ func TestMaxCDN_Post(T *testing.T) {
 	// check response
 	Go(T).RefuteNil(rsp)
 	Go(T).RefuteNil(rsp.Data)
-	Go(T).RefuteNil(rsp.Headers)
 
 	Go(T).AssertEqual(recorder.Request.Method, "POST")
 	Go(T).AssertEqual(recorder.Request.URL.Path, "/alias/zones/pull.json")
@@ -156,7 +153,6 @@ func TestMaxCDN_Delete(T *testing.T) {
 	Go(T).AssertNil(err)
 	Go(T).RefuteNil(rsp)
 	Go(T).RefuteNil(rsp.Code)
-	Go(T).RefuteNil(rsp.Headers)
 
 	Go(T).AssertEqual(recorder.Request.Method, "DELETE")
 	Go(T).AssertEqual(recorder.Request.URL.Path, "/alias/zones/pull.json/123456/cache")
@@ -178,7 +174,6 @@ func TestMaxCDN_PurgeZone(T *testing.T) {
 	Go(T).AssertNil(err)
 	Go(T).RefuteNil(rsp)
 	Go(T).RefuteNil(rsp.Code)
-	Go(T).RefuteNil(rsp.Headers)
 
 	Go(T).AssertEqual(recorder.Request.Method, "DELETE")
 	Go(T).AssertEqual(recorder.Request.URL.Path, "/alias/zones/pull.json/123456/cache")
@@ -238,7 +233,6 @@ func TestMaxCDN_PurgeFile(T *testing.T) {
 	Go(T).AssertNil(err)
 	Go(T).RefuteNil(rsp)
 	Go(T).RefuteNil(rsp.Code)
-	Go(T).RefuteNil(rsp.Headers)
 
 	Go(T).AssertEqual(recorder.Request.Method, "DELETE")
 	Go(T).AssertEqual(recorder.Request.URL.Path, "/alias/zones/pull.json/123456/cache")
@@ -262,7 +256,6 @@ func TestMaxCDN_PurgeFileString(T *testing.T) {
 	Go(T).AssertNil(err)
 	Go(T).RefuteNil(rsp)
 	Go(T).RefuteNil(rsp.Code)
-	Go(T).RefuteNil(rsp.Headers)
 
 	Go(T).AssertEqual(recorder.Request.Method, "DELETE")
 	Go(T).AssertEqual(recorder.Request.URL.Path, "/alias/zones/pull.json/123456/cache")
