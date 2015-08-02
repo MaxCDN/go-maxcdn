@@ -1,16 +1,11 @@
-# tests without -tabs for go tip
-travis: get .PHONY
-	# Run Tests
-	go test -test.v
-
 test: format .PHONY
 	# Run Tests
 	go test
 
 get:
 	# Go Get Deps
-	go get github.com/garyburd/go-oauth/oauth
-	go get github.com/jmervine/GoT
+	go get -v github.com/garyburd/go-oauth/oauth
+	go get -v gopkg.in/jmervine/GoT.v1
 
 docs: format .PHONY
 	# Show Docs

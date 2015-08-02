@@ -1,12 +1,8 @@
 language: go
-
-install:
-  - go get github.com/jmervine/GoT
-  - go get github.com/garyburd/go-oauth/oauth
-
+install: make get
+script: go test .
+sudo: false
 go:
-  - 1.1
-  - 1.2
   - 1.3
-  - tip
-
+  - 1.4
+  #- tip
