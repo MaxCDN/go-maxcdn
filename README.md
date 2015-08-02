@@ -2,7 +2,7 @@
 
 MaxCDN Golang API.
 
-[![GoDoc](https://godoc.org/github.com/MaxCDN/go-maxcdn?status.png)](https://godoc.org/github.com/MaxCDN/go-maxcdn) [![Build Status](https://travis-ci.org/MaxCDN/go-maxcdn.svg)](https://travis-ci.org/MaxCDN/go-maxcdn)
+[![GoDoc](http://godoc.org/gopkg.in/MaxCDN/go-maxcdn.v1?status.png)](http://godoc.org/gopkg.in/MaxCDN/go-maxcdn.v1) [![Build Status](https://travis-ci.org/MaxCDN/go-maxcdn.svg)](https://travis-ci.org/MaxCDN/go-maxcdn)
 
 ## [API Documentation](http://godoc.org/gopkg.in/MaxCDN/go-maxcdn.v1)
 
