@@ -4,7 +4,7 @@ MaxCDN Golang API.
 
 [![GoDoc](https://godoc.org/github.com/MaxCDN/go-maxcdn?status.png)](https://godoc.org/github.com/MaxCDN/go-maxcdn) [![Build Status](https://travis-ci.org/MaxCDN/go-maxcdn.svg)](https://travis-ci.org/MaxCDN/go-maxcdn)
 
-## [API Documentation](http://godoc.org/github.com/MaxCDN/go-maxcdn)
+## [API Documentation](http://godoc.org/gopkg.in/MaxCDN/go-maxcdn.v1)
 
 ```go
 import "gopkg.in/MaxCDN/go-maxcdn.v1"
@@ -21,7 +21,7 @@ generate a sample struct. In the resulting struct, I recommend changing a
 `float64` types to `int` types and replacing any resulting `interface{}` types
 with `string` types.
 
-## [Documentation](http://godoc.org/github.com/MaxCDN/go-maxcdn)
+## [Documentation](http://godoc.org/gopkg.in/MaxCDN/go-maxcdn.v1)
 
 ```go
 	// Basic Get
