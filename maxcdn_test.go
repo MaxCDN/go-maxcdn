@@ -6,9 +6,9 @@ import (
 	"net/url"
 	"testing"
 
-	. "github.com/jmervine/GoT"
+	. "gopkg.in/jmervine/GoT.v1"
 
-	"github.com/MaxCDN/go-maxcdn"
+	"."
 )
 
 var contentType = "application/x-www-form-urlencoded"

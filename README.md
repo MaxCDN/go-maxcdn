@@ -7,10 +7,10 @@ MaxCDN Golang API.
 ## [API Documentation](http://godoc.org/github.com/MaxCDN/go-maxcdn)
 
 ```go
-import "github.com/MaxCDN/go-maxcdn"
+import "gopkg.in/MaxCDN/go-maxcdn.v1"
 ```
 
-Package maxcdn is the golang bindings for MaxCDN's REST API.
+Package maxcdn is the Golang bindings for MaxCDN's REST API.
 
 Developer Notes:
 
