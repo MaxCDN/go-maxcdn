@@ -10,7 +10,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/garyburd/go-oauth/oauth"
+	"github.com/MaxCDN/go-maxcdn/Godeps/_workspace/src/github.com/garyburd/go-oauth/oauth"
 )
 
 const (
