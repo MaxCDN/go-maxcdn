@@ -4,5 +4,5 @@ script: go test .
 sudo: false
 go:
   - 1.3
-  - 1.4
-  #- tip
+  - 1.4.2
+  - tip
