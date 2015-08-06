@@ -1,4 +1,5 @@
 language: go
+script: go test -v .
 sudo: false
 go:
   - 1.3

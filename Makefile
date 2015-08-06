@@ -2,7 +2,7 @@ GOPATH=$(shell pwd)/Godeps/workspace
 
 # Run Tests
 test: format
-	godep go test
+	go test
 
 # Go Get Deps
 get:
