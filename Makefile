@@ -1,12 +1,8 @@
-GOPATH=$(shell pwd)/Godeps/_workspace
-
-# Run Tests
-travis:
-	GOPATH=$(GOPATH) go test -v
+GOPATH=$(shell pwd)/Godeps/workspace
 
 # Run Tests
 test: format
-	go test
+	godep go test
 
 # Go Get Deps
 get:

@@ -1,6 +1,4 @@
 language: go
-install: make get
-script: go test .
 sudo: false
 go:
   - 1.3
