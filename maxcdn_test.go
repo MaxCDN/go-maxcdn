@@ -6,7 +6,7 @@ import (
 	"net/url"
 	"testing"
 
-	. "github.com/MaxCDN/go-maxcdn/Godeps/_workspace/src/gopkg.in/jmervine/GoT.v1"
+	. "gopkg.in/jmervine/GoT.v1"
 
 	"."
 )

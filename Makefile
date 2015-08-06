@@ -1,6 +1,8 @@
+GOPATH=$(shell pwd)/Godeps/_workspace
+
 # Run Tests
-travis: get
-	go test -v
+travis:
+	GOPATH=$(GOPATH) go test -v
 
 # Run Tests
 test: format
@@ -8,8 +10,8 @@ test: format
 
 # Go Get Deps
 get:
-	go get -v github.com/garyburd/go-oauth/oauth
-	go get -v gopkg.in/jmervine/GoT.v1
+	go get -u -v github.com/garyburd/go-oauth/oauth
+	go get -u -v gopkg.in/jmervine/GoT.v1
 
 # Show Docs
 docs: format

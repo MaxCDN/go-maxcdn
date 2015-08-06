@@ -15,7 +15,7 @@
 package oauth_test
 
 import (
-	"github.com/MaxCDN/go-maxcdn/Godeps/_workspace/src/github.com/garyburd/go-oauth/oauth"
+	"github.com/garyburd/go-oauth/oauth"
 	"net/http"
 	"net/url"
 	"strings"

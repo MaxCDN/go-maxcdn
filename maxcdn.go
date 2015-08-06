@@ -11,7 +11,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/MaxCDN/go-maxcdn/Godeps/_workspace/src/github.com/garyburd/go-oauth/oauth"
+	"github.com/garyburd/go-oauth/oauth"
 )
 
 const (
