@@ -1,0 +1,15 @@
+{
+	"ImportPath": "github.com/MaxCDN/go-maxcdn",
+	"GoVersion": "go1.3.3",
+	"Deps": [
+		{
+			"ImportPath": "github.com/garyburd/go-oauth/oauth",
+			"Rev": "3131beb69b81ff119923bdefbf029318f1f53794"
+		},
+		{
+			"ImportPath": "gopkg.in/jmervine/GoT.v1",
+			"Comment": "v1",
+			"Rev": "ffdd9e44910a762e6410b7a6f4c8c7b506b4daeb"
+		}
+	]
+}

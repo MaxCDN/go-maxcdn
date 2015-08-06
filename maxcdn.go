@@ -6,9 +6,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/http/httputil"
 	"net/url"
+	"strconv"
 	"strings"
-	"sync"
 
 	"github.com/garyburd/go-oauth/oauth"
 )
@@ -62,20 +63,18 @@ func (max *MaxCDN) Get(endpointType interface{}, endpoint string, form url.Value
 // the json format of other endpoints.
 func (max *MaxCDN) GetLogs(form url.Values) (Logs, error) {
 	var logs Logs
+
 	rsp, err := max.Request("GET", logsPath, form)
-	defer rsp.Body.Close()
 	if err != nil {
 		return logs, err
 	}
 
-	var raw []byte
-	raw, err = ioutil.ReadAll(rsp.Body)
+	err = json.NewDecoder(rsp.Body).Decode(&logs)
+	_ = rsp.Body.Close()
 	if err != nil {
 		return logs, err
 	}
-
-	err = json.Unmarshal(raw, &logs)
-	return logs, err
+	return logs, nil
 }
 
 // Post does an OAuth signed http.Post
@@ -106,11 +105,14 @@ func (max *MaxCDN) PurgeZoneString(zone string) (*Response, error) {
 }
 
 // PurgeZonesString purges multiple zones caches.
-func (max *MaxCDN) PurgeZonesString(zones []string) (resps []*Response, last error) {
-	var resChannel = make(chan *Response)
-	var errChannel = make(chan error)
+func (max *MaxCDN) PurgeZonesString(zones []string) ([]*Response, error) {
+	var (
+		resChannel = make(chan *Response)
+		errChannel = make(chan error)
+		resps      = []*Response{}
+		last       error
+	)
 
-	mutex := sync.Mutex{}
 	for _, zone := range zones {
 		go func(zone string) {
 			res, err := max.PurgeZoneString(zone)
@@ -125,22 +127,20 @@ func (max *MaxCDN) PurgeZonesString(zones []string) (resps []*Response, last err
 		res := <-resChannel
 		err := <-errChannel
 
-		// I think the mutex might be overkill here, but I'm being
-		// safe.
-		mutex.Lock()
 		resps = append(resps, res)
 		last = err
-		mutex.Unlock()
 	}
-	return
+	close(resChannel)
+	close(errChannel)
+	return resps, last
 }
 
 // PurgeZones purges multiple zones caches.
-func (max *MaxCDN) PurgeZones(zones []int) (resps []*Response, last error) {
-	zoneStrings := make([]string, len(zones))
+func (max *MaxCDN) PurgeZones(zones []int) ([]*Response, error) {
+	zoneStrings := make([]string, 0, len(zones))
 
-	for i, zone := range zones {
-		zoneStrings[i] = fmt.Sprintf("%d", zone)
+	for _, zone := range zones {
+		zoneStrings = append(zoneStrings, strconv.FormatInt(int64(zone), 10))
 	}
 
 	return max.PurgeZonesString(zoneStrings)
@@ -148,23 +148,26 @@ func (max *MaxCDN) PurgeZones(zones []int) (resps []*Response, last error) {
 
 // PurgeFile purges a specified file by zone from cache.
 func (max *MaxCDN) PurgeFile(zone int, file string) (*Response, error) {
-	return max.PurgeFileString(fmt.Sprintf("%d", zone), file)
+	return max.PurgeFileString(strconv.FormatInt(int64(zone), 10), file)
 }
 
-// PurgeFile purges a specified file by zone from cache.
+// PurgeFileString purges a specified file by zone from cache.
 func (max *MaxCDN) PurgeFileString(zone string, file string) (*Response, error) {
 	form := url.Values{}
 	form.Set("file", file)
 
-	return max.Delete(fmt.Sprintf("/zones/pull.json/%s/cache", zone), form)
+	return max.Delete("/zones/pull.json/"+zone+"/cache", form)
 }
 
 // PurgeFiles purges multiple files from a zone.
-func (max *MaxCDN) PurgeFiles(zone int, files []string) (resps []*Response, last error) {
-	var resChannel = make(chan *Response)
-	var errChannel = make(chan error)
+func (max *MaxCDN) PurgeFiles(zone int, files []string) ([]*Response, error) {
+	var (
+		resChannel = make(chan *Response)
+		errChannel = make(chan error)
+		resps      = []*Response{}
+		last       error
+	)
 
-	mutex := sync.Mutex{}
 	for _, file := range files {
 		go func(file string) {
 			res, err := max.PurgeFile(zone, file)
@@ -180,57 +183,51 @@ func (max *MaxCDN) PurgeFiles(zone int, files []string) (resps []*Response, last
 		res := <-resChannel
 		err := <-errChannel
 
-		// I think the mutex might be overkill here, but I'm being
-		// safe.
-		mutex.Lock()
 		resps = append(resps, res)
 		last = err
-		mutex.Unlock()
 	}
-	return
+	close(resChannel)
+	close(errChannel)
+	return resps, last
 }
 
-func (max *MaxCDN) DoParse(endpointType interface{}, method, endpoint string, form url.Values) (rsp *Response, err error) {
-	rsp, err = max.Do(method, endpoint, form)
+// DoParse execute the http query and unmarshal the data into `endpointType`.
+func (max *MaxCDN) DoParse(endpointType interface{}, method, endpoint string, form url.Values) (*Response, error) {
+	rsp, err := max.Do(method, endpoint, form)
 	if err != nil {
-		return
+		return nil, err
 	}
-	err = json.Unmarshal(rsp.Data, &endpointType)
-	return
+	if err := json.Unmarshal(rsp.Data, &endpointType); err != nil {
+		return nil, err
+	}
+	return rsp, nil
 }
 
 // Do is a low level method to interact with MaxCDN's RESTful API via Request
 // and return a parsed Response. It's used by all other methods.
 //
 // This method closes the raw http.Response body.
-func (max *MaxCDN) Do(method, endpoint string, form url.Values) (rsp *Response, err error) {
-	rsp = new(Response)
+func (max *MaxCDN) Do(method, endpoint string, form url.Values) (*Response, error) {
+	rsp := &Response{}
+
 	res, err := max.Request(method, endpoint, form)
-	defer res.Body.Close()
-
 	if err != nil {
-		return
+		return nil, err
 	}
 
-	headers := res.Header
-	rsp.Headers = &headers
+	rsp.Headers = res.Header
 
-	var raw []byte
-	raw, err = ioutil.ReadAll(res.Body)
+	err = json.NewDecoder(res.Body).Decode(&rsp)
+	_ = res.Body.Close()
 	if err != nil {
-		return
-	}
-
-	err = json.Unmarshal(raw, &rsp)
-	if err != nil {
-		return
+		return nil, err
 	}
 
 	if rsp.Code > 299 {
-		return rsp, fmt.Errorf("%s: %s", rsp.Error.Type, rsp.Error.Message)
+		return nil, fmt.Errorf("%s: %s", rsp.Error.Type, rsp.Error.Message)
 	}
 
-	return
+	return rsp, nil
 }
 
 // Request is a low level method to interact with MaxCDN's RESTful API. It's
@@ -238,12 +235,10 @@ func (max *MaxCDN) Do(method, endpoint string, form url.Values) (rsp *Response, 
 //
 // If using this method, you must manually close the res.Body or bad things
 // may happen.
-func (max *MaxCDN) Request(method, endpoint string, form url.Values) (res *http.Response, err error) {
-	var req *http.Request
-
-	req, err = http.NewRequest(method, max.url(endpoint), nil)
+func (max *MaxCDN) Request(method, endpoint string, form url.Values) (*http.Response, error) {
+	req, err := http.NewRequest(method, max.url(endpoint), nil)
 	if err != nil {
-		return
+		return nil, err
 	}
 
 	if method == "GET" && req.URL.RawQuery != "" {
@@ -268,21 +263,23 @@ func (max *MaxCDN) Request(method, endpoint string, form url.Values) (res *http.
 	req.Header.Set("User-Agent", userAgent)
 
 	if max.Verbose {
-		if j, e := json.MarshalIndent(req, "", "  "); e == nil {
-			fmt.Printf("Request: %s\n---\n\n", j)
+		if buf, err := httputil.DumpRequest(req, true); err == nil {
+			fmt.Printf("Request: %s\n---\n\n", buf)
 		}
 	}
 
-	res, err = max.HTTPClient.Do(req)
+	res, err := max.HTTPClient.Do(req)
 	if max.Verbose {
-		if j, e := json.MarshalIndent(res, "", "  "); e == nil {
-			fmt.Printf("Response: %s\n---\n\n", j)
+		if buf, err := httputil.DumpResponse(res, true); err == nil {
+			fmt.Printf("Response: %s\n---\n\n", buf)
 		}
 	}
-	return
+	return res, err
 }
 
 func (max *MaxCDN) url(endpoint string) string {
-	endpoint = strings.TrimPrefix(endpoint, "/")
+	if len(endpoint) > 0 && endpoint[0] == '/' {
+		endpoint = endpoint[1:]
+	}
 	return fmt.Sprintf("%s/%s/%s", APIHost, max.Alias, endpoint)
 }

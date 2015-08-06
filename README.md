@@ -2,12 +2,12 @@
 
 MaxCDN Golang API.
 
-[![GoDoc](http://godoc.org/gopkg.in/MaxCDN/go-maxcdn.v1?status.png)](http://godoc.org/gopkg.in/MaxCDN/go-maxcdn.v1) [![Build Status](https://travis-ci.org/MaxCDN/go-maxcdn.svg)](https://travis-ci.org/MaxCDN/go-maxcdn)
+[![GoDoc](http://godoc.org/gopkg.in/MaxCDN/go-maxcdn.v2?status.png)](http://godoc.org/gopkg.in/MaxCDN/go-maxcdn.v2) [![Build Status](https://travis-ci.org/MaxCDN/go-maxcdn.svg)](https://travis-ci.org/MaxCDN/go-maxcdn)
 
-## [API Documentation](http://godoc.org/gopkg.in/MaxCDN/go-maxcdn.v1)
+## [API Documentation](http://godoc.org/gopkg.in/MaxCDN/go-maxcdn.v2)
 
 ```go
-import "gopkg.in/MaxCDN/go-maxcdn.v1"
+import "gopkg.in/MaxCDN/go-maxcdn.v2"
 ```
 
 Package maxcdn is the Golang bindings for MaxCDN's REST API.
@@ -21,7 +21,7 @@ generate a sample struct. In the resulting struct, I recommend changing a
 `float64` types to `int` types and replacing any resulting `interface{}` types
 with `string` types.
 
-## [Documentation](http://godoc.org/gopkg.in/MaxCDN/go-maxcdn.v1)
+## [Documentation](http://godoc.org/gopkg.in/MaxCDN/go-maxcdn.v2)
 
 ```go
 	// Basic Get
