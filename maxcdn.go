@@ -91,7 +91,10 @@ func (max *MaxCDN) Put(endpointType interface{}, endpoint string, form url.Value
 //
 // Delete does not take an endpointType because delete only returns a status code.
 func (max *MaxCDN) Delete(endpoint string, form url.Values) (*Response, error) {
-	return max.Do("DELETE", endpoint, form)
+	if form != nil {
+		endpoint = fmt.Sprintf("%s?%s", endpoint, form.Encode())
+	}
+	return max.Do("DELETE", endpoint, nil)
 }
 
 // PurgeZone purges a specified zones cache.
@@ -123,7 +126,7 @@ func (max *MaxCDN) PurgeZonesString(zones []string) ([]*Response, error) {
 
 	// Wait for all responses to come back.
 	// TODO: Consider adding some method of timing out.
-	for _ = range zones {
+	for range zones {
 		res := <-resChannel
 		err := <-errChannel
 
@@ -154,7 +157,7 @@ func (max *MaxCDN) PurgeFile(zone int, file string) (*Response, error) {
 // PurgeFileString purges a specified file by zone from cache.
 func (max *MaxCDN) PurgeFileString(zone string, file string) (*Response, error) {
 	form := url.Values{}
-	form.Set("file", file)
+	form.Set("files", file)
 
 	return max.Delete("/zones/pull.json/"+zone+"/cache", form)
 }
@@ -179,7 +182,7 @@ func (max *MaxCDN) PurgeFiles(zone int, files []string) ([]*Response, error) {
 
 	// Wait for all responses to come back.
 	// TODO: Consider adding some method of timing out.
-	for _ = range files {
+	for range files {
 		res := <-resChannel
 		err := <-errChannel
 
@@ -269,7 +272,12 @@ func (max *MaxCDN) Request(method, endpoint string, form url.Values) (*http.Resp
 	}
 
 	res, err := max.HTTPClient.Do(req)
-	if max.Verbose {
+
+	if err != nil {
+		fmt.Printf("Response Error: %s\n---\n\n", err)
+	}
+
+	if max.Verbose && res != nil {
 		if buf, err := httputil.DumpResponse(res, true); err == nil {
 			fmt.Printf("Response: %s\n---\n\n", buf)
 		}

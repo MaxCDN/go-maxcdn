@@ -236,14 +236,12 @@ func TestMaxCDN_PurgeFile(T *testing.T) {
 
 	Go(T).AssertEqual(recorder.Request.Method, "DELETE")
 	Go(T).AssertEqual(recorder.Request.URL.Path, "/alias/zones/pull.json/123456/cache")
-	Go(T).AssertEqual(recorder.Request.URL.Query().Encode(), "")
+	Go(T).AssertEqual(recorder.Request.URL.Query().Encode(), "files=%2Fmaster.css")
 	Go(T).AssertEqual(recorder.Request.Header.Get("Content-Type"), contentType)
 	Go(T).RefuteEqual(recorder.Request.Header.Get("Authorization"), "")
 
 	// check body
-	body, err := ioutil.ReadAll(recorder.Request.Body)
-	Go(T).AssertNil(err)
-	Go(T).AssertEqual(string(body), "file=%2Fmaster.css")
+	Go(T).AssertNil(recorder.Request.Body)
 }
 
 func TestMaxCDN_PurgeFileString(T *testing.T) {
@@ -259,14 +257,12 @@ func TestMaxCDN_PurgeFileString(T *testing.T) {
 
 	Go(T).AssertEqual(recorder.Request.Method, "DELETE")
 	Go(T).AssertEqual(recorder.Request.URL.Path, "/alias/zones/pull.json/123456/cache")
-	Go(T).AssertEqual(recorder.Request.URL.Query().Encode(), "")
+	Go(T).AssertEqual(recorder.Request.URL.Query().Encode(), "files=%2Fmaster.css")
 	Go(T).AssertEqual(recorder.Request.Header.Get("Content-Type"), contentType)
 	Go(T).RefuteEqual(recorder.Request.Header.Get("Authorization"), "")
 
 	// check body
-	body, err := ioutil.ReadAll(recorder.Request.Body)
-	Go(T).AssertNil(err)
-	Go(T).AssertEqual(string(body), "file=%2Fmaster.css")
+	Go(T).AssertNil(recorder.Request.Body)
 }
 
 func TestMaxCDN_PurgeFiles(T *testing.T) {
@@ -281,11 +277,11 @@ func TestMaxCDN_PurgeFiles(T *testing.T) {
 	Go(T).RefuteNil(rsp)
 
 	Go(T).AssertEqual(recorder.Request.Method, "DELETE")
-	Go(T).AssertEqual(recorder.Request.URL.Query().Encode(), "")
+	Go(T).RefuteEqual(recorder.Request.URL.Query().Encode(), "")
 	Go(T).AssertEqual(recorder.Request.Header.Get("Content-Type"), contentType)
 	Go(T).RefuteEqual(recorder.Request.Header.Get("Authorization"), "")
 
 	// check body
-	Go(T).RefuteNil(recorder.Request.Body)
+	Go(T).AssertNil(recorder.Request.Body)
 	Go(T).AssertNil(err)
 }

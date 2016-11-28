@@ -1,5 +1,3 @@
-GOPATH=$(shell pwd)/Godeps/workspace
-
 # Run Tests
 test: format
 	go test
