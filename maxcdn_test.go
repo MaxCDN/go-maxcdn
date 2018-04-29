@@ -1,4 +1,4 @@
-package maxcdn_test
+package maxcdn
 
 import (
 	"io/ioutil"
@@ -7,26 +7,22 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-
-	maxcdn "github.com/maxcdn/go-maxcdn"
 )
 
-var contentType = "application/x-www-form-urlencoded"
-
 func Test(t *testing.T) {
-	max := maxcdn.NewMaxCDN("alias", "token", "secret")
+	max := NewMaxCDN("alias", "token", "secret")
 
 	assert.Equal(t, "alias", max.Alias)
 }
 
 func TestMaxCDN_Get(t *testing.T) {
 	assert := assert.New(t)
-	max := maxcdn.NewMaxCDN("alias", "token", "secret")
+	max := NewMaxCDN("alias", "token", "secret")
 
 	var recorder http.Response
 	max.HTTPClient = stubHTTPOkRecorded(&recorder)
 
-	var data maxcdn.Generic
+	var data Generic
 	rsp, err := max.Get(&data, "/account.json", nil)
 
 	// check error
@@ -53,7 +49,7 @@ func TestMaxCDN_Get(t *testing.T) {
 
 func TestMaxCDN_GetLogs(t *testing.T) {
 	assert := assert.New(t)
-	max := maxcdn.NewMaxCDN("alias", "token", "secret")
+	max := NewMaxCDN("alias", "token", "secret")
 
 	var recorder http.Response
 	max.HTTPClient = stubHTTPOkRecorded(&recorder)
@@ -84,7 +80,7 @@ func TestMaxCDN_GetLogs(t *testing.T) {
 
 func TestMaxCDN_Put(t *testing.T) {
 	assert := assert.New(t)
-	max := maxcdn.NewMaxCDN("alias", "token", "secret")
+	max := NewMaxCDN("alias", "token", "secret")
 
 	var recorder http.Response
 	max.HTTPClient = stubHTTPOkRecorded(&recorder)
@@ -92,7 +88,7 @@ func TestMaxCDN_Put(t *testing.T) {
 	form := url.Values{}
 	form.Add("name", "MaxCDN sampleCode")
 
-	var data maxcdn.Generic
+	var data Generic
 	rsp, err := max.Put(&data, "/account.json", form)
 
 	// check error
@@ -121,7 +117,7 @@ func TestMaxCDN_Put(t *testing.T) {
 
 func TestMaxCDN_Post(t *testing.T) {
 	assert := assert.New(t)
-	max := maxcdn.NewMaxCDN("alias", "token", "secret")
+	max := NewMaxCDN("alias", "token", "secret")
 
 	var recorder http.Response
 	max.HTTPClient = stubHTTPOkRecorded(&recorder)
@@ -129,7 +125,7 @@ func TestMaxCDN_Post(t *testing.T) {
 	form := url.Values{}
 	form.Add("name", "foo")
 
-	var data maxcdn.Generic
+	var data Generic
 	rsp, err := max.Post(&data, "/zones/pull.json", form)
 
 	// check error
@@ -153,7 +149,7 @@ func TestMaxCDN_Post(t *testing.T) {
 
 func TestMaxCDN_Delete(t *testing.T) {
 	assert := assert.New(t)
-	max := maxcdn.NewMaxCDN("alias", "token", "secret")
+	max := NewMaxCDN("alias", "token", "secret")
 
 	var recorder http.Response
 	max.HTTPClient = stubHTTPOkRecorded(&recorder)
@@ -175,7 +171,7 @@ func TestMaxCDN_Delete(t *testing.T) {
 
 func TestMaxCDN_PurgeZone(t *testing.T) {
 	assert := assert.New(t)
-	max := maxcdn.NewMaxCDN("alias", "token", "secret")
+	max := NewMaxCDN("alias", "token", "secret")
 
 	var recorder http.Response
 	max.HTTPClient = stubHTTPOkRecorded(&recorder)
@@ -197,7 +193,7 @@ func TestMaxCDN_PurgeZone(t *testing.T) {
 
 func TestMaxCDN_PurgeZones(t *testing.T) {
 	assert := assert.New(t)
-	max := maxcdn.NewMaxCDN("alias", "token", "secret")
+	max := NewMaxCDN("alias", "token", "secret")
 
 	var recorder http.Response
 	max.HTTPClient = stubHTTPOkRecorded(&recorder)
@@ -217,7 +213,7 @@ func TestMaxCDN_PurgeZones(t *testing.T) {
 
 func TestMaxCDN_PurgeZonesString(t *testing.T) {
 	assert := assert.New(t)
-	max := maxcdn.NewMaxCDN("alias", "token", "secret")
+	max := NewMaxCDN("alias", "token", "secret")
 
 	var recorder http.Response
 	max.HTTPClient = stubHTTPOkRecorded(&recorder)
@@ -237,7 +233,7 @@ func TestMaxCDN_PurgeZonesString(t *testing.T) {
 
 func TestMaxCDN_PurgeFile(t *testing.T) {
 	assert := assert.New(t)
-	max := maxcdn.NewMaxCDN("alias", "token", "secret")
+	max := NewMaxCDN("alias", "token", "secret")
 
 	var recorder http.Response
 	max.HTTPClient = stubHTTPOkRecorded(&recorder)
@@ -259,7 +255,7 @@ func TestMaxCDN_PurgeFile(t *testing.T) {
 
 func TestMaxCDN_PurgeFileString(t *testing.T) {
 	assert := assert.New(t)
-	max := maxcdn.NewMaxCDN("alias", "token", "secret")
+	max := NewMaxCDN("alias", "token", "secret")
 
 	var recorder http.Response
 	max.HTTPClient = stubHTTPOkRecorded(&recorder)
@@ -281,7 +277,7 @@ func TestMaxCDN_PurgeFileString(t *testing.T) {
 
 func TestMaxCDN_PurgeFiles(t *testing.T) {
 	assert := assert.New(t)
-	max := maxcdn.NewMaxCDN("alias", "token", "secret")
+	max := NewMaxCDN("alias", "token", "secret")
 
 	var recorder http.Response
 	max.HTTPClient = stubHTTPOkRecorded(&recorder)
@@ -292,7 +288,7 @@ func TestMaxCDN_PurgeFiles(t *testing.T) {
 	assert.NotNil(rsp)
 
 	assert.Equal("DELETE", recorder.Request.Method)
-	assert.Equal("files=%2Fmaster.js", recorder.Request.URL.Query().Encode())
+	assert.Contains(recorder.Request.URL.Query().Encode(), "files=")
 	assert.Equal(contentType, recorder.Request.Header.Get("Content-Type"))
 	assert.NotEqual("", recorder.Request.Header.Get("Authorization"))
 
