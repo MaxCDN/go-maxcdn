@@ -1,4 +1,4 @@
-package maxcdn_test
+package maxcdn
 
 import (
 	"io/ioutil"
@@ -6,50 +6,50 @@ import (
 	"net/url"
 	"testing"
 
-	. "gopkg.in/jmervine/GoT.v1"
-
-	"."
+	"github.com/stretchr/testify/assert"
 )
 
-var contentType = "application/x-www-form-urlencoded"
+func Test(t *testing.T) {
+	max := NewMaxCDN("alias", "token", "secret")
 
-func Test(T *testing.T) {
-	max := maxcdn.NewMaxCDN("alias", "token", "secret")
-	Go(T).AssertEqual(max.Alias, "alias")
+	assert.Equal(t, "alias", max.Alias)
 }
 
-func TestMaxCDN_Get(T *testing.T) {
-	max := maxcdn.NewMaxCDN("alias", "token", "secret")
+func TestMaxCDN_Get(t *testing.T) {
+	assert := assert.New(t)
+	max := NewMaxCDN("alias", "token", "secret")
 
 	var recorder http.Response
 	max.HTTPClient = stubHTTPOkRecorded(&recorder)
 
-	var data maxcdn.Generic
+	var data Generic
 	rsp, err := max.Get(&data, "/account.json", nil)
 
 	// check error
-	Go(T).AssertNil(err)
+	assert.Nil(err)
 
 	// check response
-	Go(T).RefuteNil(rsp)
-	Go(T).RefuteNil(rsp.Data)
+	assert.NotNil(rsp)
+	assert.NotNil(rsp.Data)
 
 	// check account
-	Go(T).AssertEqual(data["account"].(map[string]interface{})["name"].(string), "MaxCDN sampleCode")
+	name := data["account"].(map[string]interface{})["name"].(string)
+	assert.Equal("MaxCDN sampleCode", name)
 
 	// check record of http request from stub
-	Go(T).AssertEqual(recorder.Request.Method, "GET")
-	Go(T).AssertEqual(recorder.Request.URL.Path, "/alias/account.json")
-	Go(T).AssertEqual(recorder.Request.URL.Query().Encode(), "")
-	Go(T).AssertEqual(recorder.Request.Header.Get("Content-Type"), contentType)
-	Go(T).RefuteEqual(recorder.Request.Header.Get("Authorization"), "")
+	assert.Equal("GET", recorder.Request.Method)
+	assert.Equal("/alias/account.json", recorder.Request.URL.Path)
+	assert.Equal("", recorder.Request.URL.Query().Encode())
+	assert.Equal(contentType, recorder.Request.Header.Get("Content-Type"))
+	assert.NotEqual("", recorder.Request.Header.Get("Authorization"))
 
 	// check body
-	Go(T).AssertNil(recorder.Request.Body)
+	assert.Nil(recorder.Request.Body)
 }
 
-func TestMaxCDN_GetLogs(T *testing.T) {
-	max := maxcdn.NewMaxCDN("alias", "token", "secret")
+func TestMaxCDN_GetLogs(t *testing.T) {
+	assert := assert.New(t)
+	max := NewMaxCDN("alias", "token", "secret")
 
 	var recorder http.Response
 	max.HTTPClient = stubHTTPOkRecorded(&recorder)
@@ -57,29 +57,30 @@ func TestMaxCDN_GetLogs(T *testing.T) {
 	rsp, err := max.GetLogs(nil)
 
 	// check error
-	Go(T).AssertNil(err)
+	assert.Nil(err)
 
 	// check response
-	Go(T).RefuteNil(rsp)
-	Go(T).RefuteNil(rsp.Page)
+	assert.NotNil(rsp)
+	assert.NotNil(rsp.Page)
 
 	// check account
-	Go(T).AssertEqual(rsp.Page, 1)
-	Go(T).AssertEqual(rsp.NextPageKey, "1404229642374")
+	assert.Equal(1, rsp.Page)
+	assert.Equal("1404229642374", rsp.NextPageKey)
 
 	// check record of http request from stub
-	Go(T).AssertEqual(recorder.Request.Method, "GET")
-	Go(T).AssertEqual(recorder.Request.URL.Path, "/alias/v3/reporting/logs.json")
-	Go(T).AssertEqual(recorder.Request.URL.Query().Encode(), "")
-	Go(T).AssertEqual(recorder.Request.Header.Get("Content-Type"), contentType)
-	Go(T).RefuteEqual(recorder.Request.Header.Get("Authorization"), "")
+	assert.Equal("GET", recorder.Request.Method)
+	assert.Equal("/alias/v3/reporting/logs.json", recorder.Request.URL.Path)
+	assert.Equal("", recorder.Request.URL.Query().Encode())
+	assert.Equal(contentType, recorder.Request.Header.Get("Content-Type"))
+	assert.NotEqual("", recorder.Request.Header.Get("Authorization"))
 
 	// check body
-	Go(T).AssertNil(recorder.Request.Body)
+	assert.Nil(recorder.Request.Body)
 }
 
-func TestMaxCDN_Put(T *testing.T) {
-	max := maxcdn.NewMaxCDN("alias", "token", "secret")
+func TestMaxCDN_Put(t *testing.T) {
+	assert := assert.New(t)
+	max := NewMaxCDN("alias", "token", "secret")
 
 	var recorder http.Response
 	max.HTTPClient = stubHTTPOkRecorded(&recorder)
@@ -87,33 +88,36 @@ func TestMaxCDN_Put(T *testing.T) {
 	form := url.Values{}
 	form.Add("name", "MaxCDN sampleCode")
 
-	var data maxcdn.Generic
+	var data Generic
 	rsp, err := max.Put(&data, "/account.json", form)
 
 	// check error
-	Go(T).AssertNil(err)
+	assert.Nil(err)
 
 	// check response
-	Go(T).RefuteNil(rsp)
-	Go(T).RefuteNil(rsp.Data)
+	assert.NotNil(rsp)
+	assert.NotNil(rsp.Data)
 
 	// check account
-	Go(T).AssertEqual(data["account"].(map[string]interface{})["name"].(string), "MaxCDN sampleCode")
+	name := data["account"].(map[string]interface{})["name"].(string)
+	assert.Equal("MaxCDN sampleCode", name)
 
-	Go(T).AssertEqual(recorder.Request.Method, "PUT")
-	Go(T).AssertEqual(recorder.Request.URL.Path, "/alias/account.json")
-	Go(T).AssertEqual(recorder.Request.URL.Query().Encode(), "")
-	Go(T).AssertEqual(recorder.Request.Header.Get("Content-Type"), contentType)
-	Go(T).RefuteEqual(recorder.Request.Header.Get("Authorization"), "")
+	// check record of http request from stub
+	assert.Equal("PUT", recorder.Request.Method)
+	assert.Equal("/alias/account.json", recorder.Request.URL.Path)
+	assert.Equal("", recorder.Request.URL.Query().Encode())
+	assert.Equal(contentType, recorder.Request.Header.Get("Content-Type"))
+	assert.NotEqual("", recorder.Request.Header.Get("Authorization"))
 
 	// check body
 	body, err := ioutil.ReadAll(recorder.Request.Body)
-	Go(T).AssertNil(err)
-	Go(T).AssertEqual(string(body), "name=MaxCDN+sampleCode")
+	assert.Nil(err)
+	assert.Equal("name=MaxCDN+sampleCode", string(body))
 }
 
-func TestMaxCDN_Post(T *testing.T) {
-	max := maxcdn.NewMaxCDN("alias", "token", "secret")
+func TestMaxCDN_Post(t *testing.T) {
+	assert := assert.New(t)
+	max := NewMaxCDN("alias", "token", "secret")
 
 	var recorder http.Response
 	max.HTTPClient = stubHTTPOkRecorded(&recorder)
@@ -121,167 +125,173 @@ func TestMaxCDN_Post(T *testing.T) {
 	form := url.Values{}
 	form.Add("name", "foo")
 
-	var data maxcdn.Generic
+	var data Generic
 	rsp, err := max.Post(&data, "/zones/pull.json", form)
 
 	// check error
-	Go(T).AssertNil(err)
+	assert.Nil(err)
 
 	// check response
-	Go(T).RefuteNil(rsp)
-	Go(T).RefuteNil(rsp.Data)
+	assert.NotNil(rsp)
+	assert.NotNil(rsp.Data)
 
-	Go(T).AssertEqual(recorder.Request.Method, "POST")
-	Go(T).AssertEqual(recorder.Request.URL.Path, "/alias/zones/pull.json")
-	Go(T).AssertEqual(recorder.Request.URL.Query().Encode(), "")
-	Go(T).AssertEqual(recorder.Request.Header.Get("Content-Type"), contentType)
-	Go(T).RefuteEqual(recorder.Request.Header.Get("Authorization"), "")
+	assert.Equal("POST", recorder.Request.Method)
+	assert.Equal("/alias/zones/pull.json", recorder.Request.URL.Path)
+	assert.Equal("", recorder.Request.URL.Query().Encode())
+	assert.Equal(contentType, recorder.Request.Header.Get("Content-Type"))
+	assert.NotEqual("", recorder.Request.Header.Get("Authorization"))
 
 	// check body
 	body, err := ioutil.ReadAll(recorder.Request.Body)
-	Go(T).AssertNil(err)
-	Go(T).AssertEqual(string(body), "name=foo")
+	assert.Nil(err)
+	assert.Equal("name=foo", string(body))
 }
 
-func TestMaxCDN_Delete(T *testing.T) {
-	max := maxcdn.NewMaxCDN("alias", "token", "secret")
+func TestMaxCDN_Delete(t *testing.T) {
+	assert := assert.New(t)
+	max := NewMaxCDN("alias", "token", "secret")
 
 	var recorder http.Response
 	max.HTTPClient = stubHTTPOkRecorded(&recorder)
 
 	rsp, err := max.Delete("/zones/pull.json/123456/cache", nil)
-	Go(T).AssertNil(err)
-	Go(T).RefuteNil(rsp)
-	Go(T).RefuteNil(rsp.Code)
+	assert.Nil(err)
+	assert.NotNil(rsp)
+	assert.NotNil(rsp.Code)
 
-	Go(T).AssertEqual(recorder.Request.Method, "DELETE")
-	Go(T).AssertEqual(recorder.Request.URL.Path, "/alias/zones/pull.json/123456/cache")
-	Go(T).AssertEqual(recorder.Request.URL.Query().Encode(), "")
-	Go(T).AssertEqual(recorder.Request.Header.Get("Content-Type"), contentType)
-	Go(T).RefuteEqual(recorder.Request.Header.Get("Authorization"), "")
+	assert.Equal("DELETE", recorder.Request.Method)
+	assert.Equal("/alias/zones/pull.json/123456/cache", recorder.Request.URL.Path)
+	assert.Equal("", recorder.Request.URL.Query().Encode())
+	assert.Equal(contentType, recorder.Request.Header.Get("Content-Type"))
+	assert.NotEqual("", recorder.Request.Header.Get("Authorization"))
 
 	// check body
-	Go(T).AssertNil(recorder.Request.Body)
+	assert.Nil(recorder.Request.Body)
 }
 
-func TestMaxCDN_PurgeZone(T *testing.T) {
-	max := maxcdn.NewMaxCDN("alias", "token", "secret")
+func TestMaxCDN_PurgeZone(t *testing.T) {
+	assert := assert.New(t)
+	max := NewMaxCDN("alias", "token", "secret")
 
 	var recorder http.Response
 	max.HTTPClient = stubHTTPOkRecorded(&recorder)
 
 	rsp, err := max.PurgeZone(123456)
-	Go(T).AssertNil(err)
-	Go(T).RefuteNil(rsp)
-	Go(T).RefuteNil(rsp.Code)
+	assert.Nil(err)
+	assert.NotNil(rsp)
+	assert.NotNil(rsp.Code)
 
-	Go(T).AssertEqual(recorder.Request.Method, "DELETE")
-	Go(T).AssertEqual(recorder.Request.URL.Path, "/alias/zones/pull.json/123456/cache")
-	Go(T).AssertEqual(recorder.Request.URL.Query().Encode(), "")
-	Go(T).AssertEqual(recorder.Request.Header.Get("Content-Type"), contentType)
-	Go(T).RefuteEqual(recorder.Request.Header.Get("Authorization"), "")
+	assert.Equal("DELETE", recorder.Request.Method)
+	assert.Equal("/alias/zones/pull.json/123456/cache", recorder.Request.URL.Path)
+	assert.Equal("", recorder.Request.URL.Query().Encode())
+	assert.Equal(contentType, recorder.Request.Header.Get("Content-Type"))
+	assert.NotEqual("", recorder.Request.Header.Get("Authorization"))
 
 	// check body
-	Go(T).AssertNil(recorder.Request.Body)
+	assert.Nil(recorder.Request.Body)
 }
 
-func TestMaxCDN_PurgeZones(T *testing.T) {
-	max := maxcdn.NewMaxCDN("alias", "token", "secret")
+func TestMaxCDN_PurgeZones(t *testing.T) {
+	assert := assert.New(t)
+	max := NewMaxCDN("alias", "token", "secret")
 
 	var recorder http.Response
 	max.HTTPClient = stubHTTPOkRecorded(&recorder)
 
 	rsps, err := max.PurgeZones([]int{12345, 23456, 34567})
-	Go(T).AssertNil(err)
-	Go(T).RefuteNil(rsps)
+	assert.Nil(err)
+	assert.NotNil(rsps)
 
-	Go(T).AssertEqual(recorder.Request.Method, "DELETE")
-	Go(T).AssertEqual(recorder.Request.URL.Query().Encode(), "")
-	Go(T).AssertEqual(recorder.Request.Header.Get("Content-Type"), contentType)
-	Go(T).RefuteEqual(recorder.Request.Header.Get("Authorization"), "")
+	assert.Equal("DELETE", recorder.Request.Method)
+	assert.Equal("", recorder.Request.URL.Query().Encode())
+	assert.Equal(contentType, recorder.Request.Header.Get("Content-Type"))
+	assert.NotEqual("", recorder.Request.Header.Get("Authorization"))
 
 	// check body
-	Go(T).AssertNil(recorder.Request.Body)
+	assert.Nil(recorder.Request.Body)
 }
 
-func TestMaxCDN_PurgeZonesString(T *testing.T) {
-	max := maxcdn.NewMaxCDN("alias", "token", "secret")
+func TestMaxCDN_PurgeZonesString(t *testing.T) {
+	assert := assert.New(t)
+	max := NewMaxCDN("alias", "token", "secret")
 
 	var recorder http.Response
 	max.HTTPClient = stubHTTPOkRecorded(&recorder)
 
 	rsps, err := max.PurgeZonesString([]string{"12345", "23456", "34567"})
-	Go(T).AssertNil(err)
-	Go(T).RefuteNil(rsps)
+	assert.Nil(err)
+	assert.NotNil(rsps)
 
-	Go(T).AssertEqual(recorder.Request.Method, "DELETE")
-	Go(T).AssertEqual(recorder.Request.URL.Query().Encode(), "")
-	Go(T).AssertEqual(recorder.Request.Header.Get("Content-Type"), contentType)
-	Go(T).RefuteEqual(recorder.Request.Header.Get("Authorization"), "")
+	assert.Equal("DELETE", recorder.Request.Method)
+	assert.Equal("", recorder.Request.URL.Query().Encode())
+	assert.Equal(contentType, recorder.Request.Header.Get("Content-Type"))
+	assert.NotEqual("", recorder.Request.Header.Get("Authorization"))
 
 	// check body
-	Go(T).AssertNil(recorder.Request.Body)
+	assert.Nil(recorder.Request.Body)
 }
 
-func TestMaxCDN_PurgeFile(T *testing.T) {
-	max := maxcdn.NewMaxCDN("alias", "token", "secret")
+func TestMaxCDN_PurgeFile(t *testing.T) {
+	assert := assert.New(t)
+	max := NewMaxCDN("alias", "token", "secret")
 
 	var recorder http.Response
 	max.HTTPClient = stubHTTPOkRecorded(&recorder)
 
 	rsp, err := max.PurgeFile(123456, "/master.css")
-	Go(T).AssertNil(err)
-	Go(T).RefuteNil(rsp)
-	Go(T).RefuteNil(rsp.Code)
+	assert.Nil(err)
+	assert.NotNil(rsp)
+	assert.NotNil(rsp.Code)
 
-	Go(T).AssertEqual(recorder.Request.Method, "DELETE")
-	Go(T).AssertEqual(recorder.Request.URL.Path, "/alias/zones/pull.json/123456/cache")
-	Go(T).AssertEqual(recorder.Request.URL.Query().Encode(), "files=%2Fmaster.css")
-	Go(T).AssertEqual(recorder.Request.Header.Get("Content-Type"), contentType)
-	Go(T).RefuteEqual(recorder.Request.Header.Get("Authorization"), "")
+	assert.Equal("DELETE", recorder.Request.Method)
+	assert.Equal("/alias/zones/pull.json/123456/cache", recorder.Request.URL.Path)
+	assert.Equal("files=%2Fmaster.css", recorder.Request.URL.Query().Encode())
+	assert.Equal(contentType, recorder.Request.Header.Get("Content-Type"))
+	assert.NotEqual("", recorder.Request.Header.Get("Authorization"))
 
 	// check body
-	Go(T).AssertNil(recorder.Request.Body)
+	assert.Nil(recorder.Request.Body)
 }
 
-func TestMaxCDN_PurgeFileString(T *testing.T) {
-	max := maxcdn.NewMaxCDN("alias", "token", "secret")
+func TestMaxCDN_PurgeFileString(t *testing.T) {
+	assert := assert.New(t)
+	max := NewMaxCDN("alias", "token", "secret")
 
 	var recorder http.Response
 	max.HTTPClient = stubHTTPOkRecorded(&recorder)
 
 	rsp, err := max.PurgeFileString("123456", "/master.css")
-	Go(T).AssertNil(err)
-	Go(T).RefuteNil(rsp)
-	Go(T).RefuteNil(rsp.Code)
+	assert.Nil(err)
+	assert.NotNil(rsp)
+	assert.NotNil(rsp.Code)
 
-	Go(T).AssertEqual(recorder.Request.Method, "DELETE")
-	Go(T).AssertEqual(recorder.Request.URL.Path, "/alias/zones/pull.json/123456/cache")
-	Go(T).AssertEqual(recorder.Request.URL.Query().Encode(), "files=%2Fmaster.css")
-	Go(T).AssertEqual(recorder.Request.Header.Get("Content-Type"), contentType)
-	Go(T).RefuteEqual(recorder.Request.Header.Get("Authorization"), "")
+	assert.Equal("DELETE", recorder.Request.Method)
+	assert.Equal("/alias/zones/pull.json/123456/cache", recorder.Request.URL.Path)
+	assert.Equal("files=%2Fmaster.css", recorder.Request.URL.Query().Encode())
+	assert.Equal(contentType, recorder.Request.Header.Get("Content-Type"))
+	assert.NotEqual("", recorder.Request.Header.Get("Authorization"))
 
 	// check body
-	Go(T).AssertNil(recorder.Request.Body)
+	assert.Nil(recorder.Request.Body)
 }
 
-func TestMaxCDN_PurgeFiles(T *testing.T) {
-	max := maxcdn.NewMaxCDN("alias", "token", "secret")
+func TestMaxCDN_PurgeFiles(t *testing.T) {
+	assert := assert.New(t)
+	max := NewMaxCDN("alias", "token", "secret")
 
 	var recorder http.Response
 	max.HTTPClient = stubHTTPOkRecorded(&recorder)
 
 	files := []string{"/master.css", "/master.js", "/index.html"}
 	rsp, err := max.PurgeFiles(123456, files)
-	Go(T).AssertNil(err)
-	Go(T).RefuteNil(rsp)
+	assert.Nil(err)
+	assert.NotNil(rsp)
 
-	Go(T).AssertEqual(recorder.Request.Method, "DELETE")
-	Go(T).RefuteEqual(recorder.Request.URL.Query().Encode(), "")
-	Go(T).AssertEqual(recorder.Request.Header.Get("Content-Type"), contentType)
-	Go(T).RefuteEqual(recorder.Request.Header.Get("Authorization"), "")
+	assert.Equal("DELETE", recorder.Request.Method)
+	assert.Contains(recorder.Request.URL.Query().Encode(), "files=")
+	assert.Equal(contentType, recorder.Request.Header.Get("Content-Type"))
+	assert.NotEqual("", recorder.Request.Header.Get("Authorization"))
 
 	// check body
-	Go(T).AssertNil(recorder.Request.Body)
-	Go(T).AssertNil(err)
+	assert.Nil(recorder.Request.Body)
 }

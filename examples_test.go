@@ -1,4 +1,4 @@
-package maxcdn_test
+package maxcdn
 
 // This file contains Example and Functional Example methods, both for documentation
 // and for functionally testing code.
@@ -9,8 +9,6 @@ import (
 	"io/ioutil"
 	"net/url"
 	"os"
-
-	"."
 )
 
 var (
@@ -21,8 +19,8 @@ var (
 
 func Example() {
 	// Basic Get
-	max := maxcdn.NewMaxCDN(alias, token, secret)
-	var got maxcdn.Generic
+	max := NewMaxCDN(alias, token, secret)
+	var got Generic
 	res, err := max.Get(&got, "/account.json", nil)
 	if err != nil {
 		panic(err)
@@ -35,7 +33,7 @@ func Example() {
 	form := url.Values{}
 	form.Set("name", "new name")
 
-	var put maxcdn.Generic
+	var put Generic
 	if _, err = max.Put(&put, "/account.json", form); err == nil &&
 		put["name"].(string) == "new name" {
 		fmt.Println("name successfully updated")
@@ -55,15 +53,15 @@ func Example() {
 }
 
 func Example_newMaxCDN() {
-	max := maxcdn.NewMaxCDN(alias, token, secret)
+	max := NewMaxCDN(alias, token, secret)
 	fmt.Printf("%#v\n", max)
 }
 
 func ExampleMaxCDN_doParse() {
 	// Run mid-level DoParse method.
-	max := maxcdn.NewMaxCDN(alias, token, secret)
+	max := NewMaxCDN(alias, token, secret)
 
-	var data maxcdn.Generic
+	var data Generic
 	response, err := max.DoParse(&data, "GET", "/account.json/address", nil)
 	if err != nil {
 		panic(err)
@@ -75,12 +73,12 @@ func ExampleMaxCDN_doParse() {
 
 func ExampleMaxCDN_do() {
 	// Run low-level Do method.
-	max := maxcdn.NewMaxCDN(alias, token, secret)
+	max := NewMaxCDN(alias, token, secret)
 
 	if rsp, err := max.Do("GET", "/account.json", nil); err == nil {
 		fmt.Printf("Response Code: %d\n", rsp.Code)
 
-		var data maxcdn.Generic
+		var data Generic
 		if err = json.Unmarshal(rsp.Data, &data); err == nil {
 			fmt.Printf("%+v\n", data["account"])
 		}
@@ -89,7 +87,7 @@ func ExampleMaxCDN_do() {
 
 func ExampleMaxCDN_request() {
 	// Run low-level Request method.
-	max := maxcdn.NewMaxCDN(alias, token, secret)
+	max := NewMaxCDN(alias, token, secret)
 
 	check := func(e error) {
 		if e != nil {
@@ -108,9 +106,9 @@ func ExampleMaxCDN_request() {
 }
 
 func ExampleMaxCDN_get() {
-	max := maxcdn.NewMaxCDN(alias, token, secret)
+	max := NewMaxCDN(alias, token, secret)
 
-	var data maxcdn.Generic
+	var data Generic
 	response, err := max.Get(&data, "/account.json/address", nil)
 	if err != nil {
 		panic(err)
@@ -121,7 +119,7 @@ func ExampleMaxCDN_get() {
 }
 
 func ExampleMaxCDN_getLogs() {
-	max := maxcdn.NewMaxCDN(alias, token, secret)
+	max := NewMaxCDN(alias, token, secret)
 	if logs, err := max.GetLogs(nil); err == nil {
 		for _, line := range logs.Records {
 			fmt.Printf("%+v\n", line)
@@ -130,12 +128,12 @@ func ExampleMaxCDN_getLogs() {
 }
 
 func ExampleMaxCDN_put() {
-	max := maxcdn.NewMaxCDN(alias, token, secret)
+	max := NewMaxCDN(alias, token, secret)
 
 	form := url.Values{}
 	form.Set("name", "example name")
 
-	var data maxcdn.Generic
+	var data Generic
 	response, err := max.Put(&data, "/account.json", form)
 	if err != nil {
 		panic(err)
@@ -148,7 +146,7 @@ func ExampleMaxCDN_put() {
 func ExampleMaxCDN_delete() {
 	// This specific example shows how to purge a cache without using the Purge
 	// methods, more as an example of using Delete, then anything, really.
-	max := maxcdn.NewMaxCDN(alias, token, secret)
+	max := NewMaxCDN(alias, token, secret)
 
 	res, err := max.Delete("/zones/pull.json/123456/cache", nil)
 	if err != nil {
@@ -161,7 +159,7 @@ func ExampleMaxCDN_delete() {
 }
 
 func ExampleMaxCDN_purgeZone() {
-	max := maxcdn.NewMaxCDN(alias, token, secret)
+	max := NewMaxCDN(alias, token, secret)
 
 	rsp, err := max.PurgeZone(123456)
 	if err != nil {
@@ -174,7 +172,7 @@ func ExampleMaxCDN_purgeZone() {
 }
 
 func ExampleMaxCDN_purgeZones() {
-	max := maxcdn.NewMaxCDN(alias, token, secret)
+	max := NewMaxCDN(alias, token, secret)
 
 	zones := []int{123456, 234567, 345678}
 	rsps, err := max.PurgeZones(zones)
@@ -188,7 +186,7 @@ func ExampleMaxCDN_purgeZones() {
 }
 
 func ExampleMaxCDN_purgeFile() {
-	max := maxcdn.NewMaxCDN(alias, token, secret)
+	max := NewMaxCDN(alias, token, secret)
 
 	payload, err := max.PurgeFile(123456, "/master.css")
 	if err != nil {
@@ -201,7 +199,7 @@ func ExampleMaxCDN_purgeFile() {
 }
 
 func ExampleMaxCDN_purgeFiles() {
-	max := maxcdn.NewMaxCDN(alias, token, secret)
+	max := NewMaxCDN(alias, token, secret)
 
 	files := []string{"/master.css", "/master.js"}
 	payloads, err := max.PurgeFiles(123456, files)
@@ -215,7 +213,7 @@ func ExampleMaxCDN_purgeFiles() {
 }
 
 func ExampleMaxCDN_post() {
-	max := maxcdn.NewMaxCDN(alias, token, secret)
+	max := NewMaxCDN(alias, token, secret)
 
 	form := url.Values{}
 	form.Set("name", "newzone")
@@ -223,7 +221,7 @@ func ExampleMaxCDN_post() {
 	// When creating a new zone, the url must be real and resolve.
 	form.Set("url", "http://www.example.com")
 
-	var data maxcdn.Generic
+	var data Generic
 	_, err := max.Post(&data, "/zones/pull.json", form)
 	if err != nil {
 		panic(err)
@@ -235,17 +233,17 @@ func ExampleMaxCDN_post() {
 }
 
 func Example_response() {
-	max := maxcdn.NewMaxCDN(alias, token, secret)
+	max := NewMaxCDN(alias, token, secret)
 
-	var data maxcdn.Generic
+	var data Generic
 	response, _ := max.Get(&data, "/account.json", nil)
 	fmt.Printf("%+v\n", response)
 }
 
 func Example_generic() {
-	max := maxcdn.NewMaxCDN(alias, token, secret)
+	max := NewMaxCDN(alias, token, secret)
 
-	var data maxcdn.Generic
+	var data Generic
 	if _, err := max.Get(&data, "/account.json", nil); err == nil {
 		alias := data["alias"].(string)
 		name := data["name"].(string)
@@ -255,27 +253,27 @@ func Example_generic() {
 }
 
 func Example_account() {
-	max := maxcdn.NewMaxCDN(alias, token, secret)
+	max := NewMaxCDN(alias, token, secret)
 
-	var data maxcdn.Generic
+	var data Generic
 	if _, err := max.Get(&data, "/account.json", nil); err == nil {
 		fmt.Printf("%+v\n", data)
 	}
 }
 
 func Example_accountAddress() {
-	max := maxcdn.NewMaxCDN(alias, token, secret)
+	max := NewMaxCDN(alias, token, secret)
 
-	var data maxcdn.Generic
+	var data Generic
 	if _, err := max.Get(&data, "/account.json/address", nil); err == nil {
 		fmt.Printf("%+v\n", data)
 	}
 }
 
 func Example_popularFiles() {
-	max := maxcdn.NewMaxCDN(alias, token, secret)
+	max := NewMaxCDN(alias, token, secret)
 
-	var data maxcdn.Generic
+	var data Generic
 	if _, err := max.Get(&data, "/reports/popularfiles.json", nil); err == nil {
 		for i, file := range data {
 			uri := file.(map[string]interface{})["uri"].(string)
@@ -289,18 +287,18 @@ func Example_popularFiles() {
 }
 
 func Example_statsSummary() {
-	max := maxcdn.NewMaxCDN(alias, token, secret)
+	max := NewMaxCDN(alias, token, secret)
 
-	var data maxcdn.Generic
+	var data Generic
 	if _, err := max.Get(&data, "/reports/stats.json", nil); err == nil {
 		fmt.Printf("%+v\n", data)
 	}
 }
 
 func Example_stats() {
-	max := maxcdn.NewMaxCDN(alias, token, secret)
+	max := NewMaxCDN(alias, token, secret)
 
-	var data maxcdn.Generic
+	var data Generic
 	if _, err := max.Get(&data, "/reports/stats.json/hourly", nil); err == nil {
 		fmt.Printf("%+v\n", data)
 	}
@@ -319,14 +317,14 @@ func Example_functional() {
 	var form url.Values
 
 	name := stringFromTimestamp()
-	max := maxcdn.NewMaxCDN(alias, token, secret)
+	max := NewMaxCDN(alias, token, secret)
 
 	if alias == "" || token == "" || secret == "" {
 		max.HTTPClient = stubHTTPOk()
 	}
 
 	// GET /account.json
-	var getAcct maxcdn.Generic
+	var getAcct Generic
 	res, err := max.Get(&getAcct, "/account.json", nil)
 	if err != nil || res.Code != 200 ||
 		getAcct["account"].(map[string]interface{})["name"].(string) == "" {
@@ -337,7 +335,7 @@ func Example_functional() {
 	}
 
 	// PUT /account.json
-	var putAcct maxcdn.Generic
+	var putAcct Generic
 	form = url.Values{}
 	form.Set("name", name)
 	res, err = max.Put(&putAcct, "/account.json", form)
@@ -350,7 +348,7 @@ func Example_functional() {
 	}
 
 	// GET /account.json/address
-	var getAddr maxcdn.Generic
+	var getAddr Generic
 	res, err = max.Get(&getAddr, "/account.json/address", nil)
 	if err != nil || res.Code != 200 ||
 		getAddr["address"].(map[string]interface{})["street1"].(string) == "" {
@@ -361,7 +359,7 @@ func Example_functional() {
 	}
 
 	// PUT /account.json/address
-	var putAddr maxcdn.Generic
+	var putAddr Generic
 	form = url.Values{}
 	form.Set("street1", name)
 	res, err = max.Put(&putAddr, "/account.json/address", form)
@@ -374,7 +372,7 @@ func Example_functional() {
 	}
 
 	// GET /reports/popularfiles.json
-	var popular maxcdn.Generic
+	var popular Generic
 	res, err = max.Get(&popular, "/reports/popularfiles.json", nil)
 	if err != nil || res.Code != 200 ||
 		popular["popularfiles"].([]interface{})[0].(map[string]interface{})["uri"].(string) == "" {
@@ -387,7 +385,7 @@ func Example_functional() {
 	file := popular["popularfiles"].([]interface{})[0].(map[string]interface{})["uri"].(string)
 
 	// GET /reports/stats.json
-	var stats maxcdn.Generic
+	var stats Generic
 	res, err = max.Get(&stats, "/reports/stats.json", nil)
 	if err != nil || res.Code != 200 || stats["total"] == "" {
 		fmt.Println("GET stats")
@@ -397,7 +395,7 @@ func Example_functional() {
 	}
 
 	// GET /reports/stats.json/daily
-	var daily maxcdn.Generic
+	var daily Generic
 	res, err = max.Get(&daily, "/reports/stats.json/daily", nil)
 	if err != nil || res.Code != 200 || daily["total"] == "" {
 		fmt.Println("GET stats/daily")
@@ -407,7 +405,7 @@ func Example_functional() {
 	}
 
 	// GET /zones/pull.json
-	var getPulls maxcdn.Generic
+	var getPulls Generic
 	res, err = max.Get(&getPulls, "/zones/pull.json", nil)
 	if err != nil || res.Code != 200 ||
 		getPulls["pullzones"].([]interface{})[0].(map[string]interface{})["id"].(string) == "" {
@@ -420,7 +418,7 @@ func Example_functional() {
 	// note: order matters for the rest
 
 	// POST /zones/pull.json
-	var postPull maxcdn.Generic
+	var postPull Generic
 	form = url.Values{}
 	form.Set("name", name)
 	form.Set("url", "http://www.example.com")
@@ -436,7 +434,7 @@ func Example_functional() {
 	id := int(postPull["pullzone"].(map[string]interface{})["id"].(float64))
 
 	// GET /zones/pull.json/{{zone_id}}
-	var getPull maxcdn.Generic
+	var getPull Generic
 	endpoint := fmt.Sprintf("/zones/pull.json/%d", id)
 	res, err = max.Get(&getPull, endpoint, nil)
 	if err != nil || res.Code != 200 ||
