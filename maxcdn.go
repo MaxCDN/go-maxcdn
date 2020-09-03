@@ -256,7 +256,7 @@ func (max *MaxCDN) Request(method, endpoint string, form url.Values) (*http.Resp
 		}
 
 		// Only post needs a signed form.
-		if method != "POST" {
+		if method != "POST" && method != "PUT" {
 			form = nil
 		}
 	}
